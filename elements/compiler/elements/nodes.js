@@ -25,6 +25,9 @@ export const CompileTextNodes = function (element, scope, connection) {
   );
 
   for (let $node of $nodes) {
+    if(!$node.controller){
+      $node.controller = element.controller;
+    }
     CompileTextNode($node, scope, connection);
   }
 };

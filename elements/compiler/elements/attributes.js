@@ -13,22 +13,25 @@ export const CompileAttributes = function (
   config = { reset: false }
 ) {
   config = {
-    reset:false,
-    customAttributes:[],
-    ...config
-  }
+    reset: false,
+    customAttributes: [],
+    ...config,
+  };
   if (config.reset) {
     element.__didSetup = false;
   }
-  let $forLoops = [...element.querySelectorAll('*')].filter(el => el.getAttributeNames().indexOf('*for') >-1);
-  
-  while($forLoops.length > 0) { 
-    let $for=  $forLoops[0];
-    
-    CompileForOperator($for,scope,connection,config);
-    
-    $forLoops = [...element.querySelectorAll('*')].filter(el => el.getAttributeNames().indexOf('*for') >-1);
-    
+  let $forLoops = [...element.querySelectorAll("*")].filter(
+    (el) => el.getAttributeNames().indexOf("*for") > -1
+  );
+
+  while ($forLoops.length > 0) {
+    let $for = $forLoops[0];
+    $for.controller = element.controller
+    CompileForOperator($for, scope, connection, config);
+
+    $forLoops = [...element.querySelectorAll("*")].filter(
+      (el) => el.getAttributeNames().indexOf("*for") > -1
+    );
   }
 
   let $elements = [...element.querySelectorAll("*")];
@@ -41,9 +44,9 @@ export const CompileAttributes = function (
   for (let $element of $elements) {
     if (!$element.controller) $element.controller = element.controller;
     $element = setupElement($element);
-    CompileElementAttributes($element, scope, connection,config);
+    CompileElementAttributes($element, scope, connection, config);
   }
-  CompileElementAttributes(element, scope, connection,config);
+  CompileElementAttributes(element, scope, connection, config);
 };
 
 export const CompileElementAttributes = function (element, scope, connection) {
@@ -55,7 +58,7 @@ export const CompileElementAttributes = function (element, scope, connection) {
         CompileIfOperator(element, scope, connection);
       } else if (attribute == "*for") {
         CompileForOperator(element, scope, connection);
-        
+
         element.innerHTML = "";
         for (let attr of element.getAttributeNames()) {
           element.removeAttribute(attr);
@@ -66,8 +69,13 @@ export const CompileElementAttributes = function (element, scope, connection) {
     } else if (attribute == "model" || attribute == "[model]") {
       CompileInput(element, attribute, scope, connection);
     } else if (attribute.indexOf("(") > -1) {
-    
+      // console.log(element, scope, attribute);
       AddEventListener(element, scope, attribute);
+    } else if (attribute.indexOf("@") > -1) {
+      
+      const eventName = attribute.replace("@", "").toLowerCase();
+      const callback = element.getAttribute(attribute);
+      
     } else if (-1 == query.indexOf("{{")) {
       continue;
     }

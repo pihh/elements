@@ -1,4 +1,4 @@
-export const parseSlots = function (instance) {
+export const CompileSlots = function (instance) {
   const template = new Map(
     Array.from(instance.querySelectorAll("slot").values()).map((i) => [i.name, i])
   );

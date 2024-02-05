@@ -1,0 +1,76 @@
+<section
+  class="section-container bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
+>
+  <div><b>Title:</b> {{this.title}}</div>
+  <br />
+  <input [model]="this.title" class="input" />
+</section>
+
+<section
+  class="section-container bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
+>
+  <div><b>Counter:</b> {{this.counter}}</div>
+  <br />
+  <div>
+    <button
+      class="btn border border-{{this.color == 'white' ? 'gray' : this.color }}-300 bg-white"
+      (click)="increment()"
+    >
+      Increment
+    </button>
+    <button
+      class="btn border border-{{this.color == 'white' ? 'gray' : this.color }}-300 bg-white"
+      (click)="decrement()"
+    >
+      Decrement
+    </button>
+  </div>
+</section>
+
+<section
+  class="section-container  bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
+>
+  <div><b>Background color:</b> {{this.color}}</div>
+  <br />
+  <div>
+    <select [model]="this.color" class="input">
+      <option [value]="color" *for="color of this.colors">{{color}}</option>
+    </select>
+  </div>
+</section>
+
+<section
+  class="section-container bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
+>
+  <div><b>If condition:</b> {{this.condition ? 'OK' : 'NOT OK' }}</div>
+  <br />
+  <button
+    class="btn border border-{{this.color == 'white' ? 'gray' : this.color }}-300 bg-white"
+    (click)="toggle()"
+  >
+    Toggle
+  </button>
+  <input type="checkbox" [model]="this.condition" name="check" class=" toggle " checked="{{this.condition}}"/>
+
+  <br />
+  <div *if="this.condition" class="border-gray-100 bg-white conditional-container">IT SHOWS</div>
+</section>
+
+<section
+  class="section-container bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
+>
+  <div><b>For loop:</b> {{this.items.length}}</div>
+  <br />
+  <button
+    class="btn border border-{{this.color == 'white' ? 'gray' : this.color }}-300 bg-white"
+    (click)="add()"
+  >
+    Add item
+  </button>
+  <br />
+  <div
+    style="padding:0.25em; font-size: 18px; font-weight: bold; color: {{this.color == 'white' ? 'black': 'white' }}"
+  >
+    <div *for="item of this.items" style="padding: 1em">ITEM #{{item}}</div>
+  </div>
+</section>

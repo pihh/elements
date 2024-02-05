@@ -7,18 +7,32 @@ export const CompileInput = function (element, attribute, scope, connection) {
 
   const subscriptions = [modelName];
   const attributeEvent = inputType === "checkbox" ? "checked" : "value";
+
   for (let __sub of subscriptions.map((s) => s.replace("this.", "").trim())) {
     const callback = function (v) {
-     
-      element.setAttribute(attributeEvent, modelValue(scope, modelName));
+      if (inputType === "checkbox") {
+        let currentValue = element.getAttribute("checked");
+
+        if (v && !currentValue) {
+         
+          element.setAttribute("checked", true);
+        } else if (!v && currentValue) {
+          element.removeAttribute("checked");
+        }
+      } else {
+        let currentValue = element.getAttribute("value");
+        if (currentValue !== v) {
+          element.setAttribute(attributeEvent, modelValue(scope, modelName));
+        }
+      }
     };
     element.__subscribe(__sub, scope, connection, callback);
+    callback(modelValue(scope, modelName))
   }
 
   if (nodeName == "SELECT") {
     const updateOptions = function (element, value) {
       [...element.querySelectorAll("option")].forEach((el) => {
-        
         if (value == el.value) {
           el.setAttribute("selected", true);
         } else {
@@ -26,59 +40,48 @@ export const CompileInput = function (element, attribute, scope, connection) {
         }
       });
     };
-    const initialCall = function(element){
-        [...element.querySelectorAll("option")].forEach(el => {
-            
-            el.__didInitialize = el.__didInitialize || [];
-            el.__didInitialize.push(()=>{
-                updateOptions(element,modelValue(scope, modelName));
-            })
-        })
-    }
-    const callback = function (value) {
-      const elementValue = element.getAttribute("value");
-      if (value == elementValue) return;
-      // let selected = el.value === value;
-      updateOptions(element, value);
+    const initialCall = function (element) {
+      [...element.querySelectorAll("option")].forEach((el) => {
+        el.__didInitialize = el.__didInitialize || [];
+        el.__didInitialize.push(() => {
+          updateOptions(element, modelValue(scope, modelName));
+        });
+      });
     };
-
+    // const callback = function (value) {
+    //   const elementValue = element.getAttribute("value");
+    //   if (value == elementValue) return;
+    //   // let selected = el.value === value;
+    //   updateOptions(element, value);
+    // };
+    let prevValue =modelValue(scope,modelName) || undefined;
     element.addEventListener("change", (event) => {
-      modelUpdate(scope, modelName, event.target.value);
+      if (event.target.value !== prevValue) {
+        prevValue = event.target.value;
+        modelUpdate(scope, modelName, event.target.value);
+      }
     });
 
-    connection(modelName, callback);
+    // connection(modelName, callback);
     initialCall(element);
     // Initial render
     updateOptions(element, modelValue(scope, modelName));
-
   } else if (inputType == "checkbox") {
+    let prevValue =modelValue(scope,modelName) || false;
     element.addEventListener("change", (event) => {
-      modelUpdate(scope, modelName, event.target.checked); //== "false" ? false : event.target.checked);
-    });
-    const callback = function (value) {
-      value = ["true",true].indexOf(value) > -1 ? true : false; 
-      if (value && !element.getAttribute("checked")) {
-        element.setAttribute("checked", true);
-      } else {
-        element.removeAttribute("checked");
+      if (event.target.checked != prevValue) {
+        prevValue = event.target.checked;
+        modelUpdate(scope, modelName, event.target.checked); //== "false" ? false : event.target.checked);
       }
-    };
-    connection(modelName, callback);
-    callback(modelValue(scope,modelName));
-  } else {
-
-    element.addEventListener("keyup", (event) => {
-      modelUpdate(scope, modelName, event.target.value);
     });
-    const callback = function (value) {
-    //   const value = modelValue(scope, modelName);
-      const elementValue = element.getAttribute("value");
-      if (value == elementValue) return;
-      element.setAttribute("value", value);
-    };
-    connection(modelName, callback);
-    callback(modelValue(scope,modelName))
+  } else {
+    let prevValue =modelValue(scope,modelName) || "";
+    element.addEventListener("keyup", (event) => {
+      if (event.target.value !== prevValue) {
+        prevValue = event.target.value;
+        modelUpdate(scope, modelName, event.target.value);
+      }
+    });
   }
   element.removeAttribute(attribute);
 };
-

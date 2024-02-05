@@ -29,6 +29,8 @@ const setupActions = {
   
   export const setupElement = function (element) {
     if (element.__didSetup) return element;
+    if(!element.controller) element.controller = element;
+    
     for (let key of ["__subscriptions", "__events", "__actions","__didInitialize"]) {
       if (!element.hasOwnProperty(key)) {
         element[key] = [];

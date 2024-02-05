@@ -1,11 +1,11 @@
 
 export const AddEventListener = function (element, scope, attribute) {
-  
-    const eventName = attribute.replaceAll("(", "").replaceAll(")", "");
-    if (element.__events.indexOf(eventName) > -1) {
-      console.warn({ element, eventName }, "Was already added");
-      return;
-    }
+  const eventName = attribute.replaceAll("(", "").replaceAll(")", "");
+  console.log(element,attribute,eventName,element.getAttribute(attribute));
+  if (element.__events.indexOf(eventName) > -1) {
+    console.warn({ element, eventName }, "Was already added");
+    return;
+  }
 
     let functionName = element.getAttribute(attribute);
     element.__events.push(eventName);
@@ -51,6 +51,7 @@ export const AddEventListener = function (element, scope, attribute) {
           if (eventIndex == -1) {
             args.push($event);
           }
+          console.log(functionDeclaration)
           element.controller[functionDeclaration](...args);
         };
       }
