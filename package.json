@@ -1,0 +1,34 @@
+{
+  "name": "elements",
+  "version": "0.0.1",
+  "description": "Fat free reactive custom web components",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pihh/elements.git"
+  },
+  "keywords": [
+    "custom web components",
+    "reactive",
+    "two-way",
+    "data-binding"
+  ],
+  "author": "Filipe Mota de Sá - https://github.com/pihh",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pihh/elements/issues"
+  },
+  "homepage": "https://github.com/pihh/elements#readme",
+  "devDependencies": {
+    "@babel/plugin-proposal-decorators": "^7.23.9",
+    "@babel/plugin-transform-class-properties": "^7.23.3",
+    "babel-plugin-transform-html-import-to-string": "^2.0.0", 
+    "vite": "^5.0.12",
+    "vite-plugin-babel": "^1.2.0"
+  }
+}

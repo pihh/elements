@@ -1,0 +1,52 @@
+<section
+  class="loop-section-container border-{{this.color == 'white' ? 'gray' : this.color}}-200 bg-{{this.color}}-100 "
+>
+  <h1>Colors</h1>
+  <p>Current color: {{this.color}}</p>
+  <select class="input w-full" [model]="this.color">
+    <option [value]="color" *for="color of this.colors">{{color}}</option>
+  </select>
+</section>
+
+<section
+  class="loop-section-container border-{{this.color == 'white' ? 'gray' : this.color}}-200 bg-{{this.color}}-100 "
+>
+  <h1>List</h1>
+
+  <ul class="loop-list-margin-y">
+    <li *for="l of this.list;  $i = $index">List item {{l}} {{ $i }}</li>
+    <li>Litem item outside loop {{this.list[0]}}</li>
+  </ul>
+  <div class="input-btn-inline">
+    <button class="btn bg-{{this.color}}-200" (click)="add()">+</button>
+    <input [model]="this.list[0]" class="input" />
+  </div>
+</section>
+
+<section
+  class="loop-section-container border-{{this.color == 'white' ? 'gray' : this.color}}-200 bg-{{this.color}}-100 "
+>
+  <h1>{{this.object.title}}</h1>
+  <div class="input-btn-inline">
+    <input [model]="this.object.title" class="input" />
+    <button class="btn bg-{{this.color}}-200" (click)="addObject()">+</button>
+  </div>
+  <ul class="loop-list-margin-y">
+    <li *for="o of this.object.objectList; $j = $index">
+      <p>
+        <b class=" class-name-{{o.id}} "
+          >Object List item id:{{o.id}} index = {{$j}}</b
+        >
+        <button class="btn bg-{{this.color}}-200" (click)="addToInnerList($j)">
+          +
+        </button>
+        <i>{{o.id == 0 ? 'first' : 'next'}}</i>
+      </p>
+      <ol>
+        <li *for="l of o.innerList; $k = $index">
+          Inner List item {{l}} <b>J: $j</b> <b>K: $k </b>
+        </li>
+      </ol>
+    </li>
+  </ul>
+</section>
