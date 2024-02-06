@@ -1,3 +1,5 @@
 <button class="btn bg-{{this.color}}-200" (click)="callback">
-  <slot></slot>
+  <span>
+    <slot name="btn-primary">Primary Btn slot</slot>
+  </span>
 </button>

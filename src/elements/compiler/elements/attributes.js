@@ -6,6 +6,8 @@ import { CompileIfOperator } from "../operations/if";
 import { CompileMutationOperator } from "../operations/mutation";
 import { setupElement } from "./setup";
 
+
+
 export const CompileAttributes = function (
   element,
   scope,

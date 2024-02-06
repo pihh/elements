@@ -1,7 +1,15 @@
 <section
   class="section-container bg-{{this.color}}-100  border border-{{this.color == 'white' ? 'gray' : this.color }}-300"
 >
-  <div><b>Title:</b> {{this.title}}</div>
+  <p><slot name="my-title">My default title</slot></p>
+  <div>
+    <slot name="my-primary">Primary slot</slot>
+  </div>
+  <my-btn [color]="this.color" @emit="this.onBroadcast">
+    <span slot="btn-primary">
+      Emit
+    </span>
+  </my-btn>
   <br />
   <input [model]="this.title" class="input" />
 </section>
@@ -50,10 +58,21 @@
   >
     Toggle
   </button>
-  <input type="checkbox" [model]="this.condition" name="check" class=" toggle " checked="{{this.condition}}"/>
+  <input
+    type="checkbox"
+    [model]="this.condition"
+    name="check"
+    class="toggle"
+    checked="{{this.condition}}"
+  />
 
   <br />
-  <div *if="this.condition" class="border-gray-100 bg-white conditional-container">IT SHOWS</div>
+  <div
+    *if="this.condition"
+    class="border-gray-100 bg-white conditional-container"
+  >
+    IT SHOWS
+  </div>
 </section>
 
 <section

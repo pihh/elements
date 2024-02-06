@@ -1,0 +1,50 @@
+
+<section 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+>
+  <h1>{{title}}</h1>
+  <p>{{description}}</p>
+  <small>{{caption}} {{counter}}</small>
+
+  <br>
+  <input class="input" @model="caption" />
+  <button @onClick="onClick($event)" class="btn">Click</button>
+</section>
+
+<section 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+>
+  <h1>Background</h1>
+  <p>Feel free to change the background color of the sections</p>
+  <small>Current color: 
+    <b>
+      {{color}} - {{caption}}
+    </b>
+  </small>
+  <br>
+  <select class="input" [model]="color" >
+  
+    <option value="{{option.id}}" *for="let option of colors">
+      {{option.name}}
+    </option>
+  </select> 
+</section>
+
+<section 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+>
+  <h1>Data propagation</h1>
+  <p>Data and action propagation is written with "@" synthax</p>
+  <small>
+    For example: if you have the following code: &lt;el-parent title=&quot;el-title&quot;&gt;\n &lt;el-child @childTitle=&quot;title&quot; /&gt;\n&lt;/el-parent&gt;
+    The child component will have childTitle data synchronized with the parent title data
+  </small>
+  <small>
+    <b>
+      Propagated data: {{propagation}}
+    </b>
+
+  </small>
+  <br>
+  <el-child [childPropagation]="this.propagation" [propagation]="this.propagation"></el-child> 
+</section>

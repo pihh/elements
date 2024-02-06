@@ -1,5 +1,5 @@
-import { findTextNodes } from "./helpers/dom";
-import { Reactive } from "./signals/proxy";
+import { findTextNodes } from "../helpers/dom";
+import { Reactive } from "../signals/proxy";
 
 const templates = {};
 const extractArguments = function (query) {
@@ -100,7 +100,7 @@ const markTemplate = function (template, element, id, config = {}) {
       
       console.log("cb", element, context, ...arguments,this);
       console.log(this,query,params,attribute)
-      debugger;
+     
     };
   }
 

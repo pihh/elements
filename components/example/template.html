@@ -1,79 +1,72 @@
 <div class="example-section-container bg-{{this.color}}-100 ">
-  <div *if="this.isOpen">
-    <h1>It's open!!</h1>
+  <h1>Slots:</h1>
+  <h3>
+    <slot name="el-primary">Default Slot</slot>
+  </h3>
+  <div>
+    <slot name="el-secondary">Secondary slot slot</slot>
   </div>
-  <button (click)="this.onToggle()" class="btn">toggle</button>
-  <div class="example">Example {{this.counter}}</div>
-  <div class="example">
-    <button class="btn" (click)="increment">+</button>
-    <button class="btn" (click)="decrement">-</button>
-    <my-btn [color]="this.color" (emit)="this.childComponentCallbackCalled">
-      <span slot>{{this.text}}</span>
-    </my-btn> 
-  </div>
+</div>
 
-  <div class="form-control">
-    <label for="text">Text {{this.text}}</label>
-    <input class="input" type="text" [model]="this.text" name="text" />
-  </div>
+<div class="example-section-container bg-{{this.color}}-100 ">
+  <h1>Data binding:</h1>
+  <p>{{this.dataBinding}}</p>
+  <input [model]="this.dataBinding" class="input" />
 
-  <div class="form-control">
-    <label for="text">Options [0] {{this.options[0]}}</label>
-    <input class="input" type="text" [model]="this.options[0]" name="text" />
-  </div>
-  <div class="form-control">
-    <label for="color"
-      ><b>Options [{{this.options.length}}]:</b> Color {{this.color}}
-    </label>
-    <select class="input" [model]="this.color" name="color">
-      <option value="{{option}}" *for="option of this.options">
-        {{option}}
-      </option>
-    </select>
-  </div>
-  <div class="form-control">
-    <div class="nested-div-level-1"></div>
-    <label for="color">
-      <p><b>Deep Options {{this.deepOptions.length}} :</b> {{this.color}}</p>
-      <div class="nested-div-level-2"></div>
-    </label>
-    <select class="input" [model]="this.color" name="color">
-      <option value="{{option.title}}" *for="option of this.deepOptions">
-        {{option.title}} - Deep option title
-      </option>
-    </select>
-    <label for="color">
-      <p>
-        <b>Deep Options[0] Options [{{this.deepOptions[0].options.length}}]:</b
-        >{{this.color}}
-      </p>
-      <div class="nested-div-level-2"></div
-    ></label>
+  <p>Background color: {{this.color}}</p>
+  <select [model]="this.color" class="input" >
+    <option [value]="color" *for="color of this.colors">{{color}}</option>
+  </select>
 
-    <select class="input" [model]="this.deepTest" name="color">
-      <option value="{{option}}" *for="option of this.deepOptions[0].options">
-        {{option}}
-      </option>
-    </select>
+  <slot name="el-input">
+    Input slot
+  </slot>
+</div>
+
+<div class="example-section-container bg-{{this.color}}-100 ">
+  <h1>Actions:</h1>
+  <p>Counter: <b>{{this.counter}}</b><p>
+  <div>
+    <button class="btn" (click)="this.increment">+</button>
+    <button class="btn" (click)="this.decrement">-</button>
   </div>
-  <div class="form-control">
-    <label for="check">Check {{this.isOpen}} </label>
+</div>
+
+<div class="example-section-container bg-{{this.color}}-100 ">
+  <h1>Loops:</h1>
+  <div>
+    <button class="btn" (click)="this.addPost">Add post</button>
+
+  </div>
+  <article *for="post of this.posts" class="bg-white example-section-container">
+    <h4>#{{post.id}} {{post.title}}</h4>
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolores modi quia incidunt dignissimos cupiditate iure repellat aliquam iusto, magni eius asperiores praesentium in recusandae sint esse ad tenetur at perspiciatis.</p>
+    <div class="gallery">
+
+      <img src="https://placehold.co/150x100/png" *for="images of post.images" class="image"/>
+    </div>
+  </article>
+</div>
+
+<div class="example-section-container bg-{{this.color}}-100 ">
+  <h1>Conditional Rendering:</h1>
+  <p><b>Is if condition met?:</b> {{this.condition ? 'YUP' : 'NOPE' }}</p>
+
+  <p>
     <input
       type="checkbox"
-      [model]="this.isOpen"
-      name="check"
-      class="checkbox"
-      checked="{{this.isOpen}}"
-    />
-    <input type="checkbox" [model]="this.isOpen" name="check" />
-  </div>
-  <div class="form-control">
-    <label for="check">Check {{this.isSwitchOn}} </label>
-    <input
-      type="checkbox"
-      [model]="this.isSwitchOn"
+      [model]="this.condition"
       name="check"
       class="toggle"
+      checked="{{this.condition}}"
     />
+  </p>
+
+  <br />
+  <div
+    *if="this.condition"
+    class="border-gray-100 bg-white conditional-container"
+  >
+    IT SHOWS
   </div>
 </div>

@@ -24,26 +24,27 @@ export class BoilerplateComponent extends Component {
         padding: 1rem;
         margin: 0.25rem;
     }
-    `,
-  };
-
-  props = data;
-  items = data.items;
+    `, 
+  };   
+ 
+  props = data; 
+  items = data.items; 
   title = data.title;
   color = data.color; 
   colors = data.colors; 
   condition = data.condition 
-  counter = data.counter
+  counter = data.counter      
  
   constructor() {
     super();
-    console.log("add", this);
+  
   }
   add() {
     this.items.push(this.items.length+1);
   }
 
-  increment() {
+  increment(data) {
+    console.log(...arguments,data);
     this.counter++
   }
   decrement() {
@@ -53,6 +54,11 @@ export class BoilerplateComponent extends Component {
   toggle(){
     this.condition = !this.condition  
   } 
+
+  onBroadcast($event){
+    console.log('Broadcast',$event)
+  }
+
 
 }
 BoilerplateComponent.register(BoilerplateComponent); 

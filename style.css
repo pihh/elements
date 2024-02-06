@@ -9,12 +9,12 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
-*[slot] {
+/* *[slot] {
   opacity: 0;
 }
 *[slot].the-slot-has-loaded {
   opacity: 1;
-}
+} */
 html {
   overflow: hidden;
 }

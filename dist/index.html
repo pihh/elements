@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elements Framework</title>
+    <script type="module" crossorigin src="/assets/index-9a8oPL02.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-QIicRo1N.css">
+  </head>
+  <body>
+    <div id="app"></div>
+    <style>
+      * {
+        color: black !important;
+      }
+    </style>
+    <el-example>
+      <span slot="el-primary">Primary slot bound</span>
+      <span slot="el-secondary">Secondary slot bound</span>
+      <span slot="el-input">
+        <el-input [model]="this.dataBinding" ></el-input>
+      </span>
+    </el-example>
+  
+    
+  </body>
+</html>
+<!--
+
+    <my-component>
+      <h1 slot="my-title">
+        Title: {{this.title}}
+      </h1>
+      <div slot="my-primary">
+       
+        <my-btn [color]="this.color" @emit="this.increment(1)" >
+          <span slot="btn-primary">
+            xxxxx
+          </span>
+        </my-btn>
+        <my-btn [color]="this.color" >
+          <span slot="btn-primary">
+            yyy
+          </span>
+        </my-btn>
+
+      </div>
+    </my-component>
+-->

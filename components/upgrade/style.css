@@ -1,0 +1,23 @@
+.example-section-container { 
+    padding: 1rem;
+    border-radius: 0.75rem;
+    border-width: 1px; 
+    max-width: 680px;    
+    margin: 1em auto; 
+  } 
+  .conditional-container{
+    padding: 0.5em 1em; 
+    border-radius: 0.75rem;
+    border-width: 1px;  
+  } 
+  .input{
+    width: -webkit-fill-available
+  }
+  .image{
+    border-radius: 1em;
+  }
+
+  .gallery{
+    display: flex;
+    gap: 1em
+  }
