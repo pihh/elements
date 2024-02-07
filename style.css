@@ -74,6 +74,7 @@ body {
   border-width: 1px;
   border-color: transparent;
   --tw-bg-opacity: 1;
+  background: rgba(255,255,255,0.85);
   /* background-color: var(--fallback-b1,oklch(var(--b1)/var(--tw-bg-opacity))); */
 }
 button,
@@ -137,6 +138,7 @@ textarea {
   background-color: oklch(var(--btn-color, var(--b2)) / var(--tw-bg-opacity));
   --tw-bg-opacity: 1;
   --tw-border-opacity: 1;
+  background: rgba(255,255,255,0.8) !important;
 }
 
 h1 {
