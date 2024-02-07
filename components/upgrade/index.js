@@ -2,9 +2,9 @@ import './style.css';
 import Template from './template.html';
 import { Component } from "../../src/elements/component";
 
-export class UpgradeComponent extends Component {
+export class UpgradeComponent extends Component { 
   static config = {
-    selector: "el-upgrade",
+    selector: "el-upgrade", 
     template: Template, 
     styles: "", 
   };
@@ -21,7 +21,7 @@ export class UpgradeComponent extends Component {
   caption = "Edit this caption!!" 
   propagation = "Propagated data"
 
-  color = "green";
+  color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
     return {
       id:color, 
@@ -44,7 +44,6 @@ export class UpgradeComponent extends Component {
   // } 
 
 
- 
 }
  
 

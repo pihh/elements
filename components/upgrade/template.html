@@ -40,14 +40,20 @@
 
   <p>
     <label class="visible">
-      Visible {{visible}}
+      Visible: {{visible}}
       <input type="checkbox" class="checkbox" @model="visible" />
     </label>
   </p>
-  <br>
+ 
   <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="visible">
     It shows
   </div>
+  <p>
+    <label class="visible">
+      Is the input displaying "render"?: {{caption == "render" }}
+      
+    </label>
+  </p>
   <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="caption == 'render'">
     It Renders
   </div>
