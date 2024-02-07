@@ -20,7 +20,7 @@ export class UpgradeComponent extends Component {
   description="Element framework made with ❤️ by Pihh";
   caption = "Edit this caption!!" 
   propagation = "Propagated data"
-
+ 
   color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
     return {
@@ -33,7 +33,7 @@ export class UpgradeComponent extends Component {
   visible = false;
 
   onClick($event){
-    console.log('onclick',$event); 
+    console.log('onclick',$event);  
     this.counter++;
   }
 
