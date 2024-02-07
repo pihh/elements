@@ -1,3 +1,4 @@
+import { getPath2 } from "../../../elements/compiler/model/update";
 import {
   addCustomListener,
   addModelListener,
@@ -168,7 +169,8 @@ class _ComponentRegistry {
               element.callback(instance);
             })
             // $comment.__forLoopGenerator(instance,element,instance.colors.length)
-            element.callback(instance.colors.length);
+            console.log('conn')
+            element.callback(instance);
 
           } catch (ex) {
             console.warn(ex);
@@ -484,7 +486,7 @@ export class Component extends HTMLElement {
     for (let keyword of Object.keys(connections.keywords)) {
       // for (let keyword of Object.keys(connections[selector].keywords)) {
       for (let connection of connections.keywords[keyword]) {
-        let subscription = this.__connect(keyword, () =>
+        let subscription = this.__connect(getPath2(keyword), () =>
           connection.callback(this)
         );
         this.__subscriptions.push(subscription);

@@ -5,20 +5,20 @@ import { Component } from "../../src/elements/component";
 export class UpgradeComponent extends Component {
   static config = {
     selector: "el-upgrade",
-    template: Template,
-    styles: "",
+    template: Template, 
+    styles: "", 
   };
 
-  static props = ["title","description","caption","propagation","color","colors", "counter"];
+  static props = ["title","description","caption","propagation","color","colors", "counter","visible"];
   static actions = [];
   constructor(){
     super()
   }  
-
-  // Properties
+  
+  // Properties 
   title = "El Upgrade";
   description="Element framework made with ❤️ by Pihh";
-  caption = "Edit this caption!!"
+  caption = "Edit this caption!!" 
   propagation = "Propagated data"
 
   color = "green";
@@ -29,7 +29,8 @@ export class UpgradeComponent extends Component {
     }
   });
 
-  counter = 0;
+  counter = 0; 
+  visible = false;
 
   onClick($event){
     console.log('onclick',$event); 

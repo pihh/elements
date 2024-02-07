@@ -147,10 +147,10 @@ export class Component extends HTMLElement {
     for (let attribute of attributes) {
       props[attribute] = this.getAttribute(attribute);
       try {
-        props[attribute] = JSON.parse(props[attribute]);
+        props[attribute] = JSON.parse(props[attribute]); 
       } catch (ex) {
         if (!isNaN(props[attribute])) { 
-          props[attribute] = Number(props[attribute]);
+          props[attribute] = Number(props[attribute]);  
         } else if (["false", false].indexOf(props[attribute]) > -1) {
           props[attribute] = false;
         } else if (["true", true].indexOf(props[attribute]) > -1) {

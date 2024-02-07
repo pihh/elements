@@ -1,5 +1,6 @@
-import { modelUpdate } from "../../../../elements/compiler/model/update";
+import { getPath2, modelUpdate, modelValue } from "../../../../elements/compiler/model/update";
 import { getStrBetween, parseTemplateExpressions } from "../../helpers/regex";
+import { Render } from "../../render";
 import {
   CreatePlaceholderElement,
   CreatePlaceholderElementV2,
@@ -31,7 +32,7 @@ export const updateAttribute = function (instance, element, attribute, query) {
     const $fn = Function("return `" + query + "`");
     element.setAttribute(attribute, $fn.call(instance));
   } catch (ex) {
-    console.warn(instance, instance.color, ex);
+    console.log({instance, colors:instance.colors,attribute,query,element, ex});
   }
 };
 export const updateTextNode = function (instance, element, query) {
@@ -40,14 +41,37 @@ export const updateTextNode = function (instance, element, query) {
 };
 
 export const addModelListener = function (instance, element, attribute) {
-  element.addEventListener("keyup", function (e) {
-    modelUpdate(instance, attribute, e.target.value);
-  });
+  const nodeName = element.nodeName;
+  const type = element.getAttribute("type");
+  let modelAttribute = "value"
+  let eventName = "keyup";
 
-  const callback = function (value) {
+  let  callback = function (value) {
     element.setAttribute("value", value);
   };
+
+  if(nodeName === "SELECT" || type === "checkbox"){
+    eventName = "change"
+  }
+  if(type === "checkbox"){
+    modelAttribute = "checked"
+    callback = function(value){
+      if(value == "true")value = true;
+      if(value){
+        element.setAttribute("checked", true);
+      }else{
+        element.removeAttribute("checked")
+      }
+    }
+  }
+  element.addEventListener(eventName, function (e) {
+
+    modelUpdate(instance, attribute, e.target[modelAttribute]);
+  });
+
+
   instance.__connect(attribute, callback);
+  callback(modelValue(instance,attribute));
 };
 
 export const addCustomListener = function (instance, element, event, fn, args) {
@@ -104,9 +128,15 @@ export const setOperationFor = function (element, comment, levels = []) {
             .cloneNode(true)
             .innerHTML.replaceAll("__index_0__", $len);
           $item= $item.firstElementChild
-          $item.id = "$item" + index;
+          $item.id = "item" + index;
+           const r = new Render()
+          // $item = r.__initAndAppendConnections(t.)
           self.__loopItems.push($item);
-  
+          const init = function(){
+
+            r.__initAndAppendConnections($item,self)
+          }
+          console.log({init})
         } catch (ex) {
           console.warn(ex);
           break;
@@ -137,10 +167,10 @@ export const setOperationFor = function (element, comment, levels = []) {
 
     }else if (items.length < self.__visibleItems.length){
       for(let i =items.length ;i <  self.__visibleItems.length;i++){
-        self.__visibleItems[i].remove();
+        // self.__visibleItems[i].remove();
         //self.__visibleItems.pop()
       }
-      self.__visibleItems= self.__visibleItems.slice(0,items.length);
+      // self.__visibleItems= self.__visibleItems.slice(0,items.length);
     }
  
   };

@@ -1,18 +1,18 @@
 
 <section 
-  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-400" 
 >
-  <h1>{{title}}</h1>
+  <h1>{{title}} name . {{colors[0].name}}</h1>
   <p>{{description}}</p>
   <small>{{caption}} {{counter}}</small>
 
   <br>
   <input class="input" @model="caption" />
-  <button @onClick="onClick($event)" class="btn">Click</button>
+  <button @onClick="onClick($event)" class="btn bg-white border border-{{color == 'white' ? 'gray' : color}}-400 text-{{color == 'white' ? 'black' : color}}-900" >Click</button>
 </section>
 
 <section 
-  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-400" 
 >
   <h1>Background</h1>
   <p>Feel free to change the background color of the sections</p>
@@ -22,8 +22,7 @@
     </b>
   </small>
   <br>
-  <select class="input" [model]="color" >
-  
+  <select class="input" @model="color" >
     <option value="{{option.id}}" *for="let option of colors">
       {{option.name}}
     </option>
@@ -31,7 +30,30 @@
 </section>
 
 <section 
-  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-100" 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-400" 
+>
+  <h1>Conditional rendering</h1>
+  <p>Based on a true/false condition it renders the following code block.</p>
+  <small>
+    Also, if you input the word "render", another block will show
+  </small>
+
+  <p>
+    <label class="visible">
+      Visible {{visible}}
+      <input type="checkbox" class="checkbox" @model="visible" />
+    </label>
+  </p>
+  <br>
+  <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="visible">
+    It shows
+  </div>
+  <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="caption == 'render'">
+    It Renders
+  </div>
+</section>
+<section 
+  class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-400" 
 >
   <h1>Data propagation</h1>
   <p>Data and action propagation is written with "@" synthax</p>
