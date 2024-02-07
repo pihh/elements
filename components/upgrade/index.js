@@ -19,7 +19,7 @@ export class UpgradeComponent extends Component {
   title = "El Upgrade";
   description="Element framework made with ❤️ by Pihh";
   caption = "Edit this caption!!" 
-  propagation = "Propagated data"
+  propagation = "Propagated data" 
  
   color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
@@ -38,10 +38,7 @@ export class UpgradeComponent extends Component {
   }
 
   // Computed properties
-  // get sectionClassName (){
-  //   console.log('got scn')
-  //   return `bg-${this.color =='white' ? this.color: this.color+'-100'} border border-${this.color == 'white' ? 'gray' : this.color}-100`;
-  // } 
+
 
 
 }

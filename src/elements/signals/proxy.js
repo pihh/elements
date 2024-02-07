@@ -90,10 +90,13 @@ export class PubSub {
   constructor() {}
 
   events = {};
-
+  prevValues = {};
   subscribe(event, callback) {
     event = pathName(event);
-    if (!this.events[event]) this.events[event] = [];
+    if (!this.events[event]) {
+      this.events[event] = [];
+      this.prevValues[event] = undefined;
+    }
     this.events[event].push(callback);
 
     const subscription = () => {
@@ -126,9 +129,13 @@ export class PubSub {
   }
 
   publish(event, data) {
-    console.log("PUBLISH", event, data);
     if (this.events[event]) {
-      this.events[event].forEach((callback) => callback(data));
+      if (this.prevValues[event] != data) {
+        this.prevValues[event] = data;
+        this.events[event].forEach((callback) => callback(data));
+      } else {
+        console.log("data didnt change:", event);
+      }
     } else {
       console.log("no events subscribed yet:", event);
     }
@@ -165,6 +172,7 @@ export const Reactive = function (scope) {
     //   return target[path];
     // },
     set(target, path, value, reciever) {
+      // console.log(target, path, value, reciever)
       try {
         let p = pathName(path);
         let type = typeof target[p];
@@ -217,30 +225,32 @@ export const Reactive = function (scope) {
     }
   };
 
-
   return [scope, connect, render, pubsub];
 };
 
 export const ProxyBridge = function (scope, transport = {}) {
   const _s = JSON.parse(JSON.stringify(scope));
-  const bridge = new ProxyMembrane({}, {
-    get(target, path) {
-      if (transport.hasOwnProperty(path[0])) {
-        console.log('will return self')
-        return transport[path[0]].value
-      }
-      return scope[path[0]];
-    },
-    set(target,path,value){
-      scope[path] = value
-      console.log('Will set path',target,path)
-      if (transport.hasOwnProperty(path[0])) {
-        console.log('will return self' ,path)
-        // return transport[path[0]]
-      }
-      return true
+  const bridge = new ProxyMembrane(
+    {},
+    {
+      get(target, path) {
+        if (transport.hasOwnProperty(path[0])) {
+          console.log("will return self");
+          return transport[path[0]].value;
+        }
+        return scope[path[0]];
+      },
+      set(target, path, value) {
+        scope[path] = value;
+        console.log("Will set path", target, path);
+        if (transport.hasOwnProperty(path[0])) {
+          console.log("will return self", path);
+          // return transport[path[0]]
+        }
+        return true;
+      },
     }
-  });
+  );
 
   return bridge;
 };

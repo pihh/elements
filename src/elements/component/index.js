@@ -16,6 +16,7 @@ import {
   getStrBetween,
   isChar,
 } from "../helpers/regex";
+import { connectProperties } from "./props";
 // import { bindEventBroadcaster } from "../compiler/events/listeners";
 
 function validatorSelector() {}
@@ -502,33 +503,15 @@ export class Component extends HTMLElement {
     }
 
     // this.[keyword]
-    for (let prop of this.constructor.props) {
-      this.__defineGetter__(prop, () => {
-        return this.__scope[prop];
-      });
-      this.__defineSetter__(prop, (value) => {
-        if (typeof this.__scope[prop] == "object") {
-          return this.__scope[prop];
-        }
-        this.__scope[prop] = value;
-        return true;
-      });
-    }
+    connectProperties(this);
+
+    /*
     for (let prop of Object.keys(connections.keywords).filter(
       (p) => this.constructor.props.indexOf(p) == -1
     )) {
-      // this.__defineGetter__(prop, ()=>{
-      //   return this.__scope[prop];
-      // })
-      // this.__defineSetter__(prop, (value)=>{
-      //   if(typeof this.__scope[prop]== "object"){
-      //     return this.__scope[prop];
-      //   }
-      //   this.__scope[prop] = value
-      //    return true
-      // })
+
     }
-    // delete this.__templateConnections[keyword];
+    */
   };
 
   connectedCallback() {

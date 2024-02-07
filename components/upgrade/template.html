@@ -2,13 +2,15 @@
 <section 
   class="bg-{{color =='white' ? color: color+'-100'}} border border-{{color == 'white' ? 'gray' : color}}-400" 
 >
-  <h1>{{title}} name . {{colors[0].name}}</h1>
+  <h1>{{title}}</h1>
   <p>{{description}}</p>
   <small>{{caption}} {{counter}}</small>
 
   <br>
   <input class="input" @model="caption" />
   <button @onClick="onClick($event)" class="btn bg-white border border-{{color == 'white' ? 'gray' : color}}-400 text-{{color == 'white' ? 'black' : color}}-900" >Click</button>
+  <br>
+  <small>Open your devtools and update the input above to see that Elements updates it's data with surgical percision <b>{{caption}}</b></small>
 </section>
 
 <section 
@@ -18,7 +20,7 @@
   <p>Feel free to change the background color of the sections</p>
   <small>Current color: 
     <b>
-      {{color}} - {{caption}}
+      {{color}}
     </b>
   </small>
   <br>
