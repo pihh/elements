@@ -1,8 +1,10 @@
+import { getPath2 } from "../../../elements/compiler/model/update";
 import {
   addCustomListener,
   addModelListener,
   getSelector,
   updateAttribute,
+  updateTextNode,
 } from "../compiler/elements/dom";
 import { findTextNodes } from "../helpers/dom";
 import {
@@ -95,40 +97,38 @@ export function connectAttributes(
   selector,
   attributes = [],
   $connections = { keywords: {} }
-){
+) {
+  for (let attribute of attributes) {
+    const value = $element.getAttribute(attribute);
+    const query = value.replaceAll("{{", "${").replaceAll("}}", "}");
+    let keywords = getExpressionProperties(value);
 
-    for (let attribute of attributes) {
-      const value = $element.getAttribute(attribute);
-      const query = value.replaceAll("{{", "${").replaceAll("}}", "}");
-      let keywords = getExpressionProperties(value);
-      
-      for (let keyword of keywords) {
-        if (!$connections.keywords.hasOwnProperty(keyword)) {
-          $connections.keywords[keyword] = [];
-        }
-
-        $connections.keywords[keyword].push({
-          type: "attribute",
-          attribute: attribute,
-          query,
-          selector,
-          setup: function (instance) {
-            let element = instance.querySelector(selector);
-            const callback = function (instance) {
-              try {
-                //   let element = instance.querySelector(selector);
-                updateAttribute(instance, element, attribute, query);
-              } catch (ex) {
-                console.warn(ex);
-              }
-            };
-            return callback;
-          },
-        });
-      
+    for (let keyword of keywords) {
+      if (!$connections.keywords.hasOwnProperty(keyword)) {
+        $connections.keywords[keyword] = [];
       }
+
+      $connections.keywords[keyword].push({
+        type: "attribute",
+        attribute: attribute,
+        query,
+        selector,
+        setup: function (instance) {
+          let element = instance.querySelector(selector);
+          const callback = function (instance) {
+            try {
+              //   let element = instance.querySelector(selector);
+              updateAttribute(instance, element, attribute, query);
+            } catch (ex) {
+              console.warn(ex);
+            }
+          };
+          return callback;
+        },
+      });
     }
-    return $connections
+  }
+  return $connections;
 }
 
 /**
@@ -140,6 +140,7 @@ export function connectAttributes(
  * @param {*} config
  * @returns
  */
+let id = 0;
 export const disconnectOperations = function (
   template,
   operations,
@@ -155,84 +156,499 @@ export const disconnectOperations = function (
   if (config.initial) {
     template = template.content;
   }
+
   const $head = document.querySelector("head");
   const $operations = [];
-  for (let i = 0; i < operations.length; i++) {
-    let $operation = operations[i].cloneNode(true);
-    const $replacement = document.createElement("span");
-    const $template = document.createElement("template");
-    const $templateId = templateId + "__ifcontainer__" + i;
-    $template.setAttribute("id", $templateId);
-    $template.appendChild($operation);
-    $operation.removeAttribute(attribute);
+  const attributeName = attribute.replace("*", "").trim();
 
-    $replacement.dataset.elReplacement = attribute;
-    $replacement.dataset.elIndex = i;
-    $replacement.query = $operation.getAttribute(attribute);
-    operations[i].replaceWith($replacement);
+  // Primeiro Template :
+  // Substitui if's de primeiro nivel por um span?
+  const connectionSelector = "data-el-template-connection";
+  const connectionDataAttribute = "[" + connectionSelector + "]";
+  let $rootOperations = {
+    connectionSelector: connectionSelector,
+    template: template,
+    templateId: templateId,
+    identifiers: {},
+  };
+  const getNestedOperations = function (parent, parentId, config = {}) {
+    config = {
+      root: false,
+      ...config,
+    };
 
-    $head.appendChild($template);
-    $operations.push({
-      id: $templateId,
-      operation: "*if",
-      selector: '[data-el-replacement="' + i + '"]',
-      query: $replacement.query,
-      template: $template,
-      $replacement: $replacement,
-      $operation: $operation,
-    });
+    const children = [...parent.querySelectorAll("*")].filter(
+      (el) => el.getAttributeNames().indexOf(attribute) > -1
+    );
+
+    for (let child of children) {
+      id++;
+      try {
+        let childId = child.getAttribute("id");
+        if (childId) {
+          console.log("has child id already", child);
+          continue;
+        } else {
+          childId = parentId + "__" + id;
+        }
+        getNestedOperations(child, childId);
+        child.setAttribute("id", childId);
+
+        const identifier = parentId + "__nested-operation-map" + "__" + id;
+        const placeholder = document.createElement("div");
+        const clone = child.cloneNode(true);
+        const childTemplate = document.createElement("template");
+        const query = child.getAttribute(attribute);
+
+        placeholder.dataset.elTemplateConnection = identifier;
+        childTemplate.setAttribute("id", identifier);
+        childTemplate.appendChild(clone);
+        $head.appendChild(childTemplate);
+        parent.querySelector("#" + childId).replaceWith(placeholder);
+        if (!$rootOperations.identifiers.hasOwnProperty(identifier)) {
+          $rootOperations.identifiers[identifier] = {};
+        }
+        $rootOperations.identifiers[identifier].query = query;
+
+        $operations.push({
+          placeholder: placeholder,
+          childTemplate,
+          parent: template,
+          parentId: templateId,
+        });
+      } catch (ex) {}
+    }
+  };
+
+  getNestedOperations(template, templateId, { root: true });
+  $rootOperations.childOperations = $operations;
+
+  $rootOperations.id = templateId;
+  $rootOperations.operation = attribute;
+  $rootOperations.selector;
+
+  $rootOperations.template = template;
+  // $rootOperations.$originalElement = $originalElement;
+  $rootOperations.initialized = false;
+
+  // Uma limpeza aqui so ficava bem
+  $rootOperations.setup = function (instance, element) {
+    element = element || instance;
+    for (let connection of [
+      ...element.querySelectorAll(connectionDataAttribute),
+    ]) {
+      if (
+        $rootOperations[0].identifiers[
+          connection.dataset.elTemplateConnection
+        ] &&
+        $rootOperations[0].operation == "*if"
+      ) {
+
+        const $placeholder = document.createComment("");
+        $placeholder.identifiers =Object.assign({},$rootOperations[0].identifiers)
+        const query =
+          $rootOperations[0].identifiers[
+            connection.dataset.elTemplateConnection
+          ].query;
+        // console.log($rootOperations, connection.dataset.elTemplateConnection);
+        delete  $placeholder.identifiers[
+          connection.dataset.elTemplateConnection
+        ];
+        const childTemplate = document.head.querySelector(
+          "#" + connection.dataset.elTemplateConnection
+        );
+
+        const childElement = childTemplate.firstElementChild.cloneNode(true);
+   
+
+        const keywords = getExpressionProperties("{{" + query + "}}");
+
+        connection.replaceWith($placeholder);
+        // $placeholder.identifiers =Object.assign({},$rootOperations[0].identifiers)
+
+        const callback = function () {
+  
+          const $fn = Function("return `${" + query + "}`;");
+          const $output = $fn.call(instance);
+          if (["true", true].indexOf($output) > -1) {
+            if (!childElement.isConnected) {
+              $placeholder.after(childElement);
+            }
+          } else {
+            if (childElement.isConnected) {
+              childElement.remove();
+            }
+          }
+          for (let _identifier of  Object.keys($placeholder.identifiers)) {
+            let elementConnections = [
+              ...instance.querySelectorAll("[data-el-template-connection]"),
+            ];
+            for (let ec of elementConnections) {
+              if (ec.dataset.elTemplateConnection == _identifier) {
+                const _query =
+                $placeholder.identifiers[_identifier].query;
+                // console.log($rootOperations, connection.dataset.elTemplateConnection);
+                delete $placeholder.identifiers[_identifier];
+                const _childTemplate = document.head.querySelector(
+                  "#" + ec.dataset.elTemplateConnection
+                );
+
+                const _childElement =
+                  _childTemplate.firstElementChild.cloneNode(true);
+                const _$placeholder = document.createComment("");
+
+                const _keywords = getExpressionProperties("{{" + _query + "}}");
+
+                ec.replaceWith(_$placeholder);
+
+                const _callback = function () {
+                  const $fn = Function("return `${" + _query + "}`;");
+                  const $output = $fn.call(instance);
+                  if (["true", true].indexOf($output) > -1) {
+                    if (!_childElement.isConnected) {
+                      _$placeholder.after(_childElement);
+                    }
+                  } else {
+                    if (_childElement.isConnected) {
+                      _childElement.remove();
+                    }
+                  }
+                };
+                for (let _keyword of _keywords) {
+                  instance.__connect(_keyword, _callback);
+                }
+                _callback();
+              }
+            }
+          }
+        };
+        for (let keyword of keywords) {
+          instance.__connect(keyword, callback);
+        }
+        childElement.removeAttribute("*if");
+        callback();
+        for (let nextNode of [
+          ...childElement.querySelectorAll(connectionDataAttribute),
+        ]) {
+          $rootOperations[0].setup(instance, nextNode);
+        }
+      }
+    }
+    // let callback = function () {};
+    console.log("setup", $rootOperations);
+  };
+  $rootOperations = [$rootOperations];
+
+  console.log($rootOperations);
+  /*
+  function disconnectChildOps(parent){
+    const children = [...parent.querySelectorAll('*')].filter(el => el.getAttributeNames().indexOf("*if") > -1);
+    for(let child of children){
+      const $container = document.createElement('span');
+      $container.setAttribute('id',id++);
+      if(!child.getAttribute('id')){
+        child.setAttribute('id',id++)
+      }
+      console.log(parent,$container);
+      disconnectChildOps(child);
+      let template = document.createElement('template');
+      template.appendChild(child);
+      template.setAttribute('id', id++);
+      document.head.appendChild(template);
+      child.replaceWith($container)
+      //$container.before(child);
+      //child.remove();
+      debugger;
+      $operations.push({
+        parent,
+        child,
+        $container
+      })
+      
+    }
+
+    console.log(parent)
+    if(parent){
+
+      let template = document.createElement('template');
+      template.appendChild(parent);
+      template.setAttribute('id', id++);
+      document.head.appendChild(template);
+      $operations.push({template})
+    }
   }
-  return $operations;
+
+  disconnectChildOps(template)
+
+  console.log($operations);
+  debugger;
+  /*
+  let disconnect = function(){
+
+  }
+
+  let operationStack = [];
+
+  let createTemplate = function(op){
+    const parent = document.createElement('div');
+    const container = document.createElement('div');
+    const template = document.createElement("template");
+    const templateId = 'template-operation--'+id;
+
+    parent.before(op)
+    $head.appendChild(template);
+    template.appendChild(container);
+    template.setAttribute('id',templateId);
+    parent.setAttribute('id', 'template-child-operation-container-' + id);
+    container.appendChild(op.cloneNode(true));
+    id++;
+
+    const operationConfig = {
+      template:templateId,
+      container:container.id,
+      parent:parent.id
+    } 
+    operationStack.push(operationConfig);
+    return parent
+  }
+
+  let createOperationTemplate = function(parent){
+    const childOperations = [...parent.querySelectorAll('*')].filter(op => op.getAttributeNames().indexOf(attribute) > -1);
+    for(let childOperation of childOperations) {
+      const child = createOperationTemplate(childOperation)
+      console.log({parent,child,operationStack})
+    } 
+  }
+
+  // let container = document.createElement('div');
+  //     container.setAttribute('id', 'child-operation-container-' + id);
+  //     id++;
+  //     childOperation.before(container);
+  for (let i = 0; i < operations.length; i++) {
+    createTemplate(operations[i])
+    const childOperations = [...operations[i].querySelectorAll('*')].filter(op => op.getAttributeNames().indexOf(attribute) > -1);
+    for(let childOperation of childOperations) {
+      createOperationTemplate(childOperation)
+      
+    }
+    
+    debugger; 
+    /*
+
+    const $templateId = templateId + "__" + attributeName + "container__" + i;
+    let $template = document.querySelector("#" + $templateId);
+
+    if (!$template) {
+      let $originalElement = operations[i].cloneNode(true);
+      const $replacement = document.createElement("span");
+      $template = document.createElement("template");
+      $template.setAttribute("id", $templateId);
+      $template.appendChild($originalElement);
+
+      $replacement.dataset.elReplacement = attributeName + "__" + i;
+      $originalElement.dataset.elReplacement = attributeName + "__" + i;
+    
+
+      $replacement.dataset.elIndex = i;
+      $replacement.query = $originalElement
+        .getAttribute(attribute)
+        .replaceAll("{{", "")
+        .replaceAll("}}", "")
+        .trim();
+      $replacement.query =
+        $replacement.query.indexOf("${") == -1
+          ? ($replacement.query = "${" + $replacement.query.trim() + "}")
+          : $replacement.query;
+      $replacement.value =
+        "{{" + $originalElement.getAttribute(attribute).trim() + "}}"; //.replaceAll('${','')//;.replaceAll('}}','')
+      $originalElement.removeAttribute(attribute);
+      // $originalElement.replaceWith($replacement);
+      operations[i].replaceWith($replacement);
+
+      
+
+      $head.appendChild($template);
+
+      for(let $nestedOperation of [...operations[i].querySelectorAll('*')].filter(el => el.getAttributeNames().indexOf(attribute)>-1)){
+        
+        disconnectOperations($nestedOperation,operations,attribute);
+      }
+    }
+    /*
+      // let selector = '[data-el-replacement="' + attributeName + "__" + i + '"]'; //$replacement.dataset.elReplacement
+      let selector = '[data-el-replacement="'+attributeName+'__'+i+'"]'; //'//[data-el-if]'; //$replacement.dataset.elReplacement
+      $operations.push({
+        id: $templateId,
+        operation: attribute,
+        selector,
+        query: $replacement.query,
+        template: $template,
+        $replacement: $replacement,
+        $originalElement: $originalElement,
+        initialized: false,
+        setup: function (instance) {
+          let callback = function () {};
+
+          /*
+          if(this.initialized) return callback;
+
+          
+          const $comment = document.createComment("");
+          const $itemTemplate = parseTemplatePointers("", instance, "", {
+            templateId: $templateId,
+          });
+          const $itemConnections = generateTemplateConnectionMap($itemTemplate);
+          const $item = $itemTemplate.firstElementChild.cloneNode(true);
+          const $placeholder = instance.querySelector(selector);
+          $comment.__rehydrate = $comment.__rehydrate || []
+
+          
+          const nestedOperations = [...$item.querySelectorAll('*')].filter(el => el.getAttributeNames().indexOf('*if') > -1)
+
+          for(let nestedOperation of nestedOperations) {
+            $template.
+            // for(let operation of $operations){
+            //   if(nestedOperation.innerHTML === operation.$originalElement.innerHTML){
+            //     operation.setup(instance);
+            //   }
+            // }
+          }
+         
+
+          if(!$placeholder) {
+     
+            return callback;
+          }
+          this.initialized = true;
+          $placeholder.before($comment);
+          $placeholder.remove();
+          $comment.after($item);
+          applyConnections(instance, $itemConnections)
+          
+      
+   
+
+          if (attribute == "*if") {
+            
+          
+            let keywords = getExpressionProperties($replacement.value);
+            callback = function () {
+
+              $comment.__investigateChildren();
+              //newValue
+              const $fn = Function("return `" + $replacement.query + "`");
+              const $output = $fn.call(instance);
+              if (["true", true].indexOf($output) > -1) {
+                if (!$item.isConnected) {
+                  $comment.after($item);
+
+                }
+              } else {
+                if ($item.isConnected) {
+                  $item.remove();
+                }
+              }
+              // for(let i = $comment.__rehydrate.length-1; i >0; i--) {
+              //   try{
+              //     let attempt = $comment.__rehydrate[i]()
+              //     $comment.__rehydrate.splice(i);
+              //   }catch(ex){
+
+              //   }
+              // }
+            };
+
+            // for(let keyword of keywords){
+            //    instance.__connect(keyword,callback);
+            //  }
+          } else {
+          }
+
+          return callback;
+
+        },
+      });
+      //$originalElement.remove();
+    }
+  }
+  */
+  return $rootOperations;
 };
 
-export function connectTextNodes($node, $connections){
-    // findTextNodes(template.content).map(console.log)
+export const applyConnections = function (instance, connections) {
+  instance.scope = instance.scope || {};
+  instance.__subscriptions = instance.__subscriptions || [];
+
+  for (let keyword of Object.keys(connections.keywords)) {
+    for (let connection of connections.keywords[keyword]) {
+      const callback = connection.setup(instance);
+      let subscription = instance.__connect(getPath2(keyword), () =>
+        callback(instance)
+      );
+      instance.__subscriptions.push(subscription);
+      callback(instance);
+    }
+  }
+
+  for (let selector of Object.keys(connections.actions)) {
+    for (let action of connections.actions[selector]) {
+      action.setup(instance);
+    }
+  }
+
+  for (let op of Object.keys(connections.operations)) {
+    for (let operation of connections.operations[op]) {
+      console.log(operation);
+      debugger;
+      operation.setup(instance);
+    }
+  }
+};
+
+export function connectTextNodes($node, $connections) {
+  // findTextNodes(template.content).map(console.log)
   // console.log({ $nodes });
   let $container = $node.parentNode;
-  
-  if(!$container){
+
+  if (!$container) {
     let $clone = $node.cloneNode(true);
-    $container = document.createElement('span')
+    $container = document.createElement("span");
     $node.replaceWith($container);
     $container.appendChild($clone);
     $node = $clone;
   }
-    let parent = getSelector($container);
-    let parentChildNodes = $container?.childNodes || [];
-  
+  let parent = getSelector($container);
+  let parentChildNodes = $container?.childNodes || [];
 
-    for (let i = 0; i <  parentChildNodes.length; i++) {
-      let childNode = parentChildNodes[i];
-      if (childNode.textContent.indexOf("{{") > -1) {
-        const value = childNode.textContent;
-        const nodeIndex = i;
-        let keywords = getExpressionProperties(value);
-        const query = value.replaceAll("{{", "${").replaceAll("}}", "}");
-        for (let keyword of keywords) {
-          if (!$connections.keywords.hasOwnProperty(keyword)) {
-            $connections.keywords[keyword] = [];
-          }
-          $connections.keywords[keyword].push({
-            attribute: "textNode",
-            type: "text",
-            query,
-            originalQuery: value,
-            selector: parent, //+"childNodes["+i+"]",
-            nodeIndex: nodeIndex,
-            setup: function(instance){
-              let element =
-              instance.querySelector(parent).childNodes[nodeIndex];
-              let callback = function(){
-                updateTextNode(instance, node, query);
-              }
-              return callback;
-            },
-        
-          });
+  for (let i = 0; i < parentChildNodes.length; i++) {
+    let childNode = parentChildNodes[i];
+    if (childNode.textContent.indexOf("{{") > -1) {
+      const value = childNode.textContent;
+      const nodeIndex = i;
+      let keywords = getExpressionProperties(value);
+      const query = value.replaceAll("{{", "${").replaceAll("}}", "}");
+      for (let keyword of keywords) {
+        if (!$connections.keywords.hasOwnProperty(keyword)) {
+          $connections.keywords[keyword] = [];
         }
+        $connections.keywords[keyword].push({
+          attribute: "textNode",
+          type: "text",
+          query,
+          originalQuery: value,
+          selector: parent, //+"childNodes["+i+"]",
+          nodeIndex: nodeIndex,
+          setup: function (instance) {
+            let element = instance.querySelector(parent).childNodes[nodeIndex];
+            let callback = function () {
+              updateTextNode(instance, element, query);
+            };
+            return callback;
+          },
+        });
       }
-      
     }
+  }
   return $connections;
 }
 
@@ -262,7 +678,7 @@ export const generateTemplateConnectionMap = function (template) {
       { initial: true }
     ),
   };
-
+  $operationsFor.map((el) => el.remove());
   // Now we get the elements with the generators out of the way
   $clone = template.content;
   let $elements = [...$clone.querySelectorAll("*")];
@@ -283,24 +699,21 @@ export const generateTemplateConnectionMap = function (template) {
     if (bindings && bindings.length > 0) {
       connectAttributes($element, selector, bindings, $connections);
     }
-
   }
 
   const $nodes = findTextNodes(template.content).filter(
     (el) => el.textContent.indexOf("{{") > -1
   );
 
-  for(let $node of $nodes){
-    connectTextNodes($node,$connections)
+  for (let $node of $nodes) {
+    connectTextNodes($node, $connections);
   }
 
-  return $connections
+  return $connections;
   // Note that the *if and *for operations require a comment to placehold it's content
   // This comment needs to be initialized on the connectedCallback
   // So, for those operations we will replace the content for a generator function and a
   // placeholder element that will be replaced in the connectedCallback
-
- 
 };
 
 /**
@@ -358,11 +771,20 @@ export const parseTemplateString = function (
  * @returns { String } $template
  * @returns { Void } adds the new template to the header of the HTML page
  */
-export const parseTemplatePointers = function (template, component, selector) {
+export const parseTemplatePointers = function (
+  template,
+  component,
+  selector,
+  config = {}
+) {
+  config = {
+    templateId: false,
+    ...config,
+  };
   // Check if exists
-  const $templateId = "el-component-template__" + selector;
+  const $templateId = config.templateId || "el-component-template__" + selector;
   const $head = document.querySelector("head");
-  let $template = $head.querySelector($templateId);
+  let $template = $head.querySelector("#" + $templateId);
 
   if (!$template) {
     // Component predefined reactivity constants

@@ -19,7 +19,7 @@ export class UpgradeComponent extends Component {
   title = "El Upgrade";
   description="Element framework made with ❤️ by Pihh";
   caption = "Edit this caption!!" 
-  propagation = "Propagated data" 
+  propagation = "Propagated data"  
  
   color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
