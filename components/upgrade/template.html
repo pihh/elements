@@ -46,11 +46,37 @@
       <input type="checkbox" class="checkbox" @model="visible" />
     </label>
   </p>
+
+  <p>
+    <label class="visible">
+      v1: {{v1}}
+      <input type="checkbox" class="checkbox" @model="v1" />
+    </label>
+    <label class="visible">
+      v2: {{v2}}
+      <input type="checkbox" class="checkbox" @model="v2" />
+    </label>
+    <label class="visible">
+      v3: {{v3}}
+      <input type="checkbox" class="checkbox" @model="v3" />
+    </label>
+  </p>
+  <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="v1">
+    It shows v1
+    <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="v2">
+      It shows v2
+      <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="v3">
+        It shows v3
+        
+      </div>
+    </div>
+
+  </div>
  
   <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="visible">
-    It shows
+    It shows {{description}} 
     <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="caption == 'render'">
-      It Renders inside shows
+      It Renders inside shows {{title}}
     </div>
   </div>
   <p>

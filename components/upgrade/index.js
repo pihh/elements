@@ -9,7 +9,7 @@ export class UpgradeComponent extends Component {
     styles: "", 
   };
 
-  static props = ["title","description","caption","propagation","color","colors", "counter","visible"];
+  static props = ["title","description","caption","propagation","color","colors", "counter","visible","v1","v2","v3"];
   static actions = [];
   constructor(){
     super()
@@ -24,13 +24,16 @@ export class UpgradeComponent extends Component {
   color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
     return {
-      id:color, 
+      id:color,  
       name: color
     }
   });
 
   counter = 0; 
   visible = false;
+  v1 = false;
+  v2 = false;
+  v3 = false;
 
   onClick($event){
     console.log('onclick',$event);  

@@ -599,15 +599,14 @@ export const applyConnections = function (instance, connections) {
   for (let op of Object.keys(connections.operations)) {
     for (let operation of connections.operations[op]) {
       console.log(operation);
-      debugger;
+      
       operation.setup(instance);
     }
   }
 };
 
 export function connectTextNodes($node, $connections) {
-  // findTextNodes(template.content).map(console.log)
-  // console.log({ $nodes });
+
   let $container = $node.parentNode;
 
   if (!$container) {
@@ -652,6 +651,68 @@ export function connectTextNodes($node, $connections) {
   return $connections;
 }
 
+const connectIfOperations = function($container,operations=[]){
+
+  const query = $container.getAttribute('*if');
+  $container.removeAttribute('*if');
+  $container.dataset.elIfDone = operations.length + Date.now();
+  delete $container.dataset.elIf
+  if(query){
+    operations.push({$container,query,setup:function(instance){
+      const $placeholder = document.createComment('#if placeholder#');
+      const $$container = instance.querySelector('[data-el-if-done="'+$container.dataset.elIfDone+'"]')
+    
+      const keywords = getExpressionProperties('{{'+query.trim()+'}}');
+      if(!$$container) return;
+      const callback = function(forceTrue = false){
+        const fn = Function('return `${'+query+'}`');
+        const output = fn.call(instance);
+        if(["true",true].indexOf(output) !== -1 || forceTrue){
+          $placeholder.after($$container)
+        }else{
+          
+          if($$container.isConnected){
+            $$container.remove();
+          }
+        }
+      }
+      $placeholder.before($$container);
+      
+      for(let keyword of keywords) {
+        
+        instance.__connect(keyword, callback);
+      }
+      debugger;
+      return callback; 
+
+
+    }});
+  }
+
+  for(let op of [...$container.querySelectorAll("[data-el-if]")]){
+    operations = connectIfOperations(op,operations); //
+  }
+
+  return operations;
+}
+
+// const connectForOperations = function(){
+//   const query = $container.getAttribute('*if');
+//   $container.removeAttribute('*if');
+//   if(query){
+//     operations.push({$container,query});
+//   }
+
+//   // const $placeholder = document.createComment('if-container');
+//   // $placeholder.before(container);
+
+//   for(let op of [...$container.querySelectorAll("[data-el-if]")]){
+//     operations = connectIfOperations(op,operations); //
+//   }
+
+//   return operations;
+// }
+
 /**
  * Get's the original template element and creates a map of it's connections so we don't have to map it
  * everytime a component is connected;
@@ -660,25 +721,55 @@ export function connectTextNodes($node, $connections) {
  */
 export const generateTemplateConnectionMap = function (template) {
   let $clone = template.content;
-  let $operationsIf = [...$clone.querySelectorAll("[data-el-if]")];
-  let $operationsFor = [...$clone.querySelectorAll("[data-el-for]")];
+  let $operationsIf = [...template.content.querySelectorAll("[data-el-if]")];
+  let $operationsFor = [...$clone.querySelectorAll("[data-el-for]")].map(el => el.remove());
 
   const $connections = {};
   $connections.keywords = {};
   $connections.actions = {};
   $connections.operations = {
-    "*if": disconnectOperations(template, $operationsIf, "*if", "data-el-if", {
-      initial: true,
-    }),
-    ["*for"]: disconnectOperations(
-      template,
-      $operationsFor,
-      "*for",
-      "data-el-for",
-      { initial: true }
-    ),
+    "*if": [],
+    "*for": []
   };
-  $operationsFor.map((el) => el.remove());
+
+  let operations = []
+
+  for(let $container of $operationsIf){
+      const query = $container.getAttribute('*if');
+      $container.removeAttribute('*if');
+      $container.dataset.elIf = operations.length + Date.now();  
+      if(query){
+        operations.push({$container,query,setup:function(instance){
+          const $placeholder = document.createComment('#if placeholder#');
+          const $$container = instance.querySelector('[data-el-if="'+$container.dataset.elIf+'"]')
+          $$container.before($placeholder);
+       
+          const keywords = getExpressionProperties('{{'+query.trim()+'}}');
+          const callback = function(){
+            const fn = Function('return `${'+query+'}`');
+            const output = fn.call(instance);
+            if(["true",true].indexOf(output) > -1 ){
+              $placeholder.before($$container)
+            }else{
+               $$container.remove();
+            }
+          }
+          
+          
+          for(let keyword of keywords) {
+            instance.__connect(keyword, callback);
+          }
+    
+          
+          delete $$container.dataset.elIf 
+          return callback;
+        }});
+      }
+  }
+  $connections.operations["*if"]= operations 
+
+
+  // $operationsFor.map((el) => el.remove());
   // Now we get the elements with the generators out of the way
   $clone = template.content;
   let $elements = [...$clone.querySelectorAll("*")];
@@ -710,10 +801,7 @@ export const generateTemplateConnectionMap = function (template) {
   }
 
   return $connections;
-  // Note that the *if and *for operations require a comment to placehold it's content
-  // This comment needs to be initialized on the connectedCallback
-  // So, for those operations we will replace the content for a generator function and a
-  // placeholder element that will be replaced in the connectedCallback
+ 
 };
 
 /**

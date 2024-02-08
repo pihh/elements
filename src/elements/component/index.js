@@ -1,46 +1,10 @@
 import { getPath2 } from "../../../elements/compiler/model/update";
-import {
-  addCustomListener,
-  addModelListener,
-  setOperationFor,
-  setOperationIf,
-  updateAttribute,
-  updateTextNode,
-} from "../compiler/elements/dom";
-import { getSelector } from "../compiler/elements/dom";
+
 import { State } from "../compiler/state";
 
-import { findTextNodes } from "../helpers/dom";
-import {
-  getExpressionProperties,
-  getIndexes,
-  getStrBetween,
-  isChar,
-} from "../helpers/regex";
+
 import { generateTemplateConnectionMap, parseTemplatePointers } from "../render/hydration";
 import { connectProperties } from "./props";
-// import { bindEventBroadcaster } from "../compiler/events/listeners";
-
-function validatorSelector() {}
-function validatorTemplate() {}
-function loadTemplate() {}
-
-// const defaultConfig = {
-//   selector: { required: true, value: "", validations: [validatorSelector] },
-//   shadow: { required: false, value: false },
-//   template: {
-//     required: true,
-//     value: "",
-//     validations: [validatorTemplate],
-//     setup: [loadTemplate],
-//   },
-//   styles: {
-//     required: false,
-//     value: "",
-//     validations: [validatorTemplate],
-//     setup: [loadTemplate],
-//   },
-// };
 
 class _ComponentRegistry {
   static instance = null;
@@ -52,28 +16,7 @@ class _ComponentRegistry {
     if (_ComponentRegistry.instance) return _ComponentRegistry.instance;
     _ComponentRegistry.instance = this;
   }
-  /*
-  __parseTemplateString = function (
-    template,
-    index,
-    originalExpression,
-    updatedExpression
-  ) {
-    let parsedTemplate = template;
-    let nextChar = template.charAt(index + originalExpression.length);
-    let prevChar = template.charAt(index - 1);
-    let prevValid = index == 0 || (!isChar(prevChar) && prevChar != ".");
-    let nextValid =
-      index + originalExpression.length > template.length || !isChar(nextChar);
-    if (prevValid && nextValid) {
-      parsedTemplate = template.split("");
-      let leftTemplate = template.slice(0, index);
-      let rightTemplate = template.slice(index + originalExpression.length);
-      parsedTemplate = leftTemplate + updatedExpression + rightTemplate;
-    }
-    return parsedTemplate;
-  };
-  */
+
   __parseTemplatePointers(template, component, selector) {
 
     return parseTemplatePointers(template,component,selector);
@@ -161,24 +104,7 @@ export class Component extends HTMLElement {
     this.appendChild(this.__template);
   }
 
-  __getTemplateElement(clone = false) {
-    let $template = this.__templateElement;
-    if (!$template) {
-      $template = document.querySelector("#" + this.__templateId);
-      if (!$template) {
-        const $head = document.querySelector("head");
-        $template = document.createElement("template");
-        $template.setAttribute("id", this.__templateId);
-        $template.innerHTML = this.__template;
-        $head.appendChild($template);
-      }
-      this.__templateElement = $template;
-    }
-    if (clone) {
-      $template = this.__templateElement.content.cloneNode(true);
-    }
-    return $template;
-  }
+
 
   __initAndApplyConnections = function () {
     const connections = this.__templateConnections;
@@ -204,16 +130,18 @@ export class Component extends HTMLElement {
       }
     }
 
+    const cbs = [];
     for (let op of Object.keys(connections.operations)) {
         for(let operation of connections.operations[op]) {
-          operation.setup(this);
+          cbs.push(operation.setup(this));
+          
         }
       
     }
     
     // this.[keyword]
     connectProperties(this);
-
+    cbs.map(cb => cb())
     /*
     for (let prop of Object.keys(connections.keywords).filter(
       (p) => this.constructor.props.indexOf(p) == -1
