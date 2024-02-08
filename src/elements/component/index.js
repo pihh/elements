@@ -3,6 +3,7 @@ import {
   addCustomListener,
   addModelListener,
   setOperationFor,
+  setOperationIf,
   updateAttribute,
   updateTextNode,
 } from "../compiler/elements/dom";
@@ -16,6 +17,7 @@ import {
   getStrBetween,
   isChar,
 } from "../helpers/regex";
+import { generateTemplateConnectionMap, parseTemplatePointers } from "../render/hydration";
 import { connectProperties } from "./props";
 // import { bindEventBroadcaster } from "../compiler/events/listeners";
 
@@ -23,32 +25,34 @@ function validatorSelector() {}
 function validatorTemplate() {}
 function loadTemplate() {}
 
-const defaultConfig = {
-  selector: { required: true, value: "", validations: [validatorSelector] },
-  shadow: { required: false, value: false },
-  template: {
-    required: true,
-    value: "",
-    validations: [validatorTemplate],
-    setup: [loadTemplate],
-  },
-  styles: {
-    required: false,
-    value: "",
-    validations: [validatorTemplate],
-    setup: [loadTemplate],
-  },
-};
+// const defaultConfig = {
+//   selector: { required: true, value: "", validations: [validatorSelector] },
+//   shadow: { required: false, value: false },
+//   template: {
+//     required: true,
+//     value: "",
+//     validations: [validatorTemplate],
+//     setup: [loadTemplate],
+//   },
+//   styles: {
+//     required: false,
+//     value: "",
+//     validations: [validatorTemplate],
+//     setup: [loadTemplate],
+//   },
+// };
 
 class _ComponentRegistry {
   static instance = null;
 
-  __registry = {};
   __id = 0;
+  __registry = {};
+
   constructor() {
     if (_ComponentRegistry.instance) return _ComponentRegistry.instance;
     _ComponentRegistry.instance = this;
   }
+  /*
   __parseTemplateString = function (
     template,
     index,
@@ -69,7 +73,9 @@ class _ComponentRegistry {
     }
     return parsedTemplate;
   };
+  */
   __parseTemplatePointers(template, component, selector) {
+    /*
     let matches = [];
     const props = component.props || [];
     const actions = component.actions || [];
@@ -111,21 +117,44 @@ class _ComponentRegistry {
       template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
     }
 
+    matches = getStrBetween(template, '*if="', '"');
+    for (let match of matches) {
+      let m = match;
+      for (let prop of props) {
+        let indexes = getIndexes(match, prop);
+        if (indexes.length > 0) {
+          indexes.reverse();
+          for (let index of indexes) {
+            m = this.__parseTemplateString(m, index, prop, "this." + prop);
+          }
+        }
+      }
+      template = template.replaceAll('*if="' + match + '"', '*if="' + m + '"');
+    }
+
     $template.setAttribute("id", "el-component-template__" + selector);
     $template.innerHTML = template;
     $head.appendChild($template);
 
     return $template;
+    */
+    return parseTemplatePointers(template,component,selector);
   }
 
   __mapTemplateConnections = function (template) {
-    let $clone = template.content; //.cloneNode(true);
-    let $elements = [...$clone.querySelectorAll("*")];
 
+    const $connections = generateTemplateConnectionMap(template);
+    
+  //  < let $clone = template.content; //.cloneNode(true);
+  //   let $elements = [...$clone.querySelectorAll("*")];>
+/*
     const $connections = {};
     $connections.keywords = {};
     $connections.actions = {};
-    $connections.operations = {};
+    $connections.operations = {
+      "*if": [],
+      ["*for"]: [],
+    };
 
     let $forLoops = $elements.filter(
       (el) => el.getAttributeNames().indexOf("*for") > -1
@@ -143,9 +172,7 @@ class _ComponentRegistry {
         nodeIndex++;
       }
       // $comment.__forLoopGenerator($comment)
-      if (!$connections.operations.hasOwnProperty("*for")) {
-        $connections.operations["*for"] = [];
-      }
+
       let query;
       let originalQuery;
       let value;
@@ -159,20 +186,54 @@ class _ComponentRegistry {
         setup: function (instance) {
           try {
             let element = instance.querySelector(parent).childNodes[nodeIndex];
-            element.controller = instance
+            element.controller = instance;
             element.__loopItems = [];
             element.__visibleItems = [];
-            element.callback = (instance)=>{
-              $comment.__forLoopManager(instance.colors,element) 
-            }
-            instance.__connect("colors.length",function(v){
-              console.log('cb',instance.colors)
+            element.callback = (instance) => {
+              $comment.__forLoopManager(instance.colors, element);
+            };
+            instance.__connect("colors.length", function (v) {
+              console.log("cb", instance.colors);
               element.callback(instance);
-            })
+            });
             // $comment.__forLoopGenerator(instance,element,instance.colors.length)
-            console.log('conn')
-            element.callback(instance);
 
+            element.callback(instance);
+          } catch (ex) {
+            console.warn(ex);
+          }
+        },
+      });
+    }
+
+    let $ifs = $elements.filter(
+      (el) => el.getAttributeNames().indexOf("*if") > -1
+    );
+
+    for (let $if of $ifs) {
+      if (!$if.dataset["elIf"]) {
+        $if.dataset["elIf"] = this.__id++;
+      }
+
+      const $comment = setOperationIf($if);
+
+      let selector = '[data-el-if="' + $if.dataset["elIf"] + '"]';
+      $connections.operations["*if"].push({
+        attribute: "comment",
+        type: "*if",
+        query: null,
+        originalQuery: null,
+        selector: selector, //+"childNodes["+i+"]",
+        nodeIndex: 0,
+        setup: function (instance) {
+          try {
+            const comment = document.createElement("comment");
+            const element = instance.querySelector(selector);
+            element.before(comment);
+
+            const callback = $comment.__ifSetup(instance, comment, element);
+
+            callback();
           } catch (ex) {
             console.warn(ex);
           }
@@ -303,7 +364,142 @@ class _ComponentRegistry {
             });
           }
         }
+        // for(let operation of operations){
+
+        //   const value = $element.getAttribute(operation);
+        //   let query = $element
+        //   .getAttribute(operation)
+        //   .replaceAll("{{", "${")
+        //   .replaceAll("}}", "}");
+        //   // const $comment = setOperationIf(instance,$element)
+        //   // console.log($comment);
+        //   if(operation == "*if"){
+        //     $connections.operations["*if"].push({
+        //       attribute: "comment",
+        //       type: "*if",
+        //       query,
+        //       originalQuery: value,
+        //       selector:selector,
+        //       setup: function (instance) {
+        //         try {
+        //           console.log('setup if', { $element,query,selector})
+        //           console.log($element.getAttribute('*if'),'attr if');
+        //           console.log(instance.querySelector(selector))
+        //           let element = instance.querySelector(selector);
+        //           const $comment = setOperationIf(instance,element)
+        //           // console.log($element, $element.getAttribute(operation));
+        //           // debugger;
+        //           // console.clear();
+        //           // const $comment = setOperationIf(instance,$element)
+        //           // console.log({$comment})
+        //           // console.log('set If', {instance,$element,query,attr: $element.getAttribute('*if')})
+        //           // let $comment = setOperationIf(instance,$element,query)
+        //           // console.log($comment)
+        //         }catch(ex){
+        //           console.warn(ex)
+        //           debugger;
+
+        //         }
+        //       }
+        //     })
+        //   }
+
+        //   /*
+        //   $connections.operations["*for"].push({
+        //     attribute: "comment",
+        //     type: "*for",
+        //     query,
+        //     originalQuery: value,
+        //     selector: parent, //+"childNodes["+i+"]",
+        //     nodeIndex: nodeIndex,
+        //     setup: function (instance) {
+        //       try {
+        //         let element = instance.querySelector(parent).childNodes[nodeIndex];
+        //         element.controller = instance
+        //         element.__loopItems = [];
+        //         element.__visibleItems = [];
+        //         element.callback = (instance)=>{
+        //           $comment.__forLoopManager(instance.colors,element)
+        //         }
+        //         instance.__connect("colors.length",function(v){
+        //           console.log('cb',instance.colors)
+        //           element.callback(instance);
+        //         })
+        //         // $comment.__forLoopGenerator(instance,element,instance.colors.length)
+        //         console.log('conn')
+        //         element.callback(instance);
+
+        //       } catch (ex) {
+        //         console.warn(ex);
+        //       }
+        //     },
+        //   });
+
+        //   /*
+        //   let value = $element.getAttribute(operation);
+
+        //   // template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
+
+        //   const query = value.replaceAll("{{", "${").replaceAll("}}", "}");
+        //   let keywords = getExpressionProperties(value);
+
+        //   for (let keyword of keywords) {
+        //     // if (!$connections.keywords.hasOwnProperty(keyword)) {
+        //     //   $connections.keywords[keyword] = [];
+        //     // }
+
+        //     $connections.keywords[keyword].push({
+        //       type: "operation",
+        //       attribute: '*if',
+        //       query,
+        //       selector,
+        //       setup: function (instance) {
+        //         instance.removeAttribute("*if");
+        //         console.log("setup *if", instance)
+        //         // try {
+        //         //   let element = instance.querySelector(selector);
+        //         //   updateAttribute(instance, element, attribute, query);
+        //         // } catch (ex) {
+        //         //   console.warn(ex);
+        //         // }
+        //       },
+        //     });
+        //   }
+        //   *
+
+        //   //           import { extractLookedPaths } from "../../helpers/path";
+        //   // import { CreatePlaceholderElement } from "./comment";
+
+        //   // export const CompileIfOperator = function (element, scope, connection) {
+        //   //     const {$comment,query} = CreatePlaceholderElement(element,'*if')
+        //   //     let parsedQuery =
+        //   //       "`" + query.replaceAll("{{", "${").replaceAll("}}", "}") + "`";
+
+        //   //     const subscriptions = extractLookedPaths(scope, query);
+
+        //   //     for (let __sub of subscriptions.map((s) => s.replace("this.", "").trim())) {
+        //   //       const callback = function () {
+        //   //         const $fn = Function("return " + parsedQuery);
+        //   //         const output = $fn.call(scope);
+
+        //   //         if (["true", true].indexOf(output) > -1) {
+        //   //           if (!element.isConnected) {
+        //   //             $comment.after(element);
+        //   //           }
+        //   //         } else {
+        //   //           if (element.isConnected) {
+        //   //             element.remove();
+        //   //           }
+        //   //         }
+        //   //       };
+        //   //       element.__subscribe(__sub, scope, connection, callback);
+        //   //       callback();
+        //   //     }
+        //   //   };
+        //           }
+
       }
+      
     }
 
     const $nodes = findTextNodes(template.content).filter(
@@ -351,6 +547,7 @@ class _ComponentRegistry {
         i++;
       }
     });
+    */
     // console.log({$connections})
     return $connections;
   };
@@ -365,7 +562,7 @@ class _ComponentRegistry {
           $style = document.createElement("style");
           $style.innerHTML = styles;
         }
-        const $template = this.__parseTemplatePointers(
+        const $template = parseTemplatePointers(
           template,
           component,
           selector
@@ -427,29 +624,8 @@ export class Component extends HTMLElement {
 
     this.__template = template;
     this.__templateConnections = connections;
+    console.log({connections,template})
     this.appendChild(this.__template);
-
-    // for(let )
-    // this.innerHTML = this.__template;
-    /*
-    this.__config = this.constructor.config;
-    this.__template = this.constructor.config.template;
-
-    this.__style = this.constructor.config.styles;
-    this.__templateId = "template-container-" + this.__config.selector;
-    this.__templateContent = this.__getTemplateElement(true);
-
-    if (!this.dataset.connected) {
-      this.appendChild(this.__templateContent);
-      this.dataset.connected = "true";
-    }
-  
-
-    CompileSlots(this);
-    DisconnectSlots(this);
-
-    this.__template = this.innerHTML;
-    */
   }
 
   __getTemplateElement(clone = false) {
@@ -473,15 +649,15 @@ export class Component extends HTMLElement {
 
   __initAndApplyConnections = function () {
     const connections = this.__templateConnections;
-    
+
     this.scope = {};
     this.__subscriptions = [];
 
-    for (let selector of Object.keys(connections.operations)) {
-      // for (let keyword of Object.keys(connections[selector].keywords)) {
-      for (let operation of connections.operations[selector]) {
-        operation.setup(this);
-      }
+    for (let operation of connections.operations["*for"]) {
+      console.log(operation);
+      debugger;
+      operation.setup(this);
+      
     }
 
     for (let keyword of Object.keys(connections.keywords)) {
@@ -500,6 +676,10 @@ export class Component extends HTMLElement {
       for (let action of connections.actions[selector]) {
         action.setup(this);
       }
+    }
+
+    for (let operation of connections.operations["*if"]) {
+      operation.setup(this);
     }
 
     // this.[keyword]

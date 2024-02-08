@@ -9,18 +9,6 @@ import { modelValue } from "../model/update";
 
 import { CreatePlaceholderElement } from "./comment";
 
-function getForBetween(str) {
-  let matches = [];
-  try {
-    matches = str
-      .split('*for="')
-      .slice(1)
-      .map((el) => el.split('"')[0].trim());
-  } catch (e) {}
-
-  return matches || [];
-}
-
 export const CompileForOperator = function (
   element,
   scope,

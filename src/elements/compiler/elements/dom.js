@@ -1,11 +1,18 @@
-import { getPath2, modelUpdate, modelValue } from "../../../../elements/compiler/model/update";
-import { getStrBetween, parseTemplateExpressions } from "../../helpers/regex";
-import { Render } from "../../render";
+import {
+  getPath2,
+  modelUpdate,
+  modelValue,
+} from "../../../../elements/compiler/model/update";
+import {
+  getExpressionProperties,
+  parseTemplateExpressions,
+} from "../../helpers/regex";
 import {
   CreatePlaceholderElement,
   CreatePlaceholderElementV2,
 } from "../operations/comment";
 
+let __selectorId = 0;
 export function getSelector(elm) {
   if (elm.tagName === "BODY") return "BODY";
   const names = [];
@@ -22,7 +29,15 @@ export function getSelector(elm) {
     }
     elm = elm.parentElement;
   }
-  return names.join(">");
+
+  let selector = names.join('>');
+  if(!selector){
+    selector = "[data-el-selector='"+__selectorId+"'";
+    elm.dataset.elSelector = __selectorId;
+    __selectorId++;
+
+  }
+  return selector;//names.join(">");
 }
 
 export const updateAttribute = function (instance, element, attribute, query) {
@@ -32,7 +47,14 @@ export const updateAttribute = function (instance, element, attribute, query) {
     const $fn = Function("return `" + query + "`");
     element.setAttribute(attribute, $fn.call(instance));
   } catch (ex) {
-    console.log({instance, colors:instance.colors,attribute,query,element, ex});
+    console.log({
+      instance,
+      colors: instance.colors,
+      attribute,
+      query,
+      element,
+      ex,
+    });
   }
 };
 export const updateTextNode = function (instance, element, query) {
@@ -43,35 +65,33 @@ export const updateTextNode = function (instance, element, query) {
 export const addModelListener = function (instance, element, attribute) {
   const nodeName = element.nodeName;
   const type = element.getAttribute("type");
-  let modelAttribute = "value"
+  let modelAttribute = "value";
   let eventName = "keyup";
 
-  let  callback = function (value) {
+  let callback = function (value) {
     element.setAttribute("value", value);
   };
 
-  if(nodeName === "SELECT" || type === "checkbox"){
-    eventName = "change"
+  if (nodeName === "SELECT" || type === "checkbox") {
+    eventName = "change";
   }
-  if(type === "checkbox"){
-    modelAttribute = "checked"
-    callback = function(value){
-      if(value == "true")value = true;
-      if(value){
+  if (type === "checkbox") {
+    modelAttribute = "checked";
+    callback = function (value) {
+      if (value == "true") value = true;
+      if (value) {
         element.setAttribute("checked", true);
-      }else{
-        element.removeAttribute("checked")
+      } else {
+        element.removeAttribute("checked");
       }
-    }
+    };
   }
   element.addEventListener(eventName, function (e) {
-
     modelUpdate(instance, attribute, e.target[modelAttribute]);
   });
 
-
   instance.__connect(attribute, callback);
-  callback(modelValue(instance,attribute));
+  callback(modelValue(instance, attribute));
 };
 
 export const addCustomListener = function (instance, element, event, fn, args) {
@@ -82,6 +102,42 @@ export const addCustomListener = function (instance, element, event, fn, args) {
   element.addEventListener(event, function (e) {
     instance[fn](...args);
   });
+};
+
+export const setOperationIf = function (element) {
+  if (!element.getAttribute("*if")) return;
+  let { $comment, query } = CreatePlaceholderElement(element, "*if");
+  let value = query;
+
+  query = query.replaceAll("{{", "${").replaceAll("}}", "}");
+  $comment.after(element);
+  $comment.query = query;
+
+  const setup = function (instance, comment, element) {
+    let keywords = getExpressionProperties(value);
+    const callback = function () {
+      const $fn = Function("return `" + query + "`");
+      const output = $fn.call(instance);
+   
+      if (["true", true].indexOf(output) > -1) {
+        if (!element?.isConnected) {
+          comment.before(element);
+        }
+      } else {
+        if (element?.isConnected) {
+          element.remove();
+        }
+      }
+    };
+    for (let keyword of keywords) {
+      instance.__connect(keyword, callback);
+    }
+
+    return callback;
+  };
+  $comment.__ifSetup = setup;
+
+  return $comment;
 };
 
 export const setOperationFor = function (element, comment, levels = []) {
@@ -110,15 +166,15 @@ export const setOperationFor = function (element, comment, levels = []) {
   template = parseTemplateExpressions(
     template,
     "option",
-    "colors[" + levels[0].index + "]"
-  ); //template.innerHTML.replaceAll("{{"+match+"}}",'{{'+m+"}}");
+    "this.colors[" + levels[0].index + "]"
+  ); 
   levels[level].template = template;
   placeholder.innerHTML = template;
   $comment.before(placeholder);
   $comment.__placeholder = placeholder.cloneNode(true);
   $comment.levels = levels;
 
-  const generator = ( self, index = 0) => {
+  const generator = (self, index = 0) => {
     try {
       while (index >= self.__loopItems.length) {
         try {
@@ -127,16 +183,17 @@ export const setOperationFor = function (element, comment, levels = []) {
           $item.innerHTML = $comment.__placeholder
             .cloneNode(true)
             .innerHTML.replaceAll("__index_0__", $len);
-          $item= $item.firstElementChild
+          $item = $item.firstElementChild;
           $item.id = "item" + index;
-           const r = new Render()
+
+          console.log({$item})
           // $item = r.__initAndAppendConnections(t.)
           self.__loopItems.push($item);
-          const init = function(){
-
-            r.__initAndAppendConnections($item,self)
-          }
-          console.log({init})
+          // const r = new Render();
+          // const init = function () {
+          //   r.__initAndAppendConnections($item, self);
+          // };
+          // console.log({ init });
         } catch (ex) {
           console.warn(ex);
           break;
@@ -153,32 +210,29 @@ export const setOperationFor = function (element, comment, levels = []) {
   };
 
   const manager = function (items = [], self) {
-    
-    if(items.length > self.__loopItems.length) {
-      for(let i = self.__loopItems.length ;i < items.length; i++){
-        generator(self,i);
+    if (items.length > self.__loopItems.length) {
+      for (let i = self.__loopItems.length; i < items.length; i++) {
+        generator(self, i);
       }
     }
-    if(items.length > self.__visibleItems.length) {
-      for(let i = self.__visibleItems.length ;i < items.length;i++){
+    if (items.length > self.__visibleItems.length) {
+      for (let i = self.__visibleItems.length; i < items.length; i++) {
         self.__visibleItems.push(self.__loopItems[i]);
         self.before(self.__visibleItems[i]);
       }
-
-    }else if (items.length < self.__visibleItems.length){
-      for(let i =items.length ;i <  self.__visibleItems.length;i++){
+    } else if (items.length < self.__visibleItems.length) {
+      for (let i = items.length; i < self.__visibleItems.length; i++) {
         // self.__visibleItems[i].remove();
         //self.__visibleItems.pop()
       }
       // self.__visibleItems= self.__visibleItems.slice(0,items.length);
     }
- 
   };
 
-  const bind = function(element){
+  const bind = function (element) {
     element.__loopItems = [];
     element.__visibleItems = [];
-  }
+  };
   $comment.__forLoopBind = bind;
   $comment.__loopItems = [];
   $comment.__visibleItems = [];
