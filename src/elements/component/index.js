@@ -21,7 +21,7 @@ class _ComponentRegistry {
 
     return parseTemplatePointers(template,component,selector);
   }
-
+ 
   __mapTemplateConnections = function (template) {
 
     const $connections = generateTemplateConnectionMap(template);
@@ -41,16 +41,16 @@ class _ComponentRegistry {
         }
         const $template = parseTemplatePointers(
           template,
-          component,
-          selector
-        );
+          component, 
+          selector 
+        );   
         const $connections = this.__mapTemplateConnections(
-          $template,
-          component
-        );
-        this.__registry[selector] = {
-          component,
-          template: $template,
+          $template, 
+          component   
+        ); 
+        this.__registry[selector]  = {
+          component, 
+          template: $template,   
           connections: $connections,
           styles: $style,
           shadow: shadow,
@@ -100,7 +100,7 @@ export class Component extends HTMLElement {
     );
 
     this.__template = template;
-    this.__templateConnections = connections;
+    this.__templateConnections = connections; 
     this.appendChild(this.__template);
   }
 
@@ -123,17 +123,17 @@ export class Component extends HTMLElement {
         callback(this);
       }
     }
-
+ 
     for (let selector of Object.keys(connections.actions)) {
       for (let action of connections.actions[selector]) {
         action.setup(this);
-      }
+      } 
     }
 
-    const cbs = [];
+    const operationCallbackList = [];
     for (let op of Object.keys(connections.operations)) {
         for(let operation of connections.operations[op]) {
-          cbs.push(operation.setup(this));
+          operationCallbackList.push(operation.setup(this));
           
         }
       
@@ -141,14 +141,8 @@ export class Component extends HTMLElement {
     
     // this.[keyword]
     connectProperties(this);
-    cbs.map(cb => cb())
-    /*
-    for (let prop of Object.keys(connections.keywords).filter(
-      (p) => this.constructor.props.indexOf(p) == -1
-    )) {
-
-    }
-    */
+    operationCallbackList.map(cb => cb())
+ 
   };
 
   connectedCallback() {
@@ -157,7 +151,7 @@ export class Component extends HTMLElement {
       const props = this.constructor.props;
       const state = {};
       for (let prop of props) {
-        // console.log({prop,self:this[prop]})
+        
         state[prop] = this.getAttribute(prop) ?? this[prop];
       }
 

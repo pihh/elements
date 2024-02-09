@@ -10,22 +10,24 @@ export class UpgradeComponent extends Component {
   };
 
   static props = ["title","description","caption","propagation","color","colors", "counter","visible","v1","v2","v3"];
-  static actions = [];
+  static actions = []; 
   constructor(){
     super()
-  }  
-  
+    console.log(this.colors)
+  }   
+   
   // Properties 
   title = "El Upgrade";
   description="Element framework made with ❤️ by Pihh";
   caption = "Edit this caption!!" 
-  propagation = "Propagated data"  
+  propagation = "Propagated data"   
  
   color = "blue";
   colors = ["white","yellow","green","red","blue"].map(color => {
     return {
       id:color,  
-      name: color
+      name: color,
+      list: [{id:1},{id:2},{id:3}]
     }
   });
 
@@ -36,7 +38,7 @@ export class UpgradeComponent extends Component {
   v3 = false;
 
   onClick($event){
-    console.log('onclick',$event);  
+    console.log('onclick',$event,...arguments);  
     this.counter++;
   }
 

@@ -25,10 +25,16 @@
   </small>
   <br>
   <select class="input" @model="color" >
-    <option value="{{option.id}}" *for="let option of colors">
+    <option  *for="let option of colors" >
       {{option.name}}
     </option>
   </select> 
+
+  <div *for="let option of colors" class="bg-white border border-gray-400" >
+    {{option.name}}
+    <button class="btn" @onClick="onClick(option.name)" >Click</button>
+  </div>
+
 </section>
 
 <section 
@@ -67,11 +73,14 @@
       It shows v2
       <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="v3">
         It shows v3
-        
+        <!-- <input class="input" @model="caption" />
+        <button @onClick="onClick($event)" class="btn bg-white border border-{{color == 'white' ? 'gray' : color}}-400 text-{{color == 'white' ? 'black' : color}}-900" >Click</button>
+       -->
       </div>
     </div>
 
   </div>
+  
  
   <div class="subsection bg-white border border-{{color == 'white' ? 'gray' : color}}-400 " *if="visible">
     It shows {{description}} 
