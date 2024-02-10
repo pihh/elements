@@ -26,40 +26,39 @@ export const parseTemplatePointers = function(template, props=[], actions = []) 
   let matches = [];
 
 
-//   matches = getStrBetween(template);
+   matches = getStrBetween(template);
 
-//   for (let match of matches) {
-//     let m = match;
-//     for (let action of actions) {
-//       let indexes = getIndexes(match, action);
-//       if (indexes.length > 0) {
-//         indexes.reverse();
-//         for (let index of indexes) {
-//           m = parseTemplateString(
-//             m,
-//             index,
-//             action,
-//             "this.parent." + action
-//           );
-//         }
-//       }
-//     }
-//     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
-//   }
+   for (let match of matches) {
+     let m = match;
+     for (let action of actions) {
+       let indexes = getIndexes(match, action);
+       if (indexes.length > 0) {
+         indexes.reverse();
+         for (let index of indexes) {
+           m = parseTemplateString(
+             m,
+             index,
+             action,
+             "this.parent." + action
+           );
+         }
+       }
+     }
+     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
+   }
 
  template = template == "string" ? template :template.innerHTML
   matches = getStrBetween(template);
-//   console.log(template,matches)
-//   debugger
+
   for (let match of matches) {
     let m = match;
     for (let prop of props) {
       let indexes = getIndexes(match, prop);
-    //   console.log(match,prop)
+    /
       if (indexes.length > 0) {
         indexes.reverse();
         for (let index of indexes) {
-            // console.log(index);
+  
           m = parseTemplateString(m, index, prop, "this." + prop);
         }
       }
@@ -67,9 +66,5 @@ export const parseTemplatePointers = function(template, props=[], actions = []) 
     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
   }
 
-  // $template.setAttribute("id", "el-component-template__" + selector);
-
-//   console.log(template)
-//   debugger;
   return template
 }

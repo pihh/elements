@@ -1,71 +1,41 @@
-import { TemplateManager } from "../component/template/manager";
+import { parseTemplatePointers } from "../component/template/analyser/cleanup";
+import { initialExpressionCleanup } from "../helpers/regex";
 
-
-class _Registry {
+export class Registry {
   static instance;
-
+  static templates = {};
   constructor() {
-    if (_Registry.instance) return _Registry.instance;
-    _Registry.instance = this;
+    if (Registry.instance) return Registry.instance;
+    Registry.instance = this;
   }
 
-  __components = {};
-  __loadingState = {};
+  static parse(name, template, observedAttributes, id) {
+    if (this.templates.hasOwnProperty(name)) {
+      return this.templates[name].content.cloneNode(true);
+    }
 
-  registerComponent(config, component, template) {
-    console.log(component)
-    const templateString = "";
+    template = initialExpressionCleanup(template);
 
-    this.__components[config.selector] = {
-      object: component,
-      props: [],
-      actions: [],
-      template: template,
-      templateString: templateString,
-      styles: "",
-      config: config,
-      map: {},
-      childTemplates: [],
-      loading: false,
-      initialized: false,
-    };
+    template = parseTemplatePointers(template, observedAttributes);
 
-    // this.__loadingState[config.selector ];
+    const $tpl = document.createElement("template");
+    let $content = document.createElement("div");
+    $content.innerHTML = template;
 
-    let stateResolve;
-    this.__loadingState[config.selector] = new Promise((resolve) => {
-      stateResolve = resolve;
-    });
-    this.__parseComponent(config,template,component).then((template) => {
-      stateResolve(template);
-    });
+    document.querySelector("#" + id).replaceWith($tpl);
+    $tpl.setAttribute("id", id);
+    $tpl.content.appendChild($content);
+
+    this.templates[name] = $tpl;
+
+    return this.templates[name].content.cloneNode(true);
   }
 
-  registerSelector(config, Component) {
-    if (customElements.get(config.selector) === undefined) {
-      Component.observedActions = Component.prototype.observedActions;
-      Component.observedAttributes = Component.prototype.observedAttributes;
-
-      this.registerComponent(config.selector, Component);
-
-      customElements.define(config.selector, Component);
+  static load(name) {
+    try {
+      return this.templates[name].content.cloneNode(true);
+    } catch (ex) {
+      return false;
     }
   }
-
-  loadComponent(selector) {
-    return this.__loadingState[selector];
-  }
-
-  __parseComponent(config,template,scope) {
-    console.log(scope,template)
-    return new Promise((res) => {
-      const $template = new TemplateManager(config,config.template,scope)
-      setTimeout(() => {
-        console.log(config.selector);
-        res($template);
-      }, 10);
-    });
-  }
 }
-
-export const Registry = new _Registry();

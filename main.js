@@ -1,52 +1,10 @@
 //  import { RequirementsComponent } from "./src/components/requirements";
 
+import { Registry } from "./src/elements/kernel/registry";
 import { State } from "./src/elements/compiler/state";
-import { parseTemplatePointers } from "./src/elements/component/template/analyser/cleanup";
+import { connectTemplate } from "./src/elements/component/reactivity/connector";
 import { reactivityMap } from "./src/elements/component/template/analyser/map";
-import { initialExpressionCleanup } from "./src/elements/helpers/regex";
 
-class Registry {
-    static instance;
-    static templates = {}
-    constructor(){
-        if(Registry.instance) return Registry.instance;
-        Registry.instance = this;
-    }
-
-    static parse(name,template,observedAttributes,id){
-        if(this.templates.hasOwnProperty(name)){
-            return this.templates[name].content.cloneNode(true);
-        }
-      
-        template  = initialExpressionCleanup(template);
-        console.log(observedAttributes);
-        template = parseTemplatePointers(template,observedAttributes)
-   
-     
-        const $tpl = document.createElement('template');
-        let $content = document.createElement('div');
-        $content.innerHTML = template;
-        // $tpl.id = id;
-        // $tpl.innerHTML = this.templates[name];
-        document.querySelector('#'+id).replaceWith($tpl);
-        $tpl.setAttribute('id',id);
-        $tpl.content.appendChild($content)
-
-        this.templates[name] =$tpl
-        // console.log()
-        return this.templates[name].content.cloneNode(true);
-    }
-
-    static load(name){
-        try{
-            console.log( this.templates)
-            // debugger;
-            return this.templates[name].content.cloneNode(true);
-        }catch(ex){
-            return false;
-        }
-    }
-}
 
 
 class MyWebComponent extends HTMLElement {
@@ -64,12 +22,9 @@ class MyWebComponent extends HTMLElement {
         .getElementById("my-button-template")
         .content.innerHTML = Registry.parse('my-button',document
         .getElementById("my-button-template"),MyWebComponent.observedAttributes,"my-button-template")
-
     }
     const template = Registry.load('my-button')
-    console.log(template)
-    //   .getElementById("my-button-template")
-    //   .content.cloneNode(true);
+
     const shadowRoot = this.attachShadow({ mode: "open" });
     this.reactiveProps = reactivityMap(template);
 
@@ -94,16 +49,7 @@ class MyWebComponent extends HTMLElement {
   }
 
   connectTemplate() {
-    if (this.__setup.templateConnected) return;
-    const connections = this.reactiveProps.map;
-
-    for (let key of Object.keys(connections)) {
-      const connection = connections[key];
-      for (let conn of connection) {
-        conn.setup(this);
-      }
-    }
-    this.__setup.templateConnected = true;
+    connectTemplate(this)
   }
   connectedCallback() {
       this.connectTemplate();

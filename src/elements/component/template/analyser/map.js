@@ -146,27 +146,8 @@ export const reactivityMap = function (element) {
             }
           }
         }
-        console.log("reactiveAtts", reactiveAtts);
-        /*
-        action
-: 
-false
-att
-: 
-"class"
-model
-: 
-false
-operation
-: 
-false
-reactive
-: 
-true
-value
-: 
-"bg-{{color}}-100"
-*/
+       
+     
       }
 
       if (details.reactive) {
