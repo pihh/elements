@@ -1,6 +1,33 @@
 import { getIndexes, getStrBetween, isChar } from "../../../helpers/regex";
 
-let __id= 0;
+export const initialExpressionCleanup = function (element) {
+  // INITIAL CLEANUP
+
+  let innerHTML = element.innerHTML;
+  let matches = getStrBetween(innerHTML);
+  for (let match of matches) {
+    const original = "{{" + match + "}}";
+    const replacement = "{{" + match.replaceAll(" ", "") + "}}";
+    innerHTML = innerHTML.replaceAll(original, replacement);
+  }
+  try{
+
+    element.innerHTML = innerHTML;
+  }catch(e){
+    const placeholder = document.createElement("div");
+    placeholder.innerHTML = innerHTML;
+    const tmp =document.createElement("template");
+    tmp.setAttribute('id',element.id);
+    element.replaceWith(tmp);
+    tmp.appendChild(placeholder);
+    // return element;
+    element = placeholder
+  }
+
+  return element
+
+};
+
 export const parseTemplateString = function (
   template,
   index,
@@ -54,7 +81,7 @@ export const parseTemplatePointers = function(template, props=[], actions = []) 
     let m = match;
     for (let prop of props) {
       let indexes = getIndexes(match, prop);
-    /
+    
       if (indexes.length > 0) {
         indexes.reverse();
         for (let index of indexes) {

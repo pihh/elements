@@ -1,41 +1,42 @@
-import { parseTemplatePointers } from "../component/template/analyser/cleanup";
-import { initialExpressionCleanup } from "../helpers/regex";
+// import { parseTemplatePointers } from "../component/template/analyser/cleanup";
+
+import { TemplateManager, TemplateManagerV2 } from "../component/template/manager";
+
+// import { initialExpressionCleanup } from "../helpers/regex";
 
 export class Registry {
   static instance;
   static templates = {};
+  static files = {}
   constructor() {
     if (Registry.instance) return Registry.instance;
     Registry.instance = this;
   }
 
-  static parse(name, template, observedAttributes, id) {
-    if (this.templates.hasOwnProperty(name)) {
-      return this.templates[name].content.cloneNode(true);
-    }
+  static getName(path){
+    let name = path.replaceAll('../','');
+    return name
+  }
+  static file(path){
+    
 
-    template = initialExpressionCleanup(template);
-
-    template = parseTemplatePointers(template, observedAttributes);
-
-    const $tpl = document.createElement("template");
-    let $content = document.createElement("div");
-    $content.innerHTML = template;
-
-    document.querySelector("#" + id).replaceWith($tpl);
-    $tpl.setAttribute("id", id);
-    $tpl.content.appendChild($content);
-
-    this.templates[name] = $tpl;
-
-    return this.templates[name].content.cloneNode(true);
   }
 
-  static load(name) {
-    try {
-      return this.templates[name].content.cloneNode(true);
-    } catch (ex) {
-      return false;
-    }
+  static template(path){
+
+    let name = this.getName(path);
+    let template = this.templates[name];
+    if(template) return template;
+    this.templates[name] = new Promise(async(res)=>{
+      
+      // const element = document.querySelector("#template-"+name);
+      const templateObject = new TemplateManagerV2(name);
+      const $template = templateObject.setup();
+
+      res($template.__template.content.cloneNode(true).firstElementChild)
+  
+    });
+    return this.templates[name]
   }
+
 }

@@ -6,17 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
-    <template id="my-button-template">
+    <template id="template-my-button">
       <p>{{text}}</p>
       <p>{{list[0]}}</p>
       <p>{{object.key}}</p>
       <p>{{objectList[0].item}}</p>
       <input class="input" model="text" />
+      <input class="input" model="checked" type="checkbox" />
       {{color}}
-      <button class="bg-{{color}}-100" *model="model" onClick="fn"> <slot></slot></button>
+      <button class="bg-{{color}}-100" @onClick="fn($event,$index,text,'x',1)">
+        <slot></slot>
+      </button>
+      <select class="input" model="color">
+        <option value="{{colors[0]}}">{{colors[0]}}</option>
+        <option value="{{colors[1]}}">{{colors[1]}}</option>
+        <option value="{{colors[2]}}">{{colors[2]}}</option>
+      </select>
+
+      <input class="input" model="list[0]" />
+      <input class="input" model="object.key" />
+      <input class="input" model="objectList[0].item" />
+
+      <div>
+        @if(this.checked)
+        <section>
+          <h3>OUTER CHECK</h3>
+          @if(this.checked)
+          <article>INNER CHECK</article>
+          @endif()
+        </section>
+        @endif()
+      </div>
     </template>
-    <!--  -->
-    
   </head>
   <body>
     <div id="app">
@@ -47,7 +68,6 @@
       
     </el-upgrade>  -->
     <script type="module" src="/main.js"></script>
-    
   </body>
 </html>
 <!--

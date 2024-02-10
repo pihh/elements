@@ -3,7 +3,7 @@
  * based on the type of connection
  */
 
-import { getPath2 } from "../../compiler/model/update";
+import { getPath2, modelUpdate, modelValue } from "../../compiler/model/update";
 
 export class PropConnector {
   static text(instance, keyword, node, query) {
@@ -18,22 +18,33 @@ export class PropConnector {
 
   static attribute(instance, keyword, node, query, attribute) {
     const callback = function (newValue) {
-      console.log(newValue,query, instance);
+      // console.log(newValue,query, instance);
       const value = PropConnector.evaluate(instance, query);
       node.setAttribute(attribute, value);
     };
-    console.log('conn',attribute)
-    
+
     instance.connect(keyword, callback);
     return callback;
   }
 
-  static model(instance, node, attribute) {}
+  static lastRender = Date.now();
+  static model(instance, keyword, node, query) {
+    let type =
+      node.nodeName == "SELECT"
+        ? "select"
+        : node.getAttribute("type") || "text";
+
+    const cb = ModelConnector[type](instance, node, query, keyword);
+    const callback = function () {
+      cb();
+    };
+
+    instance.connect(keyword, callback);
+    return callback;
+  }
 
   static evaluate(instance, query, type = "text") {
-    console.log({instance, query, type})
     const fn = Function("return " + query);
-
     const output = fn.call(instance.scope);
     let value = output;
     if (type == "boolean") {
@@ -45,13 +56,13 @@ export class PropConnector {
     } else if (type == "number") {
       value = Number(value);
     }
-
     return value;
   }
 }
 
 const getScopeValue = function (scope, property) {
   let path = property;
+
   if (!Array.isArray(path)) {
     path = getPath2(path);
   }
@@ -68,15 +79,13 @@ const getScopeValue = function (scope, property) {
   }
 };
 
-const setScopeValue = function (scope, property, newValue) {
-  let { success, value, path } = getScopeValue(scope, property);
+const setScopeValue = function (instance, property, newValue) {
+  let { success, value, path } = getScopeValue(instance.scope, property);
   if (success || value == undefined) {
     if (value !== newValue) {
-      let update = scope;
-      for (let p of path) {
-        update = update[p];
-      }
-      updatte[p] = newValue;
+      const query =
+        "`${" + "this." + `${property}` + " = '" + newValue + "'" + "}`";
+      PropConnector.evaluate(instance, query);
     }
   }
 };
@@ -85,49 +94,89 @@ export class ModelConnector {
   static update(instance, property, newValue) {
     setScopeValue(instance, property, newValue);
   }
-  static text(instance, node, property) {
+  static connect(type, instance, node, query, keyword) {
     let attributeName = "value";
-    let eventName = "input";
-    const callback = function () {
-      let result = PropConnector.evaluate(instance, property);
+    let eventName = "keyup";
+    let dataType = "text";
+    let getEventValue = function ($event) {
+      return $event.target.value;
+    };
+
+    if (type === "checkbox") {
+      attributeName = "checked";
+      eventName = "change";
+      dataType = "boolean";
+      getEventValue = function ($event) {
+        return $event.currentTarget.checked;
+      };
+    }
+    if (type === "number") {
+      dataType = "number";
+    }
+
+    let callback = function () {
+      let result = PropConnector.evaluate(instance, query, dataType);
       node.setAttribute(attributeName, result);
     };
 
-    node.addEventListener(eventName, function (event) {
-      this.update(instance, property, event.target.value);
-    });
-    const subscription = instance.__connect(property, callback);
-    return subscription;
-    vm;
-  }
-  static number(instance, node, property) {}
-  static checkbox(instance, node, property) {}
-  static select(instance, node, property) {
-    // if (nodeName === "SELECT" || type === "checkbox") {
-    //     eventName = "change";
-    //   }
-    if (type === "checkbox") {
-      modelAttribute = "checked";
-      callback = function (value) {
-        if (value == "true") value = true;
-        if (value) {
-          element.setAttribute("checked", true);
-        } else {
-          element.removeAttribute("checked");
-        }
-      };
-    }
-    element.addEventListener(eventName, function (e) {
-      modelUpdate(instance, attribute, e.target[modelAttribute]);
+    node.addEventListener(eventName, function ($event) {
+      ModelConnector.update(instance, keyword, getEventValue($event));
     });
 
-    instance.__connect(attribute, callback);
-    callback(modelValue(instance, attribute));
+    return callback;
+  }
+  static text(instance, node, query, keyword) {
+    return ModelConnector.connect("text", instance, node, query, keyword);
+  }
+  static number(instance, node, query, keyword) {
+    return ModelConnector.connect("number", instance, node, query, keyword);
+  }
+  static checkbox(instance, node, query, keyword) {
+    return ModelConnector.connect("checkbox", instance, node, query, keyword);
+  }
+  static select(instance, node, query, modelName) {
+    const updateOptions = function (node, value) {
+      [...node.querySelectorAll("option")].forEach((el) => {
+        if (value == el.value) {
+          el.setAttribute("selected", true);
+        } else {
+          el.removeAttribute("selected");
+        }
+      });
+    };
+    const initialCall = function (element) {
+      [...element.querySelectorAll("option")].forEach((el) => {
+        el.__didInitialize = el.__didInitialize || [];
+        el.__didInitialize.push(() => {
+          updateOptions(element, modelValue(instance.scope, modelName));
+        });
+      });
+    };
+    const callback = function (value) {
+      const elementValue = node.getAttribute("value");
+      if (value == elementValue) return;
+      // let selected = el.value === value;
+      updateOptions(node, value);
+    };
+    let prevValue = modelValue(instance.scope, modelName) || undefined;
+    node.addEventListener("change", (event) => {
+      if (event.target.value !== prevValue) {
+        prevValue = event.target.value;
+        modelUpdate(instance.scope, modelName, event.target.value);
+      }
+    });
+
+    // connection(modelName, callback);
+    initialCall(node);
+
+    // Initial render
+    updateOptions(node, modelValue(instance.scope, modelName));
+
+    return callback;
   }
 }
 
-
-export const connectTemplate = function(instance){
+export const connectTemplate = function (instance) {
   if (instance.__setup.templateConnected) return;
   const connections = instance.reactiveProps.map;
 
@@ -137,5 +186,22 @@ export const connectTemplate = function(instance){
       conn.setup(instance);
     }
   }
+  const actions = instance.actions.map;
+
+  for (let key of Object.keys(actions)) {
+    // console.log(key)
+    const action = actions[key][0];
+    action.node.removeAttribute(key);
+    action.setup(instance);
+  }
+
+  let operations = instance.operations.map.if
+  for (let operation of operations) {
+    // console.log(key)
+    
+    operation.setup(instance);
+  }
   instance.__setup.templateConnected = true;
-}
+};
+
+export class ActionConnector {}
