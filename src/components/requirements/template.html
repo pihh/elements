@@ -1,0 +1,117 @@
+<h1>Welcome</h1>
+
+<section>
+    <aside>
+        <h3> Slots </h3>
+    </aside>
+    <main>
+        <h4 slot="primary-slot">
+            Primary slot content
+        </h4>
+        <h5 slot="secondary-slot">
+            Secondary slot content
+        </h5>
+        <h6 slot="placeholder-slot">
+            Default slot placeholder
+        </h6>
+    </main>
+</section>
+
+<section>
+    <aside>
+        <h3> Model, data binding , attribute binding </h3>
+    </aside>
+    <main>
+        <article>
+            <h4>Basic text binding:</h4>
+            <div>
+                <label for="input">{{text}}</label>
+                <input *model="text" />
+            </div>
+        </article>
+
+        <article class="bg-{{color}}-100 border border-{{color}}-400">
+            <h4>Attribute binding:</h4>
+            <div>
+                <label for="color">Color: {{text}}</label>
+                <select *model="color" >
+                    @for( let option of colors){
+                        <option value="{{option}}">{{option}}</option>
+                    }
+                </select>
+            </div>
+        </article>
+
+    </main>
+</section>
+
+
+<section>
+    <aside>
+        <h3> If Condition: </h3>
+    </aside>
+    <main>
+        <article>
+            <h4>First condition:</h4>
+            @if( condition ) {
+                <div>FIRST
+                    <p>If condition is met:</p>
+                    <small>{{condition}}</small>
+                </div>
+            }
+        </article>
+        <article>
+            <h4>NESTED:</h4>
+            @if( condition ) {
+                <div>SECOND
+                    <p>If condition is met:</p>
+                    <small>{{condition}}</small>
+                    <article>
+                        <h4>NESTEDISSIMA :</h4>
+                        @if( condition ) {
+                            <div>THIRD
+                                <p>If condition is met:</p>
+                                <small>{{condition}}</small>
+                            </div>
+                        }
+                    </article>
+                </div>
+            }
+        </article>
+
+    </main>
+</section>
+
+
+<section>
+    <aside>
+        <h3> For Loops </h3>
+    </aside>
+    <main>
+        <article>
+            <h4>Basic for loop:</h4>
+            @for( let item of items ) {
+                <div>
+                    <p> <b>title: </b>: {{item.title}}</p>
+                    <small>{{item.description}}</small>
+                </div>
+            }
+        </article>
+
+        <article>
+            <h4>Nested for loop:</h4>
+            @for( let item of items ) {
+                <div>
+                    <p> <b>title: </b>: {{item.title}}</p>
+                    <small>{{item.description}}</small>
+
+                    @for( let image of item.images ) {
+                        <img src="{{image.src}}" alt="awesome image" /> 
+                    }
+
+                </div>
+            }
+        </article>
+
+    </main>
+</section>

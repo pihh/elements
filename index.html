@@ -6,16 +6,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
+    <template id="my-button-template">
+      <p>{{text}}</p>
+      <p>{{list[0]}}</p>
+      <p>{{object.key}}</p>
+      <p>{{objectList[0].item}}</p>
+      <input class="input" model="text" />
+      {{color}}
+      <button class="bg-{{color}}-100" *model="model" onClick="fn"> <slot></slot></button>
+    </template>
+    <!--  -->
+    
   </head>
   <body>
-    <div id="app"></div>
-    <style>
-      * {
-        color: black !important;
-      }
-    </style>
-  
-    <el-upgrade>
+    <div id="app">
+      <section>
+        <article><h1>Example</h1></article>
+      </section>
+      <footer id="fofo">footer</footer>
+    </div>
+
+    <my-button>Default</my-button>
+
+    <!-- 
+      <el-requirements></el-requirements>
+      <el-upgrade>
       
     </el-upgrade>
 
@@ -30,9 +45,13 @@
       visible="true"
       > 
       
-    </el-upgrade> 
-  
+    </el-upgrade>  -->
     <script type="module" src="/main.js"></script>
     
   </body>
 </html>
+<!--
+      <my-button variant="primary">Primary</my-button>
+    <my-button variant="secondary">Secondary</my-button>
+    <button class="primary">Plain HTML &lt;button&gt;</button>
+-->

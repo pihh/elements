@@ -20,9 +20,22 @@ export const initialExpressionCleanup = function (element) {
     const replacement = "{{" + match.replaceAll(" ", "") + "}}";
     innerHTML = innerHTML.replaceAll(original, replacement);
   }
-  element.innerHTML = innerHTML;
+  try{
 
-  return element;
+    element.innerHTML = innerHTML;
+  }catch(e){
+    const placeholder = document.createElement("div");
+    placeholder.innerHTML = innerHTML;
+    const tmp =document.createElement("template");
+    tmp.setAttribute('id',element.id);
+    element.replaceWith(tmp);
+    tmp.appendChild(placeholder);
+    // return element;
+    element = placeholder
+  }
+
+  return element
+
 };
 
 export function isChar(c) {
@@ -82,7 +95,7 @@ export const getExpressionProperties = function (expression, keywords = []) {
       }
     }
   }
-  return keywords;
+  return [...new Set(keywords)];
 };
 
 export const parseTemplateString = function (
