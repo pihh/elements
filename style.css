@@ -8902,3 +8902,20 @@ html {
 
 
 
+
+
+.section-container {
+  padding: 1rem;
+  border-radius: 0.75rem;
+  border-width: 1px;
+  max-width: 680px;
+  margin: 1em auto;
+  display: grid;
+  gap: 1em;
+}
+
+
+.list-margin-y {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}

@@ -44,19 +44,25 @@ export class PropConnector {
   }
 
   static evaluate(instance, query, type = "text") {
-    const fn = Function("return " + query);
-    const output = fn.call(instance.scope);
-    let value = output;
-    if (type == "boolean") {
-      if (["true", true].indexOf(value) > -1) {
-        value = true;
-      } else {
-        value = false;
+    try{
+
+      const fn = Function("return " + query);
+      const output = fn.call(instance.scope);
+      let value = output;
+      if (type == "boolean") {
+        if (["true", true].indexOf(value) > -1) {
+          value = true;
+        } else {
+          value = false;
+        }
+      } else if (type == "number") {
+        value = Number(value);
       }
-    } else if (type == "number") {
-      value = Number(value);
+      return value;
+    }catch(ex){
+      return query
+      // return query.replaceAll('${','{{').replaceAll('}}','}')
     }
-    return value;
   }
 }
 
@@ -116,7 +122,15 @@ export class ModelConnector {
 
     let callback = function () {
       let result = PropConnector.evaluate(instance, query, dataType);
-      node.setAttribute(attributeName, result);
+      if(type == "checkbox"){
+        if(["true",true].indexOf(result)>-1){
+          node.setAttribute(attributeName, true);
+        }else{
+          node.removeAttribute(attributeName)
+        }
+      }else{
+        node.setAttribute(attributeName, result);
+      }
     };
 
     node.addEventListener(eventName, function ($event) {
@@ -189,18 +203,26 @@ export const connectTemplate = function (instance) {
   const actions = instance.actions.map;
 
   for (let key of Object.keys(actions)) {
-    // console.log(key)
-    const action = actions[key][0];
-    action.node.removeAttribute(key);
-    action.setup(instance);
+    for(let action of actions[key]){
+      action.node.removeAttribute(key);
+      action.setup(instance);
+    }
   }
 
-  let operations = instance.operations.map.if
-  for (let operation of operations) {
+  let forOps = instance.operations.map.for
+  for (let operation of forOps) {
     // console.log(key)
     
     operation.setup(instance);
   }
+  let ifOps = instance.operations.map.if
+  for (let operation of ifOps) {
+    // console.log(key)
+    
+    operation.setup(instance);
+  }
+
+
   instance.__setup.templateConnected = true;
 };
 

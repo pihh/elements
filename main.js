@@ -4,18 +4,19 @@ import { Registry } from "./src/elements/kernel/registry";
 import { State } from "./src/elements/compiler/state";
 import { connectTemplate } from "./src/elements/component/reactivity/connector";
 import { reactivityMap } from "./src/elements/component/template/analyser/map";
+import { addGlobalStylesToShadowRoot, getGlobalStyleSheets } from "./src/elements/component/template/styles";
 
 class MyWebComponent extends HTMLElement {
-  static observedAttributes = [
-    "variant",
-    "text",
-    "object",
-    "list",
-    "objectList",
-    "color",
-    "colors",
-    "checked",
-  ];
+  // static observedAttributes = [
+  //   "variant",
+  //   "text",
+  //   "object",
+  //   "list",
+  //   "objectList",
+  //   "color",
+  //   "colors",
+  //   "checked",
+  // ];
 
   __setup = {
     templateConnected: false,
@@ -27,6 +28,7 @@ class MyWebComponent extends HTMLElement {
 
     const shadowRoot = this.attachShadow({ mode: "open" });
     this.__shadowRoot = shadowRoot;
+    addGlobalStylesToShadowRoot(this.__shadowRoot);
   }
   checked = true;
   text = "text property";
@@ -45,7 +47,7 @@ class MyWebComponent extends HTMLElement {
   connectScope() {
     const _scope = {};
     this.__props = Object.getOwnPropertyNames(this).filter(
-      (el) => el.indexOf("_") != 0
+      (el) => el.indexOf("_") != 0 && typeof el !=="function"
     );
     this.__props.forEach((key) => {
       _scope[key] = this.getAttribute(key) || this[key];
@@ -71,7 +73,7 @@ class MyWebComponent extends HTMLElement {
       this.__didConnect = true;
       this.connectScope();
       await this.connectTemplate();
- 
+      this.operations.onDidConnect()
     }
 
     this.render();
@@ -86,7 +88,11 @@ class MyWebComponent extends HTMLElement {
   }
 
   fn($event,$index,text,str,num){
-    console.log('fn',{$event,$index,text,str,num})
+    console.log('FN CALLED',{$event,$index,text,str,num})
+  }
+
+  customFn(){
+    console.log('Custom FN CALLED')
   }
 }
 

@@ -7,66 +7,65 @@
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
     <template id="template-my-button">
-      <p>{{text}}</p>
-      <p>{{list[0]}}</p>
-      <p>{{object.key}}</p>
-      <p>{{objectList[0].item}}</p>
-      <input class="input" model="text" />
-      <input class="input" model="checked" type="checkbox" />
-      {{color}}
-      <button class="bg-{{color}}-100" @onClick="fn($event,$index,text,'x',1)">
-        <slot></slot>
-      </button>
-      <select class="input" model="color">
-        <option value="{{colors[0]}}">{{colors[0]}}</option>
-        <option value="{{colors[1]}}">{{colors[1]}}</option>
-        <option value="{{colors[2]}}">{{colors[2]}}</option>
-      </select>
+      <section class="bg-{{color}}-100 section-container ">
+        <p>{{text}}</p>
+        <p>{{list[0]}}</p>
+        <p>{{object.key}}</p>
+        <p>{{objectList[0].item}}</p>
+        <input class="input" model="text" />
+        <input class="" model="checked" type="checkbox" />
+        {{color}}
+        <button @onClick="fn($event,$index,text,'x',1)" class="btn">
+          <slot></slot>
+        </button>
 
-      <input class="input" model="list[0]" />
-      <input class="input" model="object.key" />
-      <input class="input" model="objectList[0].item" />
+        <select class="input" model="color">
+          @for(c of colors){
+            <option value="{{c}}">{{c}} {{$index}}</option>
+          }@endfor
+      
+        </select>
+        <div>
+          @for(c of colors){
+            <div>
 
-      <div>
-        @if(this.checked)
-        <section>
-          <h3>OUTER CHECK</h3>
-          @if(this.checked)
-          <article>INNER CHECK</article>
-          @endif()
-        </section>
-        @endif()
-      </div>
+              <h2 >{{c}} </h2>
+              @for(d of colors){
+                <h2 >{{d}} </h2>
+              }@endfor
+            </div>
+          }@endfor
+        </div>
+        <input class="input" model="list[0]" />
+        <input class="input" model="object.key" />
+        <input class="input" model="objectList[0].item" />
+
+        <div>
+          @if this.checked
+          <section>
+            <h3>OUTER CHECK</h3>
+            @if this.checked
+            <article>
+              INNER CHECK
+
+              <button @onClick="customFn" class="btn">CUSTOM FN</button>
+            </article>
+            @endif
+          </section>
+          @endif
+        </div>
+      </section>
     </template>
   </head>
   <body>
     <div id="app">
-      <section>
+      <section class="section-container">
         <article><h1>Example</h1></article>
       </section>
+      <my-button>Default</my-button>
       <footer id="fofo">footer</footer>
     </div>
 
-    <my-button>Default</my-button>
-
-    <!-- 
-      <el-requirements></el-requirements>
-      <el-upgrade>
-      
-    </el-upgrade>
-
-
-
-    <el-upgrade 
-      counter="1"
-      color="yellow"
-      colors="['yellow','red','blue']"
-      description="Another component for you to edit!"
-      caption="render"
-      visible="true"
-      > 
-      
-    </el-upgrade>  -->
     <script type="module" src="/main.js"></script>
   </body>
 </html>
