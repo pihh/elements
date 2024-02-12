@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elements Framework</title>
+    <template id="template-my-button">
+      <section class="bg-{{color}}-100 section-container ">
+        <p>{{text}}</p>
+        <p>{{list[0]}}</p>
+        <p>{{object.key}}</p>
+        <p>{{objectList[0].item}}</p>
+        <input class="input" model="text" />
+        <input class="" model="checked" type="checkbox" />
+        {{color}}
+        <button @onClick="fn($event,$index,text,'x',1)" class="btn">
+          <slot></slot>
+        </button>
+
+        <select class="input" model="color">
+          @for(c of colors){
+            <option value="{{c}}">{{c}} {{$index}}</option>
+          }@endfor
+      
+        </select>
+        <div>
+          @for(c of colors){
+            <div>
+
+              <h2 >{{c}} </h2>
+              @for(d of colors){
+                <h2 >{{d}} </h2>
+              }@endfor
+            </div>
+          }@endfor
+        </div>
+        <input class="input" model="list[0]" />
+        <input class="input" model="object.key" />
+        <input class="input" model="objectList[0].item" />
+
+        <div>
+          @if this.checked
+          <section>
+            <h3>OUTER CHECK</h3>
+            @if this.checked
+            <article>
+              INNER CHECK
+
+              <button @onClick="customFn" class="btn">CUSTOM FN</button>
+            </article>
+            @endif
+          </section>
+          @endif
+        </div>
+      </section>
+    </template>
+    <script type="module" crossorigin src="/assets/index-yqQuW7OP.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-DpbkMtEx.css">
+  </head>
+  <body>
+    <div id="app">
+      <section class="section-container">
+        <article><h1>Example</h1></article>
+      </section>
+      <my-button>Default</my-button>
+      <footer id="fofo">footer</footer>
+    </div>
+
+  </body>
+</html>
+<!--
+      <my-button variant="primary">Primary</my-button>
+    <my-button variant="secondary">Secondary</my-button>
+    <button class="primary">Plain HTML &lt;button&gt;</button>
+-->

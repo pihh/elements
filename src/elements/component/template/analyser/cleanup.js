@@ -2,7 +2,7 @@ import { getIndexes, getStrBetween, isChar } from "../../../helpers/regex";
 
 export const initialExpressionCleanup = function (element) {
   // INITIAL CLEANUP
-
+if(!element) return;
   let innerHTML = element.innerHTML;
   let matches = getStrBetween(innerHTML);
   for (let match of matches) {
@@ -20,7 +20,7 @@ export const initialExpressionCleanup = function (element) {
     tmp.setAttribute('id',element.id);
     element.replaceWith(tmp);
     tmp.appendChild(placeholder);
-    // return element;
+    
     element = placeholder
   }
 

@@ -26,7 +26,7 @@ export class Render{
     return parsedTemplate;
   };
   __parseTemplatePointers(template, instance) {
-    console.log({template,instance})
+
     let matches = [];
     const props = instance.props || [];
     const actions = instance.actions || [];

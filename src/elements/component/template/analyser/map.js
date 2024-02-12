@@ -5,6 +5,7 @@ import {
 } from "../../../helpers/regex";
 import { Registry } from "../../../kernel/registry";
 import { PropConnector } from "../../reactivity/connector";
+import { parseTemplateString } from "./cleanup";
 
 /**
  * Create an array of the attributes on an element
@@ -126,57 +127,145 @@ class OperationMap {
   stack = { if: [], for: [] };
   map = { if: [], for: [] };
   onDidConnect() {
+
     this.map.for.forEach((el) => {
-      console.log(el);
+   
       el.callback();
     });
     this.map.if.forEach((el) => {
-      // console.log(el);
+      // console.log({ el });
       el.callback();
     });
   }
   constructor() {}
   feed(node) {
-    if (this.stack.if[this.stack.if.length - 1]) {
+    if (this.stack.if.length > 0) {
       this.stack.if[this.stack.if.length - 1].nodes.push(node);
     }
-    if (this.stack.for[this.stack.for.length - 1]) {
+
+    if (this.stack.for.length > 0) {
       this.stack.for[this.stack.for.length - 1].nodes.push(node);
     }
   }
+  extractQueryIf(node) {
+    const content = node.textContent
+      .split("@if")
+      .map((el) => el.trim())
+      .filter((el) => el.length > 0)[0]
+      .split(")")[0]
+      .replace("(", "");
+    let keywords = getExpressionProperties("{{" + content + "}}");
+    let query = content;
+
+    for (let keyword of keywords.sort((a, b) => b - a)) {
+      query = query.replaceAll("this.scope." + keyword, keyword);
+      query = query.replaceAll("this." + keyword, keyword);
+      query = query.replaceAll(keyword, "this.scope." + keyword);
+    }
+    //query = "${" + query + "}";
+    return { query, value: content, keywords: keywords };
+  }
+  extractQueryFor(node) {
+    const content = node.textContent
+      .split("@for")
+      .map((el) => el.trim())
+      .filter((el) => el.length > 0)
+      .map((el) => {
+        for (let exp of ["let ", "const "]) {
+          if (el.indexOf(exp) == 0) {
+            el = el.replace(exp, "");
+          }
+        }
+        return el;
+      })[0]
+      .split(")")[0]
+      .replace("(", "");
+    let split = content
+      .split(" of ")
+      .map((el) => el.trim())
+      .filter((el) => el.length > 0);
+    let variable = split[0];
+    let source = split[1];
+    let keywords = getExpressionProperties("{{" + source + "}}");
+    let query = source;
+
+    for (let keyword of keywords.sort((a, b) => b - a)) {
+      query = query.replaceAll("this." + keyword, keyword);
+      query = query.replaceAll(keyword, "this." + keyword);
+    }
+    //query = "${" + query + "}";
+    return { query, value: content, source, variable, keywords: keywords };
+  }
+  extractQuery(node) {
+    if (node.textContent.indexOf("@if") > -1) {
+      return this.extractQueryIf(node);
+    } else {
+      return this.extractQueryFor(node);
+    }
+  }
+  __connId = 0;
   track(prop, configuration = {}) {
     if (prop == "@if") {
-      this.stack.if.push({ prop, nodes: [] });
+      const { query, value, keywords } = this.extractQuery(configuration.node);
+      let id = 'if-stack-'+Date.now();
+      const entry = {
+        operation: "if",
+        prop,
+        query,
+        value,
+        keywords,
+        nodes: [],
+      }
+      if(this.stack.if.length > 0) {
+        const $container = document.createElement('div');
+        $container.setAttribute('id', id);
+  
+        this.stack.if[this.stack.if.length-1].nodes.push($container);
+        entry.connector = "#"+id;
+      }
+      
+        this.stack.if.push(entry);
+
+   
+  
     } else if (prop == "@endif") {
       try {
         let last = this.stack.if.pop();
-
+    
         let start = last.nodes[0];
-        let end = last.nodes[last.nodes.length - 1];
-        let content = last.nodes.slice(1, last.nodes.length - 2);
+        let end = last.nodes[last.nodes.length - 2];
+        let content = last.nodes.slice(1, last.nodes.length - 3);
+
         let operation = {
+          operation: "if",
           start,
           end,
           content,
-          query: "this.condition",
-          value: "this.condition",
+          query: last.query,
+          value: last.value,
+          keywords: last.keywords,
+          hasParent: last.connector,
           connected: false,
           callback: function () {},
           connect: function (instance) {
             const $placeholder = document.createComment("if placeholder ");
             $placeholder.content = content;
             start.replaceWith($placeholder);
-            end.remove();
+       
             for (let node of content) {
               node.remove();
             }
             let callback = function () {
-              let value =
-                ["true", true].indexOf(instance.scope.checked) > -1
-                  ? true
-                  : false;
+              // console.log('cb',last)
+           
+       
+              const $fn = Function("return `${" + last.query + "}`");
+              const output = $fn.call(instance);
+              // console.log(output);
+              let value = ["true", true].indexOf(output) > -1 ? true : false;
               if (value) {
                 for (let node of $placeholder.content) {
+             
                   $placeholder.after(node);
                 }
               } else {
@@ -185,7 +274,10 @@ class OperationMap {
                 }
               }
             };
-            instance.connect("checked", callback);
+            for (let keyword of last.keywords) {
+              
+              instance.connect(keyword, callback);
+            }
             this.callback = callback;
           },
           setup: function (instance) {
@@ -197,62 +289,84 @@ class OperationMap {
         this.map.if.push(operation);
       } catch (ex) {}
     } else if (prop == "@for") {
-      this.stack.for.push({ prop, nodes: [] });
+      const { query, value, source, variable, keywords } = this.extractQuery(
+        configuration.node
+      );
+      this.stack.for.push({
+        operation: "for",
+        prop,
+        query,
+        value,
+        source,
+        variable,
+        keywords,
+        nodes: [],
+      });
     } else if (prop == "@endfor") {
       try {
         let depth = this.stack.for.length;
         let last = this.stack.for.pop();
+
         let indexs = { $index: 0 };
         for (let i = 1; i < depth; i++) {
           indexs["$index" + i] = 0;
-        }
+        } 
         let start = last.nodes[0];
-        let end = last.nodes[last.nodes.length - 1];
-        let content = last.nodes.slice(1, last.nodes.length - 2);
+        let end = last.nodes[last.nodes.length - 2];
+        let content = last.nodes.slice(1,last.nodes.length-1);
         content = content.map((el) => {
           el.dataset.elIndex = JSON.stringify(indexs);
           return el;
         });
+        let query = last.query;
         let operation = {
           start,
           end,
           content,
-          query: "this.colors.length",
-          value: "this.colors.length",
+          query: query + ".length",
+          value: query + ".length",
           stack: [],
+          keywords: last.keywords,
           connected: false,
           callback: function () {},
           connect: function (instance) {
-            const $template = document.createElement("template");
-            const $placeholder = document.createComment("for placeholder ");
-            let $boilerplate = "";
+            
+            const $placeholder = document.createComment("for placeholder");
+
             $placeholder.content = content;
             $placeholder.stack = [];
 
             start.replaceWith($placeholder);
             end.remove();
 
-            for (let node of content) {
-              // document.body.appendChild(node);
-              $template.content.appendChild(node);
-              // node.remove();
+            let $template = document.querySelector(
+              "template-for-loop__" + depth
+            );
+            if (!$template) {
+              $template = document.createElement("template");
+              document.head.appendChild($template);
+              for (let node of content) {
+             
+                $template.content.appendChild(node);
+              }
+
+              
+              $template.setAttribute("id", "template-for-loop__" + depth);
             }
-
-            // $boilerplate = $boilerplate.replaceAll('${c','${this.colors[$index]')
-            document.head.appendChild($template);
-            $template.setAttribute("id", "template-for-loop");
-            console.log($template);
-
+            let variable = last.variable;
+            let source = last.source;
             let callback = async function () {
               let value = instance.scope.colors.length;
-              for (let i = 0; i < value; i++) {
-                let _tpl = await Registry.template("for-loop", this.__props); //.then((_tpl) => {
-                console.log(i);
+              let _tpl = await Registry.template(
+                "for-loop__" + depth,
+                instance.__props
+              ); //.then((_tpl) => {
+              for (let i = $placeholder.stack.length; i < value; i++) {
+                
                 let tpl = _tpl.cloneNode(true);
+
                 tpl.innerHTML = tpl.innerHTML
-                  .replaceAll("${d", "{{this.colors[$index]")
-                tpl.innerHTML = tpl.innerHTML
-                  .replaceAll("${c", "{{this.colors[$index]")
+                  .replaceAll("${" + variable, "{{" + query + "[$index]")
                   .replaceAll("[$index", "[" + i)
                   .replaceAll("{$index", "{" + i)
                   .replaceAll("`", "")
@@ -260,11 +374,10 @@ class OperationMap {
                   .replaceAll("}", "}}")
                   .replaceAll("$index", i);
 
-        
-                  // .replaceAll("}", "}}");
+                // .replaceAll("}", "}}");
                 let { props, actions, operations } = reactivityMap(tpl);
                 const connections = props.map;
-                // console.log(props,actions,operations)
+          
                 for (let key of Object.keys(connections)) {
                   const connection = connections[key];
                   for (let conn of connection) {
@@ -281,32 +394,16 @@ class OperationMap {
                 }
 
                 $placeholder.after(tpl.firstElementChild);
+                $placeholder.stack.push(tpl.firstElementChild);
               }
-              // for(let i = 0; i < value; i++) {
-              //   if(!$placeholder.stack[i]){
-
-              //     // const $wrapper = document.createElement('div');
-              //     // $wrapper.innerHTML = $placeholder.boilerplate.replaceAll('$index',i);
-              //     // $placeholder.after($wrapper.firstElementChild);
-              //     // $placeholder.stack.push($wrapper.firstElementChild);
-
-              //   }
-              // }
-              // for(let node)
-              //   ["true", true].indexOf(instance.scope.checked) > -1
-              //     ? true
-              //     : false;
-              // if (value) {
-              //   for (let node of $placeholder.content) {
-              //     $placeholder.after(node);
-              //   }
-              // } else {
-              //   for (let node of $placeholder.content) {
-              //     node.remove();
-              //   }
-              // }
+              for (let i = $placeholder.stack.length; i > value; i--) {
+                $placeholder.stack[i].remove();
+                $placeholder.stack.pop();
+              }
             };
-            instance.connect("colors.length", callback);
+            for (let keyword of last.keywords) {
+              instance.connect(keyword + ".length", callback);
+            }
             this.callback = callback;
           },
           setup: function (instance) {
@@ -351,10 +448,10 @@ export const reactivityMap = function (element) {
         let operationEndIdx = node?.data?.indexOf("@end" + op) ?? -1;
 
         if (operationIdx > -1) {
-          operations.track("@" + op);
+          operations.track("@" + op, { node });
         }
         if (operationEndIdx > -1) {
-          operations.feed(node);
+          // operations.feed(node);
           operations.track("@end" + op);
         }
       }
@@ -542,7 +639,8 @@ export const reactivityMap = function (element) {
       return details;
     });
   };
-  console.log(operations);
+  // console.log(operations);
+  
   createDOMMap(element);
   return { props, actions, operations };
 };

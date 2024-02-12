@@ -51,15 +51,3 @@ export const extractLookedPaths = function (_scope, expression,_preffix="this") 
 
 };
 
-// var scope = {
-//   n: 1,
-//   b: false,
-//   s: "string",
-//   o: { a: 1, b: [1, 2], c: { x: [1] } },
-//   a: [1, 2],
-//   ao: [{ x: 1 }],
-// };
-
-// var expression = "{{ 'aaa', scope.o.a scope.o.c.x[0] scope.n}} scope.x";
-
-// console.log(extractLookedPaths(scope,expression))

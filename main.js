@@ -4,7 +4,7 @@ import { Registry } from "./src/elements/kernel/registry";
 import { State } from "./src/elements/compiler/state";
 import { connectTemplate } from "./src/elements/component/reactivity/connector";
 import { reactivityMap } from "./src/elements/component/template/analyser/map";
-import { addGlobalStylesToShadowRoot, getGlobalStyleSheets } from "./src/elements/component/template/styles";
+import { addGlobalStylesToShadowRoot } from "./src/elements/component/template/styles";
 
 class MyWebComponent extends HTMLElement {
   // static observedAttributes = [
@@ -31,6 +31,8 @@ class MyWebComponent extends HTMLElement {
     addGlobalStylesToShadowRoot(this.__shadowRoot);
   }
   checked = true;
+  checked2 = false;
+  
   text = "text property";
   object = {
     key: "object value",
@@ -43,6 +45,7 @@ class MyWebComponent extends HTMLElement {
   ];
   color = "yellow";
   colors = ["green", "red", "yellow"];
+  items = ["item 1", "item 2"];
 
   connectScope() {
     const _scope = {};
@@ -57,6 +60,13 @@ class MyWebComponent extends HTMLElement {
     const { scope, connect, render, pubsub } = State(_scope);
     this.scope = scope;
     this.connect = connect;
+
+    for(let key of Object.keys(this.scope)){
+      this.__defineGetter__(key, function(){
+        return this.scope[key]
+      })
+   
+    }
   }
 
   async connectTemplate() {
@@ -89,6 +99,11 @@ class MyWebComponent extends HTMLElement {
 
   fn($event,$index,text,str,num){
     console.log('FN CALLED',{$event,$index,text,str,num})
+  }
+
+  addColor(){
+
+    this.colors.push('new-color')
   }
 
   customFn(){
