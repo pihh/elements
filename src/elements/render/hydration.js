@@ -1,4 +1,3 @@
-import { getPath2 } from "../../../elements/compiler/model/update";
 import {
   addCustomListener,
   addModelListener,

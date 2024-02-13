@@ -4,6 +4,8 @@ import { State } from "../../reactivity/state";
  * Will create the scope for state management 
  * Will create a proxy, a pubsub and a connect function 
  * Will also define the getters and setters
+ * 
+ * @todo -> JSON serialization 
  * @param {ElComponent} component 
  */
 export const connectScope = function (component) {

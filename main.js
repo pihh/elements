@@ -1,26 +1,5 @@
-import { ElComponent } from "./src/elements/component";
-//  import { RequirementsComponent } from "./src/components/requirements";
+import { ElComponent , Component} from "./src/elements/component";
 
-function Component(config) {
-  const _config = {
-    ...config,
-  };
-  return function (component) {
-    class Component extends component {
-      static selector = _config.selector;
-      constructor() {
-        super();
-      }
-    }
-    try {
-
-      customElements.define(_config.selector, component);
-    } catch (ex) {
-      console.warn(ex);
-    }
-    return Component;
-  };
-}
 
 @Component({
   selector: "el-web-component",

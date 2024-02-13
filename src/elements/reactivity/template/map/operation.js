@@ -1,15 +1,26 @@
+import { TemplateManager } from "../../../compiler/template/manager";
 import { filterNonEmpty } from "../../../helpers/array";
 import { findTextNodes } from "../../../helpers/dom";
-import { getExpressionProperties, getStrBetween, isChar } from "../../../helpers/regex";
+import {
+  getExpressionProperties,
+  getStrBetween,
+  isChar,
+} from "../../../helpers/regex";
 import { Registry } from "../../../kernel/registry";
+import { connectHtmlReactivity } from "../connection";
 import { reactivityMap } from "../map";
 
 export class OperationMap {
   stack = { if: [], for: [] };
   map = { if: [], for: [] };
-  onDidConnect() {
-    this.map.for.forEach((el) => {
-      el.callback();
+  async onDidConnect(instance) {
+    this.map.for.reverse().forEach(async (el) => {
+      // console.log(el.query, el);
+      
+      // let fn = Function("return `${" + el.query + "}`;");
+      // let output = Number(fn.apply(instance));
+      // let n = output || 0;
+       await el.callback(1);
     });
     this.map.if.forEach((el) => {
       el.callback();
@@ -68,7 +79,7 @@ export class OperationMap {
     if (node.textContent.indexOf("@if") > -1) {
       return this.extractQueryIf(node);
     } else {
-      return this.extractQueryFor(node);
+      // return this.extractQueryFor(node);
     }
   }
   __connId = 0;
@@ -96,10 +107,8 @@ export class OperationMap {
       }
 
       this.stack.if.push(entry);
-      
     } else if (prop == "@endif") {
       try {
-  
         let last = this.stack.if.pop();
 
         let start = last.nodes[0];
@@ -118,23 +127,21 @@ export class OperationMap {
           connect: function (instance) {
             const $placeholder = document.createComment("if placeholder ");
             $placeholder.content = content;
-       
+
             const $parent = instance.shadowRoot.querySelector(
               '[data-el-if-container="' +
                 last.placeholder.dataset.elIfContainer +
                 '"]'
             );
-  
-      
-            last.nodes[0].replaceWith($placeholder)
-            
+
+            last.nodes[0].replaceWith($placeholder);
+
             try {
-          
               content.remove();
             } catch (ex) {}
-        
 
             let callback = function () {
+   
               const $fn = Function("return `${" + last.query + "}`");
               const output = $fn.call(instance);
 
@@ -161,183 +168,47 @@ export class OperationMap {
         console.warn(ex);
       }
     } else if (prop == "@for") {
-      const { query, value, source, variable, keywords } = this.extractQuery(
-        configuration.node
-      );
-      let start = configuration.node;
-
-      let $placeholder = configuration.node.nextElementSibling;
  
-      // $placeholder.dataset.elForItem = 1;
-      const $parent = $placeholder.parentElement;
-
-      $parent.dataset.elForContainer = true;
-      for (let match of getStrBetween($parent.innerHTML)) {
-        let m = match.trim();
-        if (m.indexOf(variable) == 0) {
-          if (
-            !m.replace(variable, "").charAt(0) ||
-            !isChar(m.replace(variable, "").charAt(0))
-          ) {
-            $parent.innerHTML = $parent.innerHTML.replace(
-              "{{" + match,
-              "{{" + query + "[$index]"
-            ); //.replace('.scope',''));
-          }
-        }
-      }
-
-      //)
-
-      // $placeholder = $parent.querySelector("[data-el-for-item]");
-      // delete $placeholder.dataset.elForItem;
+      const replacement = configuration.node.parentElement;
+      const query = replacement.dataset.forQuery
+      const connection = replacement.dataset.forConnection
 
 
-      this.stack.for.push({
+      const operation = {
         operation: "for",
-        prop,
+        replacement,
         query,
-        value,
-        source,
-        variable,
-        keywords,
-        nodes: [start],
-        placeholder: $placeholder,
-      });
-    } else if (prop == "@endfor") {
-      try {
-        // // debugger;
-
-        let depth = this.stack.for.length;
-        let last = this.stack.for.pop();
-        let start = last.nodes[0];
-        let indexs = { $index: 0 };
-        for (let i = 1; i < depth; i++) {
-          indexs["$index" + i] = 0;
-        }
-
-        let content = last.placeholder;
-        let variable = last.variable
-        let query = last.query
-        let id = "for-stack-" + Date.now();
-        let $template = document.querySelector("#template-" + id);
-        if (!$template) {
-          const $wrapper = document.createElement("div");
-          $template = document.createElement("template");
-
-          $template.content.appendChild($wrapper);
-          $wrapper.appendChild(content);
-            $template.setAttribute("id", "template-" + id);
-          document.head.appendChild($template);
-    
-          for (let match of getStrBetween($template.content.firstChild.innerHTML)) {
-            let m = match.trim();
-            if (m.indexOf(variable) == 0) {
-              if (
-                !m.replace(variable, "").charAt(0) ||
-                !isChar(m.replace(variable, "").charAt(0))
-              ) {
-        
-                $template.content.firstChild.innerHTML = $template.content.firstChild.innerHTML.replace(
-                  "{{" + match,
-                  "{{" + query + "[$index]"
-                ); //.replace('.scope',''));
-              }
-            }
-          }
-          $template.content.firstChild.replaceWith( $template.content.firstChild.firstChild)
-        
-        }
-        let end = last.nodes[0];
-
-        // let query = last.query;
-        let operation = {
-          start,
-          end,
-          content,
-          query: query + ".length",
-          value: query + ".length",
-          stack: [],
-          keywords: last.keywords,
-          connected: false,
-          callback: function () {},
-          connect: async function (instance) {
-            
-            let _tpl = await Registry.template(id, instance.__props);
-            const $placeholder = document.createComment("for placeholder");
-            const $parent = instance.shadowRoot.querySelector(
-              "[data-el-for-container]"
-              );
+        connection,
+        connected: false,
+        callback: function () {},
+        connect: async function (instance) {
+          const $replacement = instance.shadowRoot.querySelector('[data-for-connection="'+connection+'"]');
+          const $placeholder = document.createComment("for placeholder ");
+          $replacement.replaceWith($placeholder);
+          $placeholder.content = new TemplateManager(connection,instance.__props);
          
-              
-            $placeholder.content = content;
-   
-            $placeholder.stack = [];
+          let generate = function(id){
+         
+           const _template = $placeholder.content.__template.content.firstElementChild.cloneNode(true);
+           _template.innerHTML = _template.innerHTML.replaceAll('$index0',id);
+           _template.innerHTML = _template.innerHTML.replaceAll('$index1',id);
+       
+            $placeholder.after(_template);
+            connectHtmlReactivity(instance,_template)
 
-            $parent.innerHTML = "";
-            $parent.appendChild($placeholder);
-
-            let variable = last.variable;
-            let source = last.source;
-            let callback = function (value) {
-            
-              $placeholder.scope = instance.scope;
-              $placeholder.scope.$index = "$index";
-              $parent.appendChild($placeholder);
-              for (let i = $placeholder.stack.length; i < value; i++) {
-                let tpl = _tpl.cloneNode(true);
-  
-                tpl.innerHTML = tpl.innerHTML.replaceAll("$index", i);
-
-                [...tpl.querySelectorAll("*")].forEach(($el) => {
-                  $el.$index = 0;
-                });
-                for (let $node of findTextNodes(tpl)) {
-                  $node.$index = 0;
-                }
-                let { props, actions, operations } = reactivityMap(tpl);
-                const connections = props.map;
-
-                for (let key of Object.keys(connections)) {
-                  const connection = connections[key];
-                  for (let conn of connection) {
-                    conn.setup(instance);
-                  }
-                }
-
-                actions = actions.map;
-                for (let key of Object.keys(actions)) {
-                  for (let action of actions[key]) {
-                    action.node.removeAttribute(key);
-                    action.setup(instance);
-                  }
-                }
-
-                $placeholder.after(tpl.firstElementChild);
-                $placeholder.stack.push(tpl.firstElementChild);
-              }
-              for (let i = $placeholder.stack.length; i > value; i--) {
-                $placeholder.stack[i].remove();
-                $placeholder.stack.pop();
-              }
-            };
-            for (let keyword of last.keywords) {
-              
-              instance.connect(keyword + ".length", callback);
-            }
-            this.callback = callback;
-          },
-          setup: function (instance) {
-
-            if (this.connected) return;
-            this.connected = true;
-            this.connect(instance);
-          },
-        };
-        this.map.for.push(operation);
-      } catch (ex) {
-        console.warn(ex);
+          }
+          generate(0)
+    
+          
+      
+        },
+        setup: function (instance) {
+          if (this.connected) return;
+          this.connected = true;
+          this.connect(instance);
+        },
       }
+      this.map.for.push(operation);
     }
   }
 }

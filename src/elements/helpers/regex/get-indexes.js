@@ -1,0 +1,1 @@
+export {getOcorrenceIndexes as getIndexes }from '../expression/get-ocorrence-indexes';

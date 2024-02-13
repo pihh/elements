@@ -100,7 +100,7 @@ export const reactivityMap = function (element) {
           operations.track("@" + op, { node });
         } else if (operationEndIdx > -1) {
           operations.track("@end" + op);
-          node.remove()
+          // node.remove()
         } else {
         }
       }

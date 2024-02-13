@@ -1,5 +1,6 @@
 import { addGlobalStylesToShadowRoot } from "../compiler/styles/global-styles";
-import { TemplateManagerV2 } from "../component2/template/manager";
+
+import {TemplateManager} from "../compiler/template/manager";
 
 /**
  * Registry class is used to compile templates and it's dependencies in real time.
@@ -84,7 +85,7 @@ class _Registry {
     //
     if (template) return template;
     this.templates[name] = new Promise(async (res) => {
-      const templateObject = new TemplateManagerV2(name,props);
+      const templateObject = new TemplateManager(name,props);
       const $template = templateObject.setup();
 
       res($template.__template.content.cloneNode(true).firstElementChild);

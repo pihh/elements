@@ -7,78 +7,12 @@
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
 
-    <template id="template-my-button">
-      <div
-        class="card border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] rounded-xl"
-        style="
-          background-image: url(https://daisyui.com/images/stock/photo-1481026469463-66327c86e544.jpg);
-          background-size: cover;
-        "
-      >
-        <div class="card w-96 glass rounded-lg overflow-hidden">
-          <figure>
-            <img
-              src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              alt="car!"
-            />
-          </figure>
-          <div class="card-body">
-            <h2 class="card-title">{{card.title}}</h2>
-            <p>{{card.description}}</p>
-            <div class="justify-end card-actions">
-              <button class="btn btn-primary" @onClick="customFn">
-                Learn now!
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </template>
 
-    <template id="template-el-web-component2">
-      <section class="bg-{{color}}-100 section-container ">
-        <p>{{text}}</p>
-        <p>{{list[0]}}</p>
-        <p>{{object.key}}</p>
-        <p>{{objectList[0].item}}</p>
-        <input class="input" model="text" />
-        <input class="" model="checked" type="checkbox" />
-        {{color}} <b> {{card.title}} </b>
-        <button @onClick="fn($event,$index,text,'x',1)" class="btn">
-          <slot></slot>
-        </button>
-
-        <select class="input" model="color">
-          @for(let c of colors){
-          <option value="{{c}}">{{c}}</option>
-          }@endfor
-        </select>
-
-        <input class="input" model="list[0]" />
-        <input class="input" model="object.key" />
-        <input class="input" model="objectList[0].item" />
-        <button class="btn btn-primary" @onClick="addColor">Add color</button>
-
-        <div>
-          @if(checked)
-          <section class="border border-gray-200 bg-white example-section">
-            <h3>OUTER CHECK</h3>
-            @if(checkedd)
-            <article class="border border-gray-200 bg-white example-section">
-              INNER CHECK
-
-              <button @onClick="customFn" class="btn">CUSTOM FN</button>
-            </article>
-            @endif()
-          </section>
-          @endif()
-        </div>
-      </section>
-    </template>
+    
 
     <template id="template-el-web-component">
       <div>
-      
+        @for(card of cards){
         <div
           class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
           style="
@@ -94,20 +28,24 @@
               />
             </figure>
             <div class="card-body">
-              <h2 class="card-title">{{cards[0].title}}</h2>
+              <h2 class="card-title">{{card.title}}</h2>
 
-              <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolores magnam quisquam iusto, autem eveniet, veniam vitae maiores optio facilis velit, omnis hic ea ipsam voluptates sequi nostrum tempore perspiciatis est!</p>
-              <input class="input" model="cards[0].title" />
+              <p>
+                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
+                Dolores magnam quisquam iusto, autem eveniet, veniam vitae
+                maiores optio facilis velit, omnis hic ea ipsam voluptates sequi
+                nostrum tempore perspiciatis est!
+              </p>
+             
 
               <div>
-
-                @for(let item of items){
-                  <li>{{item}}
-                  
-                    <input model="items[$index]"  class="input"/>
-                  </li>
-                  @endfor()
-                </div>
+                @for(item of items){
+                <li>
+                  {{item}}
+                  <input model="item" class="input" />
+                </li>
+                }
+              </div>
               <div class="justify-end card-actions">
                 <button class="btn btn-primary" @onClick="onClick">
                   Learn now!
@@ -116,7 +54,7 @@
             </div>
           </div>
         </div>
-      
+        }
       </div>
     </template>
   </head>

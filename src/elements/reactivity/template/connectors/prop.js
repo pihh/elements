@@ -40,13 +40,13 @@ export class PropConnector {
     }
   
     static evaluate(instance, query, type = "text",node=false) {
-      // console.log({instance,query,node,type})
-      // node.controller = instance
+   
       try{
         const $index = node?.$index || 0;
-        // console.log($index)
+ 
         const ist = instance;
         ist.scope.$index = 0
+     
         query = query.replaceAll('$index',node?.$index || instance?.$index || 0)
         const fn = Function("return " + query);
         const output = fn.call(ist.scope,);

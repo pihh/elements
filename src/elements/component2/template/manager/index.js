@@ -1,12 +1,10 @@
-import { getStrBetween } from "../../../helpers/regex";
-import { Registry } from "../../../kernel/registry";
-import {
-  initialExpressionCleanup,
-  parseTemplatePointers,
-} from "../analyser/cleanup";
+import { initialExpressionCleanup } from "../../../compiler/template/initial-expression-cleanup";
+import { parseTemplatePointers } from "../../../compiler/template/parse-template-pointers";
+
+
+
 import { parseIfConditions } from "../analyser/if";
-import { TemplateModel } from "./model";
-import { cleanTemplateString, createTemplateElement } from "./utils";
+
 
 export const TemplateGenerator = function (template) {};
 

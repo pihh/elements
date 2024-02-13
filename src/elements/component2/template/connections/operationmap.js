@@ -26,7 +26,7 @@ export class OperationMap {
       } else if (prop == "@endif") {
         try {
           let last = this.stack.if.pop();
-          console.log(last.nodes)
+ 
           let start = last.nodes[0];
           let end = last.nodes[last.nodes.length - 2];
           let content = last.nodes.slice(1, last.nodes.length - 2);
@@ -94,8 +94,8 @@ export class OperationMap {
             start,
             end,
             content,
-            query: "this.colors.length",
-            value: "this.colors.length",
+            query: query,
+            value:query,
             stack: [],
             connected: false,
             callback: function () {},
@@ -115,7 +115,7 @@ export class OperationMap {
   
               // $boilerplate = $boilerplate.replaceAll('${c','${this.colors[$index]')document.head.appendChild($template);
               $template.setAttribute("id", "template-for-loop");
-             
+              // debugger
   
               let callback = async function () {
                 let value = instance.scope.colors.length;
@@ -153,7 +153,7 @@ export class OperationMap {
                       action.setup(instance);
                     }
                   }
-  
+                  
                   $placeholder.after(tpl.firstElementChild);
                 }
                 // for(let i = 0; i < value; i++) {
