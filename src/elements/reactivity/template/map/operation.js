@@ -1,6 +1,6 @@
 import { filterNonEmpty } from "../../../helpers/array";
 import { findTextNodes } from "../../../helpers/dom";
-import { getExpressionProperties, getStrBetween } from "../../../helpers/regex";
+import { getExpressionProperties, getStrBetween, isChar } from "../../../helpers/regex";
 import { Registry } from "../../../kernel/registry";
 import { reactivityMap } from "../map";
 
@@ -15,14 +15,9 @@ export class OperationMap {
       el.callback();
     });
   }
-  constructor() {}
+  constructor(instance) {}
   feed(node) {
-    
-
-    // if (this.stack.for.length > 0) {
-    //   console.log({ node }, "for");
-    //   this.stack.for[this.stack.for.length - 1].nodes.push(node);
-    // }
+    // @deprecated
   }
   extractQueryIf(node) {
     const content = filterNonEmpty(node.textContent.split("@if"))[0]
@@ -40,11 +35,10 @@ export class OperationMap {
     return { query, value: content, keywords: keywords };
   }
   extractQueryFor(node) {
-    try{
-
+    try {
       const content = filterNonEmpty(node.textContent.split("@for"))[0]
-      .split(")")[0]
-      .replace("(", "");
+        .split(")")[0]
+        .replace("(", "");
       let split = filterNonEmpty(content.split(" of "));
 
       let variable = split[0];
@@ -57,20 +51,17 @@ export class OperationMap {
       let source = split[1];
       let keywords = getExpressionProperties("{{" + source + "}}");
       let query = source;
-      // console.log({content,variable: variable, query: query,source: source, keywords: keywords})
-      //   // debugger;
+
       for (let keyword of keywords.sort((a, b) => b - a)) {
         query = query.replaceAll("this.scope." + keyword, keyword);
         query = query.replaceAll("this." + keyword, keyword);
         query = query.replaceAll(keyword, "this." + keyword);
       }
 
-
-
       //query = "${" + query + "}";
       return { query, value: content, source, variable, keywords: keywords };
-    }catch(ex){
-      console.warn(ex)
+    } catch (ex) {
+      console.warn(ex);
     }
   }
   extractQuery(node) {
@@ -85,15 +76,15 @@ export class OperationMap {
     if (prop == "@if") {
       const { query, value, keywords } = this.extractQuery(configuration.node);
       let id = "if-stack-" + Date.now();
-      let $placeholder = configuration.node.nextElementSibling
-      
+      let $placeholder = configuration.node.nextElementSibling;
+      $placeholder.dataset.elIfContainer = Date.now();
       const entry = {
         operation: "if",
         prop,
         query,
         value,
         keywords,
-        placeholder:$placeholder,
+        placeholder: $placeholder,
         nodes: [configuration.node],
       };
       if (this.stack.if.length > 0) {
@@ -105,19 +96,18 @@ export class OperationMap {
       }
 
       this.stack.if.push(entry);
+      
     } else if (prop == "@endif") {
       try {
+  
         let last = this.stack.if.pop();
 
         let start = last.nodes[0];
-        let end = last.nodes[last.nodes.length - 2];
-        // let content = last.nodes.slice(1, last.nodes.length - 3);
         let content = last.placeholder;
-        
+
         let operation = {
           operation: "if",
           start,
-          end,
           content,
           query: last.query,
           value: last.value,
@@ -128,35 +118,30 @@ export class OperationMap {
           connect: function (instance) {
             const $placeholder = document.createComment("if placeholder ");
             $placeholder.content = content;
-            const $parent = instance.shadowRoot.querySelector('[data-el-if-container]');
+       
+            const $parent = instance.shadowRoot.querySelector(
+              '[data-el-if-container="' +
+                last.placeholder.dataset.elIfContainer +
+                '"]'
+            );
+  
+      
+            last.nodes[0].replaceWith($placeholder)
+            
+            try {
+          
+              content.remove();
+            } catch (ex) {}
+        
 
-            console.log({$parent,content})
-            try{
-              content.childNodes[content.childNodes.length-1].remove()
-            }catch(ex){
-
-            }
-            start = content.parentNode.parentNode.childNodes[0]
-            start.replaceWith($placeholder);
-              console.log({last,end})
-              
-              // end.remove();
-              let callback = function () {
-              // console.log('cb',last)
-
+            let callback = function () {
               const $fn = Function("return `${" + last.query + "}`");
               const output = $fn.call(instance);
-              // console.log(output);
+
               let value = ["true", true].indexOf(output) > -1 ? true : false;
               if (value) {
-                // for (let node of $placeholder.content) {
-                //   $placeholder.after(node);
-                // }
-                $placeholder.after(content)
+                $placeholder.after(content);
               } else {
-                // for (let node of $placeholder.content) {
-                //   node.remove();
-                // }
                 content.remove();
               }
             };
@@ -172,34 +157,42 @@ export class OperationMap {
           },
         };
         this.map.if.push(operation);
-      } catch (ex) {}
+      } catch (ex) {
+        console.warn(ex);
+      }
     } else if (prop == "@for") {
       const { query, value, source, variable, keywords } = this.extractQuery(
         configuration.node
       );
-      let start = configuration.node
-    
-        
-        let $placeholder = configuration.node.nextElementSibling
-        $placeholder.dataset.elForItem = 1
-        const $parent = $placeholder.parentElement;
-        
-        $parent.dataset.elForContainer = true
-        for(let match of getStrBetween($parent.innerHTML)){
-          let m = match.trim();
-          if(m.indexOf(variable) == 0){
-            if(!m.replace(variable,"").charAt(0) || !isChar(m.replace(variable,"").charAt(0))){
-              $parent.innerHTML= $parent.innerHTML.replace("{{"+match, "{{"+query+"[$index]")//.replace('.scope',''));
-            }
+      let start = configuration.node;
+
+      let $placeholder = configuration.node.nextElementSibling;
+ 
+      // $placeholder.dataset.elForItem = 1;
+      const $parent = $placeholder.parentElement;
+
+      $parent.dataset.elForContainer = true;
+      for (let match of getStrBetween($parent.innerHTML)) {
+        let m = match.trim();
+        if (m.indexOf(variable) == 0) {
+          if (
+            !m.replace(variable, "").charAt(0) ||
+            !isChar(m.replace(variable, "").charAt(0))
+          ) {
+            $parent.innerHTML = $parent.innerHTML.replace(
+              "{{" + match,
+              "{{" + query + "[$index]"
+            ); //.replace('.scope',''));
           }
-
         }
+      }
 
-        $placeholder = $parent.querySelector("[data-el-for-item]");
-        delete $placeholder.dataset.elForItem
+      //)
 
-      // configuration.node.replaceWith($placeholder)
-        // node.replaceWith($placeholder);
+      // $placeholder = $parent.querySelector("[data-el-for-item]");
+      // delete $placeholder.dataset.elForItem;
+
+
       this.stack.for.push({
         operation: "for",
         prop,
@@ -209,13 +202,12 @@ export class OperationMap {
         variable,
         keywords,
         nodes: [start],
-        placeholder: $placeholder
+        placeholder: $placeholder,
       });
-     
     } else if (prop == "@endfor") {
       try {
         // // debugger;
-     
+
         let depth = this.stack.for.length;
         let last = this.stack.for.pop();
         let start = last.nodes[0];
@@ -223,42 +215,42 @@ export class OperationMap {
         for (let i = 1; i < depth; i++) {
           indexs["$index" + i] = 0;
         }
-        
-        // let start = last.nodes[0];
-        // let end = last.nodes[last.nodes.length - 1];
-        // end.replaceWith($end);
-        // console.log({$placeholder,$end})
-        // // debugger;
-        // let content = last.nodes.slice(1, last.nodes.length - 3);
-        let content = last.placeholder
-        // [...content.map((el) => {
-        //   try{
 
-        //     el.dataset.elIndex = JSON.stringify(indexs);
-        //   }catch(ex){}
-        //   return el;
-        // });
-        let id = "for-loop__" + depth;
-        let $template = document.querySelector("#template-"+id);
+        let content = last.placeholder;
+        let variable = last.variable
+        let query = last.query
+        let id = "for-stack-" + Date.now();
+        let $template = document.querySelector("#template-" + id);
         if (!$template) {
+          const $wrapper = document.createElement("div");
           $template = document.createElement("template");
-          
-          //for (let node of content) {
-     
-            $template.content.appendChild(content);
-          //}
 
-          $template.setAttribute("id", "template-"+id);
+          $template.content.appendChild($wrapper);
+          $wrapper.appendChild(content);
+            $template.setAttribute("id", "template-" + id);
           document.head.appendChild($template);
-          // debugger;
-          // // debugger;
+    
+          for (let match of getStrBetween($template.content.firstChild.innerHTML)) {
+            let m = match.trim();
+            if (m.indexOf(variable) == 0) {
+              if (
+                !m.replace(variable, "").charAt(0) ||
+                !isChar(m.replace(variable, "").charAt(0))
+              ) {
+        
+                $template.content.firstChild.innerHTML = $template.content.firstChild.innerHTML.replace(
+                  "{{" + match,
+                  "{{" + query + "[$index]"
+                ); //.replace('.scope',''));
+              }
+            }
+          }
+          $template.content.firstChild.replaceWith( $template.content.firstChild.firstChild)
+        
         }
         let end = last.nodes[0];
-        // content.forEach((el) => {
-        //   el.remove();
-        // });
-        // content.remove();
-        let query = last.query;
+
+        // let query = last.query;
         let operation = {
           start,
           end,
@@ -270,53 +262,37 @@ export class OperationMap {
           connected: false,
           callback: function () {},
           connect: async function (instance) {
-            // debugger;
+            
+            let _tpl = await Registry.template(id, instance.__props);
             const $placeholder = document.createComment("for placeholder");
-            const $parent = instance.shadowRoot.querySelector('[data-el-for-container]');
+            const $parent = instance.shadowRoot.querySelector(
+              "[data-el-for-container]"
+              );
          
+              
             $placeholder.content = content;
-            $placeholder.scope = instance.scope
-            $placeholder.connect = instance.connect
+   
             $placeholder.stack = [];
 
-            $parent.innerHTML ="";
+            $parent.innerHTML = "";
             $parent.appendChild($placeholder);
-       
-            // end.remove();
-    
+
             let variable = last.variable;
             let source = last.source;
-            let callback = async function () {
-              
-              let value = instance.scope.colors.length;
-              let _tpl = await Registry.template(
-                id,
-                instance.__props
-              ); //.then((_tpl) => {
-              console.log({_tpl});
-              console.log({start});
-           
-              console.log($parent)
-              // debugger;
+            let callback = function (value) {
+            
               $placeholder.scope = instance.scope;
-              $placeholder.scope.$index = 0;
+              $placeholder.scope.$index = "$index";
               $parent.appendChild($placeholder);
               for (let i = $placeholder.stack.length; i < value; i++) {
                 let tpl = _tpl.cloneNode(true);
-                tpl.innerHTML = tpl.innerHTML
-                .replaceAll("${" + variable, "{{" + query + "[$index]")
-                .replaceAll("[$index", "[" + i)
-                .replaceAll("{$index", "{" + i)
-                .replaceAll("`", "")
-                .replaceAll("${", "{{")
-                .replaceAll("}", "}}")
-                .replaceAll("$index", i);
-                
-                
-                [...tpl.querySelectorAll("*")].forEach($el => {
+  
+                tpl.innerHTML = tpl.innerHTML.replaceAll("$index", i);
+
+                [...tpl.querySelectorAll("*")].forEach(($el) => {
                   $el.$index = 0;
-                })
-                for( let $node of findTextNodes(tpl)){
+                });
+                for (let $node of findTextNodes(tpl)) {
                   $node.$index = 0;
                 }
                 let { props, actions, operations } = reactivityMap(tpl);
@@ -325,7 +301,7 @@ export class OperationMap {
                 for (let key of Object.keys(connections)) {
                   const connection = connections[key];
                   for (let conn of connection) {
-                    conn.setup($placeholder);
+                    conn.setup(instance);
                   }
                 }
 
@@ -346,6 +322,7 @@ export class OperationMap {
               }
             };
             for (let keyword of last.keywords) {
+              
               instance.connect(keyword + ".length", callback);
             }
             this.callback = callback;
@@ -359,7 +336,7 @@ export class OperationMap {
         };
         this.map.for.push(operation);
       } catch (ex) {
-        console.warn(ex)
+        console.warn(ex);
       }
     }
   }

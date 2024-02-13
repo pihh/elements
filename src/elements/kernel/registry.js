@@ -56,6 +56,7 @@ class _Registry {
           }
           self.__setup.initialSetup = true;
         }
+
         return self
       };
       callback(component);
@@ -75,8 +76,7 @@ class _Registry {
    * @param {String} path
    * @return {Promise } HTMLTemplateElement
    */
-  template(path) {
-    console.log(this)
+  template(path,props=[]) {
     // Get template name and check for availability
     let name = this.getName(path);
     let template = this.templates[name];
@@ -84,7 +84,7 @@ class _Registry {
     //
     if (template) return template;
     this.templates[name] = new Promise(async (res) => {
-      const templateObject = new TemplateManagerV2(name);
+      const templateObject = new TemplateManagerV2(name,props);
       const $template = templateObject.setup();
 
       res($template.__template.content.cloneNode(true).firstElementChild);

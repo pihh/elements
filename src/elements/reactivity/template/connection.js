@@ -10,6 +10,7 @@ export const connectTemplateReactivity = function (instance) {
   for (let key of Object.keys(connections)) {
     const connection = connections[key];
     for (let conn of connection) {
+ 
       conn.setup(instance);
     }
   }

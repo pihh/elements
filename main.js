@@ -30,6 +30,42 @@ class MyWebComponent extends ElComponent {
   constructor() {
     super();
   }
+  checked = true;
+  checkedd = true;
+  
+  text = "text property";
+  object = {
+    key: "object value",
+    title: "Title"
+  };
+  list = ["list id: 0"];
+  objectList = [
+    {
+      item: "object list item id: 0",
+    },
+  ];
+  color = "yellow";
+  colors = ["green", "red", "yellow"];
+  items = ["item 1", "item 2"];
+
+
+  // card = {
+  //   title: "Card title",
+  //   description: "Lorem Ipsum dolor sit amet, consect id, ullamcorper lorem",
+  // }
+  cards = [
+    // "Card title 1",
+    // "Card title 2",
+     {title: "Card 1 ", description: "Card 1 description"},
+     {title: "Card 2 ", description: "Card 2 description"},
+     {title: "Card 3 ", description: "Card 3 description"},
+    
+  ]
+
+  onClick(){
+    this.items.push("item "+this.items.length)
+  }
+
 }
 
 // customElements.define("el-web-component", MyWebComponent);

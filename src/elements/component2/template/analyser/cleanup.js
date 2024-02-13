@@ -1,7 +1,7 @@
 import { getIndexes, getStrBetween, isChar } from "../../../helpers/regex";
 
 export const initialExpressionCleanup = function (element) {
-  console.log({element})
+
   // INITIAL CLEANUP
 if(!element) return;
   let innerHTML = element.innerHTML;
@@ -45,8 +45,8 @@ export const parseTemplateString = function (
   originalExpression,
   updatedExpression
 ) {
-  console.log({template})
-  // debugger;
+  
+
   if(!template) return
   let parsedTemplate = template;
   let nextChar = template.charAt(index + originalExpression.length);
@@ -63,10 +63,8 @@ export const parseTemplateString = function (
   return parsedTemplate;
 };
 export const parseTemplatePointers = function(template, props=[], actions = []) {
-//   console.log({props})
+
   let matches = [];
-
-
    matches = getStrBetween(template);
 
    for (let match of matches) {

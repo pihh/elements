@@ -25,37 +25,7 @@ export class ElComponent extends HTMLElement {
   __init(){
      const {setup,configuration,callback} = Registry.componentSetup(this);
   }
-  checked = true;
-  checkedd = true;
-  
-  text = "text property";
-  object = {
-    key: "object value",
-    title: "Title"
-  };
-  list = ["list id: 0"];
-  objectList = [
-    {
-      item: "object list item id: 0",
-    },
-  ];
-  color = "yellow";
-  colors = ["green", "red", "yellow"];
-  items = ["item 1", "item 2"];
-
-
-  card = {
-    title: "Card title",
-    description: "Lorem Ipsum dolor sit amet, consect id, ullamcorper lorem",
-  }
-  cards = [
-    {title: "Card 1 ", description: "Card 1 description"},
-    {title: "Card 2 ", description: "Card 2 description"},
-    {title: "Card 3 ", description: "Card 3 description"},
-    {title: "Card 4 ", description: "Card 4 description"},
-    {title: "Card 5 ", description: "Card 5 description"},
-  ]
-
+ 
 
   async __hidrate() {
 

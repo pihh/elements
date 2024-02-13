@@ -26,10 +26,11 @@ export class OperationMap {
       } else if (prop == "@endif") {
         try {
           let last = this.stack.if.pop();
-  
+          console.log(last.nodes)
           let start = last.nodes[0];
-          let end = last.nodes[last.nodes.length - 1];
+          let end = last.nodes[last.nodes.length - 2];
           let content = last.nodes.slice(1, last.nodes.length - 2);
+          end.remove()
           let operation = {
             start,
             end,
@@ -119,7 +120,8 @@ export class OperationMap {
               let callback = async function () {
                 let value = instance.scope.colors.length;
                 for (let i = 0; i < value; i++) {
-                  let _tpl = await Registry.template("for-loop", this.__props); //.then((_tpl) => {
+                  console.log(this.__props)
+                  let _tpl = await Registry.template("for-loop", instance.__props); //.then((_tpl) => {
                
                   let tpl = _tpl.cloneNode(true);
                

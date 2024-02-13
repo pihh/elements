@@ -63,12 +63,18 @@ var createDOMMap = function (element, isSVG) {
  */
 
 export const reactivityMap = function (element) {
+
+  // console.log({elName:element.constructor.name})
   const props = new PropMap();
   const actions = new ActionMap();
-  const operations = new OperationMap();
+  const operations = new OperationMap(element);
 
+  
   var createDOMMap = function (element, isSVG) {
+    const controller = element.controller || element;
+    element.controller = controller;
     return Array.prototype.map.call(element.childNodes, function (node) {
+      node.controller = element.controller;
       var details = {
         content:
           node.childNodes && node.childNodes.length > 0
@@ -90,12 +96,11 @@ export const reactivityMap = function (element) {
       for (let op of ["if", "for"]) {
         let operationIdx = node?.data?.indexOf("@" + op) ?? -1;
         let operationEndIdx = node?.data?.indexOf("@end" + op) ?? -1;
-        // operation.feed(node);
         if (operationIdx > -1) {
           operations.track("@" + op, { node });
         } else if (operationEndIdx > -1) {
-          operations.feed(node);
           operations.track("@end" + op);
+          node.remove()
         } else {
         }
       }
@@ -109,6 +114,7 @@ export const reactivityMap = function (element) {
       if (reactiveAtts.length > 0) {
         shouldTrack = true;
         for (let att of reactiveAtts) {
+     
           let attribute = att.att;
           let value = att.value;
           for (let match of getStrBetween(att.value)) {

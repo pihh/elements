@@ -3,7 +3,7 @@ import { ModelConnector } from "./model";
 export class PropConnector {
     static text(instance, keyword, node, query) {
       const callback = function (val) {
-        console.log({instance, keyword, node, query});
+        //console.log({instance, keyword, node, query});
         const value = PropConnector.evaluate(instance, query,"text", node);
         node.textContent = value;
       };
@@ -15,7 +15,7 @@ export class PropConnector {
     static attribute(instance, keyword, node, query, attribute) {
       const callback = function (newValue) {
         // console.log(newValue,query, instance);
-        const value = PropConnector.evaluate(instance, query);
+        const value = PropConnector.evaluate(instance, query,"text",node);
         node.setAttribute(attribute, value);
       };
   
@@ -41,12 +41,13 @@ export class PropConnector {
   
     static evaluate(instance, query, type = "text",node=false) {
       // console.log({instance,query,node,type})
+      // node.controller = instance
       try{
         const $index = node?.$index || 0;
-        console.log($index)
+        // console.log($index)
         const ist = instance;
         ist.scope.$index = 0
-        query.replaceAll('$index',node?.$index || instance?.$index || 0)
+        query = query.replaceAll('$index',node?.$index || instance?.$index || 0)
         const fn = Function("return " + query);
         const output = fn.call(ist.scope,);
         let value = output;

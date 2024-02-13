@@ -188,13 +188,7 @@ export class TemplateManagerV2 {
   constructor(
     id,
     scope = [
-      "variant",
-      "text",
-      "object",
-      "list",
-      "objectList",
-      "color",
-      "colors",
+   
     ]
   ) {
     
