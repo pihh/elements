@@ -3,9 +3,9 @@
  * and framework features.
  */
 
-import { Action } from "../../elements/component/decorators/action";
-import { Component } from "../../elements/component/decorators/component";
-import { Prop } from "../../elements/component/decorators/prop";
+import { Action } from "../../elements/component2/decorators/action";
+import { Component } from "../../elements/component2/decorators/component2";
+import { Prop } from "../../elements/component2/decorators/prop";
 
 import "./style.css";
 import template from "./template.html";

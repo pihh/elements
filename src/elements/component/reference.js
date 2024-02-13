@@ -1,47 +1,12 @@
-import { ElComponent } from "./src/elements/component";
 //  import { RequirementsComponent } from "./src/components/requirements";
 
-function Component(config) {
-  const _config = {
-    ...config,
-  };
-  return function (component) {
-    class Component extends component {
-      static selector = _config.selector;
-      constructor() {
-        super();
-      }
-    }
-    try {
-
-      customElements.define(_config.selector, component);
-    } catch (ex) {
-      console.warn(ex);
-    }
-    return Component;
-  };
-}
-
-@Component({
-  selector: "el-web-component",
-})
-class MyWebComponent extends ElComponent {
-  static selector = "el-web-component";
-  constructor() {
-    super();
-  }
-}
-
-// customElements.define("el-web-component", MyWebComponent);
-
-/*
 import { Registry } from "./src/elements/kernel/registry";
 import { State } from "./src/elements/compiler/state";
 import { connectTemplate } from "./src/elements/component/reactivity/connector";
 import { reactivityMap } from "./src/elements/component/template/analyser/map";
 import { addGlobalStylesToShadowRoot } from "./src/elements/component/template/styles";
 
-class MyWebComponent extends HTMLElement {
+class ElComponent extends HTMLElement {
   __setup = {
     templateConnected: false,
     propTracked: false,
@@ -149,5 +114,3 @@ class MyWebComponent extends HTMLElement {
 }
 
 customElements.define("my-button", MyWebComponent);
-
-*/

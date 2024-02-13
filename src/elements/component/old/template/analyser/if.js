@@ -31,7 +31,7 @@ export const parseIfConditions = function (obj,scope) {
         obj.child[attribute].childd = new TemplateManager({id: childId,template: connector.child.replaceAll('el-connection','el-connected')}, connector.child.replaceAll('el-connection','el-connected'), scope);
         obj.child[attribute].childd.output.then(data => {
           console.log(data);
-          debugger
+          // // debugger
         })
         $replace.replaceWith($comment);
         $comment.__element = child;

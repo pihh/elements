@@ -1,4 +1,4 @@
-import { Component } from "../../elements/component";
+import { Component } from "../../elements/component2";
 import Template from './template.html';
 import data from './data'
 

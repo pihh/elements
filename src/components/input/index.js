@@ -1,4 +1,4 @@
-import { Component } from "../../elements/component";
+import { Component } from "../../elements/component2";
 
 export class InputComponent extends Component {
   static config = {

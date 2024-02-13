@@ -6,7 +6,38 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
+
     <template id="template-my-button">
+      
+        <div
+          class="card border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] rounded-xl"
+          style="
+            background-image: url(https://daisyui.com/images/stock/photo-1481026469463-66327c86e544.jpg);
+            background-size: cover;
+          "
+        >
+          <div class="card w-96 glass rounded-lg overflow-hidden">
+            <figure>
+              <img
+                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
+                alt="car!"
+              />
+            </figure>
+            <div class="card-body">
+              <h2 class="card-title">{{card.title}}</h2>
+              <p>{{card.description}}</p>
+              <div class="justify-end card-actions">
+                <button class="btn btn-primary" @onClick="customFn">
+                  Learn now!
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      
+    </template>
+
+    <template id="template-el-web-component">
       <section class="bg-{{color}}-100 section-container ">
         <p>{{text}}</p>
         <p>{{list[0]}}</p>
@@ -18,35 +49,28 @@
         <button @onClick="fn($event,$index,text,'x',1)" class="btn">
           <slot></slot>
         </button>
-
+  
         <select class="input" model="color">
-          @for(c of colors)
-          <option value="{{c}}">{{c}} {{$index}}</option>
-          @endfor()
+          @for(let c of colors){
+          <option value="{{c}}">
+            {{c}} 
+          </option>
+        }@endfor
         </select>
-        <div>
-          @for (let color of colors) {
-          <div>
-            <h2>{{color}}</h2>
-            @for(item of items)
-            <h2>{{item}}</h2>
-            @endfor()
-          </div>
-          @endfor()
-        </div>
+       
         <input class="input" model="list[0]" />
         <input class="input" model="object.key" />
         <input class="input" model="objectList[0].item" />
         <button class="btn btn-primary" @onClick="addColor">Add color</button>
-
+  
         <div>
           @if(checked)
           <section class="border border-gray-200 bg-white example-section">
             <h3>OUTER CHECK</h3>
-            @if(checked)
+            @if(checkedd)
             <article class="border border-gray-200 bg-white example-section">
               INNER CHECK
-
+  
               <button @onClick="customFn" class="btn">CUSTOM FN</button>
             </article>
             @endif()
@@ -58,11 +82,15 @@
   </head>
   <body>
     <div id="app">
-      <section class="section-container">
-        <article><h1>Example</h1></article>
-      </section>
-      <my-button>Default</my-button>
-      <footer id="fofo">footer</footer>
+      <my-button></my-button>
+      <el-web-component></el-web-component>
+      <!--
+
+        <section class="section-container">
+          <article><h1>Example</h1></article>
+        </section>
+        <footer id="fofo">footer</footer>
+      -->
     </div>
 
     <script type="module" src="/main.js"></script>

@@ -1,0 +1,76 @@
+<div
+  class="card-container">
+  <div class="card ">
+    <figure>
+      <img
+        src="{{src}}"
+      />
+    </figure>
+    <div class="card-body">
+
+      <h2 class="card-title">{{card.title}}</h2>
+      
+      <p>{{card.description}}</p>
+      
+      <ul>
+        @for( let item of items) {
+            <li>{{item}}</li>
+        } 
+      </ul>
+      <div class="justify-end card-actions">
+        <button class="btn btn-primary" @onClick="onClick()">Learn now!</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<template id="template-my-button">
+    <section class="bg-{{color}}-100 section-container ">
+      <p>{{text}}</p>
+      <p>{{list[0]}}</p>
+      <p>{{object.key}}</p>
+      <p>{{objectList[0].item}}</p>
+      <input class="input" model="text" />
+      <input class="" model="checked" type="checkbox" />
+      {{color}}
+      <button @onClick="fn($event,$index,text,'x',1)" class="btn">
+        <slot></slot>
+      </button>
+
+      <select class="input" model="color">
+        @for(c of colors)
+        <option value="{{c}}">{{c}} {{$index}}</option>
+        @endfor()
+      </select>
+      <div>
+        @for (let color of colors) {
+        <div>
+          <h2>{{color}}</h2>
+          @for(item of items)
+          <h2>{{item}}</h2>
+          @endfor()
+        </div>
+        @endfor()
+      </div>
+      <input class="input" model="list[0]" />
+      <input class="input" model="object.key" />
+      <input class="input" model="objectList[0].item" />
+      <button class="btn btn-primary" @onClick="addColor">Add color</button>
+
+      <div>
+        @if(checked)
+        <section class="border border-gray-200 bg-white example-section">
+          <h3>OUTER CHECK</h3>
+          @if(checked)
+          <article class="border border-gray-200 bg-white example-section">
+            INNER CHECK
+
+            <button @onClick="customFn" class="btn">CUSTOM FN</button>
+          </article>
+          @endif()
+        </section>
+        @endif()
+      </div>
+    </section>
+  </template>

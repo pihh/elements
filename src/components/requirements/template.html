@@ -115,3 +115,14 @@
 
     </main>
 </section>
+
+<div>
+    @for(d of colors) {
+    <div>
+      <h2>{{d}}</h2>
+      @for(let item of items)
+      <h2>{{item}}</h2>
+      @endfor()
+    </div>
+    @endfor()
+  </div>

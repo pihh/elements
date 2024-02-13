@@ -449,10 +449,11 @@ export const reactivityMap = function (element) {
 
         if (operationIdx > -1) {
           operations.track("@" + op, { node });
-        }
-        if (operationEndIdx > -1) {
+        } else if (operationEndIdx > -1) {
           // operations.feed(node);
           operations.track("@end" + op);
+        }else {
+
         }
       }
       operations.feed(node);
@@ -572,7 +573,7 @@ export const reactivityMap = function (element) {
       let events = details.atts.filter((el) => el.action);
       if (events.length > 0) {
         shouldTrack = true;
-        // console.log(events);
+       
         for (let evt of events) {
           evt = evt.att;
           const type = node.hasOwnProperty(evt) ? "native" : "custom";

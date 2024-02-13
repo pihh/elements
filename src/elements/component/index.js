@@ -1,165 +1,108 @@
-import { getPath2 } from "../../../elements/compiler/model/update";
+//  import { RequirementsComponent } from "./src/components/requirements";
 
-import { State } from "../compiler/state";
+// import { addGlobalStylesToShadowRoot } from "../compiler/styles/global-styles";
+import { Registry } from "../kernel/registry";
+import { connectTemplateReactivity } from "../reactivity/template/connection";
+import { mapTemplate } from "./connection/map";
+import { connectScope } from "./connection/scope";
+import { connectTemplate } from "./connection/template";
+
+// import { Registry } from "./src/elements/kernel/registry";
+// import { State } from "./src/elements/compiler/state";
+// import { connectTemplate } from "./src/elements/component/reactivity/connector";
+// import { reactivityMap } from "./src/elements/component/template/analyser/map";
+// import { addGlobalStylesToShadowRoot } from "./src/elements/component/template/styles";
 
 
-import { generateTemplateConnectionMap, parseTemplatePointers } from "../render/hydration";
-import { connectProperties } from "./props";
 
-class _ComponentRegistry {
-  static instance = null;
-
-  __id = 0;
-  __registry = {};
-
+export class ElComponent extends HTMLElement {
   constructor() {
-    if (_ComponentRegistry.instance) return _ComponentRegistry.instance;
-    _ComponentRegistry.instance = this;
-  }
-
-  __parseTemplatePointers(template, component, selector) {
-
-    return parseTemplatePointers(template,component,selector);
-  }
+    super(...arguments);
  
-  __mapTemplateConnections = function (template) {
-
-    const $connections = generateTemplateConnectionMap(template);
-    
-    return $connections;
-  };
-
-  register(config, component) {
-    let { selector, template, styles, shadow } = { ...config };
-    if (!this.__registry.hasOwnProperty(selector)) {
-      if (customElements.get(selector) === undefined) {
-        const $head = document.head;
-        let $style;
-        if (styles) {
-          $style = document.createElement("style");
-          $style.innerHTML = styles;
-        }
-        const $template = parseTemplatePointers(
-          template,
-          component, 
-          selector 
-        );   
-        const $connections = this.__mapTemplateConnections(
-          $template, 
-          component   
-        ); 
-        this.__registry[selector]  = {
-          component, 
-          template: $template,   
-          connections: $connections,
-          styles: $style,
-          shadow: shadow,
-        };
-        if (!shadow && $style) {
-          $head.appendChild($style);
-        }
-
-        customElements.define(config.selector, component);
-      }
-    }
+    this.__init();
   }
 
-  setup() {}
-  load(selector) {
-    const registry = this.__registry[selector];
-    const template = registry.template.content.cloneNode(true);
-    const connections = registry.connections;
-    this.setup(template, connections);
-    const id = registry.id;
-    return {
-      template,
-      connections,
-      id,
-    };
+  __init(){
+     const {setup,configuration,callback} = Registry.componentSetup(this);
+  }
+  checked = true;
+  checkedd = true;
+  
+  text = "text property";
+  object = {
+    key: "object value",
+    title: "Title"
+  };
+  list = ["list id: 0"];
+  objectList = [
+    {
+      item: "object list item id: 0",
+    },
+  ];
+  color = "yellow";
+  colors = ["green", "red", "yellow"];
+  items = ["item 1", "item 2"];
+
+
+  card = {
+    title: "Card title",
+    description: "Lorem Ipsum dolor sit amet, consect id, ullamcorper lorem",
+  }
+  cards = [
+    {title: "Card 1 ", description: "Card 1 description"},
+    {title: "Card 2 ", description: "Card 2 description"},
+    {title: "Card 3 ", description: "Card 3 description"},
+    {title: "Card 4 ", description: "Card 4 description"},
+    {title: "Card 5 ", description: "Card 5 description"},
+  ]
+
+
+  async __hidrate() {
+
+    connectScope(this)
+    await connectTemplate(this);
+  await    mapTemplate(this);
+    await connectTemplateReactivity(this);
+
+  }
+
+  async __initialConnection(){
+    if (!this.__setup.didConnect) {
+        this.__setup.didConnect = true;
+        await this.__hidrate()
+        // this.connectScope();
+        // await this.connectTemplate();
+        this.operations.onDidConnect(this)
+      }
+  }
+  async connectedCallback() {
+    
+    
+    this.__initialConnection()
+    this.render();
+    
+  }
+
+  attributeChangedCallback(name, oldValue, newValue) {
+    console.log("attributeChangedCallback", name, oldValue, newValue);
+
+  }
+
+  render() {
+  }
+
+  fn($event,$index,text,str,num){
+    console.log('FN CALLED',{$event,$index,text,str,num})
+  }
+
+  addColor(){
+
+    this.colors.push('new-color')
+  }
+
+  customFn(){
+    console.log('Custom FN CALLED')
   }
 }
 
-const ComponentRegistry = new _ComponentRegistry();
-
-export class Component extends HTMLElement {
-  static register(component) {
-    const config = {
-      shadow: false,
-      template: `<h1>${component.config.selector} is registered</h1>`,
-      styles: ``,
-      ...component.config,
-    };
-    ComponentRegistry.register(config, component);
-  }
-
-  constructor() {
-    super();
-    this.__config = this.constructor.config;
-    const { template, connections } = ComponentRegistry.load(
-      this.__config.selector
-    );
-
-    this.__template = template;
-    this.__templateConnections = connections; 
-    this.appendChild(this.__template);
-  }
-
-
-
-  __initAndApplyConnections = function () {
-    const connections = this.__templateConnections;
-
-    this.scope = {};
-    this.__subscriptions = [];
-
-    for (let keyword of Object.keys(connections.keywords)) {
-      for (let connection of connections.keywords[keyword]) {
-        const callback = connection.setup(this);
-        let subscription = this.__connect(getPath2(keyword), () =>
-         
-          callback(this)
-        );
-        this.__subscriptions.push(subscription);
-        callback(this);
-      }
-    }
- 
-    for (let selector of Object.keys(connections.actions)) {
-      for (let action of connections.actions[selector]) {
-        action.setup(this);
-      } 
-    }
-
-    const operationCallbackList = [];
-    for (let op of Object.keys(connections.operations)) {
-        for(let operation of connections.operations[op]) {
-          operationCallbackList.push(operation.setup(this));
-          
-        }
-      
-    }
-    
-    // this.[keyword]
-    connectProperties(this);
-    operationCallbackList.map(cb => cb())
- 
-  };
-
-  connectedCallback() {
-    if (!this.getAttribute("el-connected")) {
-      this.setAttribute("el-connected", true);
-      const props = this.constructor.props;
-      const state = {};
-      for (let prop of props) {
-        
-        state[prop] = this.getAttribute(prop) ?? this[prop];
-      }
-
-      const { scope, connect, render, pubsub } = State(state);
-
-      this.__scope = scope;
-      this.__connect = connect;
-      this.__initAndApplyConnections();
-    }
-  }
-}
+//customElements.define("my-button", MyWebComponent);

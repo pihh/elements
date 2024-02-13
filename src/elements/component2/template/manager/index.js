@@ -134,7 +134,7 @@ export class TemplateManager {
     }
 
     console.log(Template);
-    debugger;
+    // debugger;
     // const {element,id} = createTemplateElement(this.__config)
     // console.log(id,this.__config);
     // let currentTemplate;
@@ -211,7 +211,7 @@ export class TemplateManagerV2 {
   }
 
   setup() {
-    
+
     if (!templateRegistry[this.__id].__set) {
       templateRegistry[this.__id].__set = true;
       templateRegistry[this.__id].__template = document.createElement("template");
