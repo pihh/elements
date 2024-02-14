@@ -7243,3 +7243,13 @@ a {
     height: 100vh;
 
 }
+
+.card-collapser{
+  position: absolute;
+    top: 1em;
+    right: 1em;
+    background: white;
+    border-radius: 100%;
+    width: 2em;
+    height: 2em;
+}

@@ -7,10 +7,9 @@ const parseIndexItem = function (context, variable, source, indexKey) {
   for (let match of getStrBetween(context, 'model="' + variable, '"')) {
     let m = match.trim();
     if (match == "" || !isChar(m.charAt(0))) {
-           
       context = context.replaceAll(
-        'model="' + variable+match+'"',
-        'model="' + source+"[" + indexKey + "]"+match +  '"'
+        'model="' + variable + match + '"',
+        'model="' + source + "[" + indexKey + "]" + match + '"'
       );
     }
   }
@@ -40,12 +39,23 @@ const parseIndexItem = function (context, variable, source, indexKey) {
         !query.replace(variable, "").charAt(0) ||
         !isChar(query.replace(variable, "").charAt(0))
       ) {
-        query = query.replace(
-          variable,
-           source + "[" + indexKey + "]"
-        );
+        query = query.replace(variable, source + "[" + indexKey + "]");
         m = m.split(" of ")[0] + " of " + query;
         context = context.replaceAll("@for(" + match + ")", "@for(" + m + ")"); //.replace('.scope',''));
+      }
+    }
+  }
+  for (let match of getStrBetween(context, "@if(", ")")) {
+    let m = match.trim();
+    if (m.indexOf(variable) == 0) {
+      if (
+        !m.replace(variable, "").charAt(0) ||
+        !isChar(m.replace(variable, "").charAt(0))
+      ) {
+        context = context.replace(
+          "@if(" + match + ")",
+          "@if(" + match.replace(variable, "this."+source + "[" + indexKey + "]") + ")"
+        );
       }
     }
   }
@@ -91,19 +101,17 @@ const parseLoopOperations = function (template, id, scope) {
         let content = template.slice(open + 1, k - 1);
         let replacement_id = id + "_" + Date.now();
         let index = "$index" + indexKeyId++;
-        let query =
-          template.slice(forIndex+4, open )// + ";index = " + index + ")";
+        let query = template.slice(forIndex + 4, open); // + ";index = " + index + ")";
 
         let setup = getForLoopSetup(query);
-        let variable=setup.query.attribute;
-        let source = setup.query.source
-     
+        let variable = setup.query.attribute;
+        let source = setup.query.source;
+
         index = setup.index;
         content = parseIndexItem(content, variable, source, index);
-       
+
         const matches = getStrBetween(content, "@for(", ")");
         for (let match of matches) {
-          
           let newSource = match.split(" of ");
           if (newSource.length > 1) {
             newSource = newSource[1].trim();
@@ -124,14 +132,15 @@ const parseLoopOperations = function (template, id, scope) {
             }
           }
         }
-        let replacementQuery = "("+setup.query.query+";index = "+setup.index+")";
+        let replacementQuery =
+          "(" + setup.query.query + ";index = " + setup.index + ")";
         let replacement =
           '<span data-for-connection="' +
           replacement_id +
           '" data-for-query="' +
-          replacementQuery+
+          replacementQuery +
           '">@__for()</span>';
-      
+
         const $template = document.createElement("template");
         const $wrapper = document.createElement("div");
 
@@ -140,10 +149,9 @@ const parseLoopOperations = function (template, id, scope) {
           .replaceAll("\r", "")
           .replaceAll("\n", "")
           .trim();
- 
+
         $template.content.appendChild($wrapper);
         $template.setAttribute("id", "template-" + replacement_id);
-    
 
         template = left + replacement + right;
         template = parseIndexItem(template, variable, source, index);

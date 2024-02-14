@@ -1,5 +1,5 @@
 import { ElLayout } from "./src/components/layout";
-import { ElComponent , Component} from "./src/elements/component";
+import { ElComponent, Component } from "./src/elements/component";
 
 @Component({
   selector: "el-web-component",
@@ -11,11 +11,11 @@ class MyWebComponent extends ElComponent {
   }
   checked = true;
   checkedd = true;
-  
+
   text = "text property";
   object = {
     key: "object value",
-    title: "Title"
+    title: "Title",
   };
   list = ["list id: 0"];
   objectList = [
@@ -27,155 +27,47 @@ class MyWebComponent extends ElComponent {
   colors = ["green", "red", "yellow"];
   items = [
     {
-      name:"item 1"
-    }, {
-      name:"item 2"
-    }
-  ];
-
-
-  // card = {
-  //   title: "Card title",
-  //   description: "Lorem Ipsum dolor sit amet, consect id, ullamcorper lorem",
-  // }
-  cards = [
-    // "Card title 1",
-    // "Card title 2",
-     {title: "Card 1 ", description: "Card 1 description",list: ['list 1']},
-    {title: "Card 2 ", description: "Card 2 description",list: ['list 1','list 2']},
-      {title: "Card 3 ", description: "Card 3 description",list: []},
-    
-  ]
-
-  onPush(cardIndex){
-   
-    this.cards[cardIndex].list.push("list "+this.cards[cardIndex].list.length);
-    //this.items.push("item "+this.items.length)
-  }
-  onPop(cardIndex){
-
-    this.cards[cardIndex].list.pop();
-    //this.items.push("item "+this.items.length)
-  }
-
-}
-
-// customElements.define("el-web-component", MyWebComponent);
-
-/*
-import { Registry } from "./src/elements/kernel/registry";
-import { State } from "./src/elements/compiler/state";
-import { connectTemplate } from "./src/elements/component/reactivity/connector";
-import { reactivityMap } from "./src/elements/component/template/analyser/map";
-import { addGlobalStylesToShadowRoot } from "./src/elements/component/template/styles";
-
-class MyWebComponent extends HTMLElement {
-  __setup = {
-    templateConnected: false,
-    propTracked: false,
-  };
-
-  constructor() {
-    super();
-
-    const shadowRoot = this.attachShadow({ mode: "open" });
-    this.__shadowRoot = shadowRoot;
-    addGlobalStylesToShadowRoot(this.__shadowRoot);
-  }
-  checked = true;
-  checked2 = false;
-  
-  text = "text property";
-  object = {
-    key: "object value",
-    title: "Title"
-  };
-  list = ["list id: 0"];
-  objectList = [
+      name: "item 1",
+    },
     {
-      item: "object list item id: 0",
+      name: "item 2",
     },
   ];
-  color = "yellow";
-  colors = ["green", "red", "yellow"];
-  items = ["item 1", "item 2"];
 
 
-  card = {
-    title: "Card title",
-    description: "Lorem Ipsum dolor sit amet, consect id, ullamcorper lorem",
-  }
   cards = [
-    {title: "Card 1 ", description: "Card 1 description"},
-    {title: "Card 2 ", description: "Card 2 description"},
-    {title: "Card 3 ", description: "Card 3 description"},
-    {title: "Card 4 ", description: "Card 4 description"},
-    {title: "Card 5 ", description: "Card 5 description"},
-  ]
-  connectScope() {
-    const _scope = {};
-    this.__props = Object.getOwnPropertyNames(this).filter(
-      (el) => el.indexOf("_") != 0 && typeof el !=="function"
-    );
-    this.__props.forEach((key) => {
-      _scope[key] = this.getAttribute(key) || this[key];
-      this.setAttribute(key, _scope[key]);
-    });
  
-    const { scope, connect, render, pubsub } = State(_scope);
-    this.scope = scope;
-    this.connect = connect;
+    { title: "Card 1 ", expanded:false, description: "Card 1 description", list: ["list 1"] },
+    {
+      title: "Card 2 ",expanded:true,
+      description: "Card 2 description",
+      list: ["list 1", "list 2"],
+    },
+    { title: "Card 3 ",expanded:true, description: "Card 3 description", list: [] },
+  ];
 
-    for(let key of Object.keys(this.scope)){
-      this.__defineGetter__(key, function(){
-        return this.scope[key]
-      })
-   
-    }
+  onToggleChecked(){
+    this.scope.checked = !this.scope.checked;
   }
 
-  async connectTemplate() {
-    this.__template = await Registry.template("my-button", this.__props);
-    this.__shadowRoot.appendChild(this.__template);
-    const {props,actions,operations} = reactivityMap(this.__template);
-    this.reactiveProps = props;
-    this.actions = actions;
-    this.operations = operations;
-    connectTemplate(this);
+  onToggleCard(cardIndex) {
+    console.log(cardIndex)
+    this.cards[cardIndex].expanded = !this.cards[cardIndex].expanded;
   }
-  async connectedCallback() {
-    if (!this.__didConnect) {
-      this.__didConnect = true;
-      this.connectScope();
-      await this.connectTemplate();
-      this.operations.onDidConnect()
-    }
-
-    this.render();
+  onPush(cardIndex) {
+    this.cards[cardIndex].list.push(
+      "list " + this.cards[cardIndex].list.length
+    );
   }
-
-  attributeChangedCallback(name, oldValue, newValue) {
-    console.log("attributeChangedCallback", name, oldValue, newValue);
-
+  onPop(cardIndex) {
+    this.cards[cardIndex].list.pop();
   }
-
-  render() {
+  onPushItem() {
+    this.items.push(
+      "item " + this.items.length
+    );
   }
-
-  fn($event,$index,text,str,num){
-    console.log('FN CALLED',{$event,$index,text,str,num})
-  }
-
-  addColor(){
-
-    this.colors.push('new-color')
-  }
-
-  customFn(){
-    console.log('Custom FN CALLED')
+  onPopItem() {
+    this.items.pop();
   }
 }
-
-customElements.define("my-button", MyWebComponent);
-
-*/

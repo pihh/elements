@@ -5,13 +5,9 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
-
-
-    
-
-    <template id="template-el-web-component">
+     <template id="template-el-web-component">
       <div>
-        @for(card of cards){
+        @for(card of cards;index = $i){
         <div
           class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
           style="
@@ -49,14 +45,17 @@
               <div>
                 @for(item of items){
                 <li>
-                  {{item}}
-                  <input model="item" class="input" />
+                  {{item.name}}
+                  <input model="item.name" class="input" />
                 </li>
                 }
               </div>
               <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onClick">
-                  Learn now!
+                <button class="btn btn-primary" @onClick="onPush($i)">
+                  Push
+                </button>
+                <button class="btn btn-primary" @onClick="onPop($i)">
+                  Pop
                 </button>
               </div>
             </div>
@@ -65,13 +64,17 @@
         }
       </div>
     </template>
-    <script type="module" crossorigin src="/assets/index-IQV2O_Z2.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-DBNXKryx.css">
+    <script type="module" crossorigin src="/assets/index-d291sAVp.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-uw6ddL96.css">
   </head>
   <body>
     <div id="app">
       <my-button></my-button>
-      <el-web-component></el-web-component>
+      <el-layout>
+
+        <el-web-component></el-web-component>
+
+      </el-layout>
     </div>
 
   </body>

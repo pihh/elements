@@ -6,8 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
-     <template id="template-el-web-component">
+    <template id="template-el-web-component">
       <div>
+        <div>
+          @if(checked){
+            <div>
+              Checked
+            </div>
+          }@endif()
+          <button class="btn" @onClick="onToggleChecked">Checked</button>
+        </div>
+      
         @for(card of cards;index = $i){
         <div
           class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
@@ -23,6 +32,18 @@
                 src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
               />
             </figure>
+            <a
+            
+              class="card-collapser sidebar-collapser"
+              @onClick="onToggleCard($i)"
+            > 
+              @if(card.expanded)
+              <span>
+                <i class="ri-toggle-line"></i>
+              </span>
+              @endif()
+              
+            </a>
             <div class="card-body">
               <h2 class="card-title">{{card.title}}</h2>
 
@@ -39,9 +60,16 @@
                   {{l}}
                   <input model="l" class="input" />
                 </li>
-                }  
+                }
               </div>
-             
+              <div class="justify-end card-actions">
+                <button class="btn btn-primary" @onClick="onPush($i)">
+                  Push
+                </button>
+                <button class="btn btn-primary" @onClick="onPop($i)">
+                  Pop
+                </button>
+              </div>
 
               <div>
                 @for(item of items){
@@ -52,10 +80,10 @@
                 }
               </div>
               <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onPush($i)">
+                <button class="btn btn-primary" @onClick="onPushItem()">
                   Push
                 </button>
-                <button class="btn btn-primary" @onClick="onPop($i)">
+                <button class="btn btn-primary" @onClick="onPopItem($i)">
                   Pop
                 </button>
               </div>
@@ -70,9 +98,7 @@
     <div id="app">
       <my-button></my-button>
       <el-layout>
-
         <el-web-component></el-web-component>
-
       </el-layout>
     </div>
 
