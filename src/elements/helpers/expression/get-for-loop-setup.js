@@ -4,11 +4,11 @@ import { getStackContent } from "../regex/get-stack-content";
 let forLoopKeyIndex = 0;
 
 export const getForLoopSetup = function(expression){
-    let index = "__$index__" + forLoopKeyIndex++;
+    
     // Step #1 -> tirar a porra dos ('s;
-
+let index;
     let setup = {
-        index: index,   
+         index: index,   
         success:false
 
     }
@@ -39,14 +39,17 @@ export const getForLoopSetup = function(expression){
         if(queryType == "index") {
             hasIndex = true;
             index = el.source;
-            setup.index =el. source
+            setup.index =el.source
         
         }else{
             setup.query = el;
         }
         return el
     })
-
+    if(!hasIndex){
+        let index = "__index__" + forLoopKeyIndex++;
+        setup.index = index
+    }
     
 
     return setup

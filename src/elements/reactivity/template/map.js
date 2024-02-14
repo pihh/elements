@@ -223,6 +223,7 @@ export const reactivityMap = function (element) {
 
         for (let evt of events) {
           evt = evt.att;
+ 
           const type = node.hasOwnProperty(evt) ? "native" : "custom";
           let eventName = evt.replaceAll("@", "");
           const value = node.getAttribute(evt);
@@ -234,11 +235,10 @@ export const reactivityMap = function (element) {
           const actionName = split[0];
           let args = [];
           if (split.length > 1) {
-            args = split[1]
-              .split(")")
-              .map((el) => el.trim())
-              .filter((el) => el.length > 0)[0]
-              .split(",");
+    
+            args = split[1].replaceAll(')','').trim().split(",");
+       
+            
           }
           if (
             eventName.indexOf("on") == 0 &&
@@ -274,7 +274,7 @@ export const reactivityMap = function (element) {
                     ? arg.trim().slice(1, arg.trim().length - 1)
                     : arg
                 );
-
+               
                 instance[actionName](...parsedArguments);
               });
             },

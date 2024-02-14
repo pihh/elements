@@ -1,16 +1,13 @@
 import { modelValue } from "../../../compiler/model/update";
 import { TemplateManager } from "../../../compiler/template/manager";
 import { filterNonEmpty } from "../../../helpers/array";
-import { findTextNodes } from "../../../helpers/dom";
 import { getForLoopSetup } from "../../../helpers/expression/get-for-loop-setup";
 import {
   getExpressionProperties,
-  getStrBetween,
-  isChar,
+ 
 } from "../../../helpers/regex";
-import { Registry } from "../../../kernel/registry";
+
 import { connectHtmlReactivity } from "../connection";
-import { reactivityMap } from "../map";
 
 export class OperationMap {
   stack = { if: [], for: [] };
@@ -190,7 +187,7 @@ export class OperationMap {
           let $placeholder = document.createComment("for placeholder ");
           let originalQuery = $replacement.dataset.forQuery;
 
-          const indices = config?.indices || {};
+        
           let content = new TemplateManager(connection, instance.__props);
           content = content.setup();
           $placeholder._setup = _setup;
@@ -201,6 +198,7 @@ export class OperationMap {
           $placeholder.display = [];
           $placeholder._indices = {};
           let generate = async function (index) {
+            const indices = config?.indices || {};
             const _template =
               $placeholder.content.__template.content.firstElementChild.cloneNode(
                 true
@@ -209,6 +207,7 @@ export class OperationMap {
               ...indices,
               [_setup.index]: index,
             });
+           
             $placeholder._indices[_setup.index] = index;
             _template.innerHTML = _template.innerHTML.replaceAll(
               _setup.index,

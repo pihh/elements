@@ -5,10 +5,12 @@ import { TemplateManager } from "./manager";
 
 const parseIndexItem = function (context, variable, source, indexKey) {
   for (let match of getStrBetween(context, 'model="' + variable, '"')) {
-    if (match == "") {
+    let m = match.trim();
+    if (match == "" || !isChar(m.charAt(0))) {
+           
       context = context.replaceAll(
-        'model="' + variable,
-        'model="' + source + "[" + indexKey + "]"
+        'model="' + variable+match+'"',
+        'model="' + source+"[" + indexKey + "]"+match +  '"'
       );
     }
   }
@@ -90,18 +92,16 @@ const parseLoopOperations = function (template, id, scope) {
         let replacement_id = id + "_" + Date.now();
         let index = "$index" + indexKeyId++;
         let query =
-          template.slice(forIndex, open - 1) + ";index = " + index + ")";
+          template.slice(forIndex+4, open )// + ";index = " + index + ")";
 
-        getForLoopSetup(query);
-
-        let split = query.split(";");
-        let expression = split[0].split("(")[1].replaceAll(")", "");
-        let variable = expression.split(" of ")[0].trim();
-        let source = expression.split(" of ")[1].trim();
-
+        let setup = getForLoopSetup(query);
+        let variable=setup.query.attribute;
+        let source = setup.query.source
+     
+        index = setup.index;
         content = parseIndexItem(content, variable, source, index);
-
-        const matches = getStrBetween(content, (variable = "@for("), ")");
+       
+        const matches = getStrBetween(content, "@for(", ")");
         for (let match of matches) {
           
           let newSource = match.split(" of ");
@@ -124,16 +124,14 @@ const parseLoopOperations = function (template, id, scope) {
             }
           }
         }
-
+        let replacementQuery = "("+setup.query.query+";index = "+setup.index+")";
         let replacement =
           '<span data-for-connection="' +
           replacement_id +
           '" data-for-query="' +
-          query.replace("@for", "") +
+          replacementQuery+
           '">@__for()</span>';
-        // console.log({replacement})
-        //   debugger;
-
+      
         const $template = document.createElement("template");
         const $wrapper = document.createElement("div");
 

@@ -20,7 +20,7 @@ export const AddEventListener = function (element, scope, attribute) {
     if (functionName.indexOf("(") == -1) {
       functionName = functionName.replace("this.", "");
       callback = function ($event) {
-        console.log(scope, element);
+    
         element.controller[functionName]($event);
       };
     } else {

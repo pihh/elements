@@ -18,20 +18,3 @@ export const pathName = function(path){
   return path
 }
 
-/*
-export const pathName = (path = []) => {
-    if (Array.isArray(path)) {
-      path = path.map(el => el.replaceAll('[','').replaceAll(']','').trim()).filter(el => el.length > 0).join(".");
-    }
-  
-    path = path
-      .replaceAll("[", ".")
-      .replaceAll("]", ".")
-      .replaceAll("..", ".")
-      .trim();
-    if (path.endsWith(".")) {
-      path = path.slice(0, -1);
-    }
-    return path;
-  };
-*/

@@ -25,7 +25,13 @@ class MyWebComponent extends ElComponent {
   ];
   color = "yellow";
   colors = ["green", "red", "yellow"];
-  items = ["item 1", "item 2"];
+  items = [
+    {
+      name:"item 1"
+    }, {
+      name:"item 2"
+    }
+  ];
 
 
   // card = {
@@ -35,14 +41,21 @@ class MyWebComponent extends ElComponent {
   cards = [
     // "Card title 1",
     // "Card title 2",
-     {title: "Card 1 ", description: "Card 1 description",list: ['list 1','list 2']},
-    //  {title: "Card 2 ", description: "Card 2 description"},
-    //  {title: "Card 3 ", description: "Card 3 description"},
+     {title: "Card 1 ", description: "Card 1 description",list: ['list 1']},
+    {title: "Card 2 ", description: "Card 2 description",list: ['list 1','list 2']},
+      {title: "Card 3 ", description: "Card 3 description",list: []},
     
   ]
 
-  onClick(){
-    this.items.push("item "+this.items.length)
+  onPush(cardIndex){
+   
+    this.cards[cardIndex].list.push("list "+this.cards[cardIndex].list.length);
+    //this.items.push("item "+this.items.length)
+  }
+  onPop(cardIndex){
+
+    this.cards[cardIndex].list.pop();
+    //this.items.push("item "+this.items.length)
   }
 
 }
