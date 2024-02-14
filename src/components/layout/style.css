@@ -7253,3 +7253,6 @@ a {
     width: 2em;
     height: 2em;
 }
+.menu-item.open .menu-list,.menu-item.open .sub-menu-list{
+  display: block !important;
+}

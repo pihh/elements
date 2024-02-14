@@ -2,10 +2,7 @@ import { modelValue } from "../../../compiler/model/update";
 import { TemplateManager } from "../../../compiler/template/manager";
 import { filterNonEmpty } from "../../../helpers/array";
 import { getForLoopSetup } from "../../../helpers/expression/get-for-loop-setup";
-import {
-  getExpressionProperties,
- 
-} from "../../../helpers/regex";
+import { getExpressionProperties } from "../../../helpers/regex";
 
 import { connectHtmlReactivity } from "../connection";
 
@@ -187,7 +184,6 @@ export class OperationMap {
           let $placeholder = document.createComment("for placeholder ");
           let originalQuery = $replacement.dataset.forQuery;
 
-        
           let content = new TemplateManager(connection, instance.__props);
           content = content.setup();
           $placeholder._setup = _setup;
@@ -207,7 +203,7 @@ export class OperationMap {
               ...indices,
               [_setup.index]: index,
             });
-           
+
             $placeholder._indices[_setup.index] = index;
             _template.innerHTML = _template.innerHTML.replaceAll(
               _setup.index,
@@ -226,7 +222,10 @@ export class OperationMap {
             const e = await connectHtmlReactivity(instance, _template);
 
             _template.remove();
-            return _template;
+            _template.firstElementChild.__setup = _template.__setup
+            _template.firstElementChild.controller = _template.controller
+            _template.firstElementChild.dataset.elIndex = _template.dataset.elIndex
+            return _template.firstElementChild;
           };
           const callback = function (value) {
             if (value === undefined) {
@@ -240,8 +239,8 @@ export class OperationMap {
                 new Promise((res) => {
                   generate(i).then(($item) => {
                     $placeholder.after($item);
-                    $placeholder.stack.push($item);
-                    $placeholder.display.push($item);
+                    $placeholder.stack.unshift($item);
+                    // $placeholder.display.push($item);
                     res($item);
                   });
                 })
@@ -249,8 +248,13 @@ export class OperationMap {
             }
             Promise.all(promises).then((res) => {
               for (let i = $placeholder.display.length; i < value; i++) {
-                $placeholder.display.push($placeholder.stack[i]);
-                $placeholder.after($placeholder.stack[i]);
+                let $stack = $placeholder.stack[i];
+                let $display = $placeholder.stack[i];
+                // $display.dataset.elIndex = $stack.dataset.elIndex;
+
+                $placeholder.display.push($display);
+                $placeholder.after($display);
+         
               }
               let pops = [];
               for (let i = value; i < $placeholder.display.length; i++) {
@@ -260,6 +264,7 @@ export class OperationMap {
 
               for (let pop of pops) {
                 $placeholder.display[pop].remove();
+                // $placeholder.stack[pop].remove();
                 $placeholder.display.pop();
               }
             });

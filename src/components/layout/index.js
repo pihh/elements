@@ -1,11 +1,10 @@
-import './style.css'
-import { Component, ElComponent } from '../../elements/component';
-import Template from './template.html';
-
+import "./style.css";
+import { Component, ElComponent } from "../../elements/component";
+import Template from "./template.html";
 
 @Component({
   selector: "el-layout",
-  template: Template  
+  template: Template,
 })
 export class ElLayout extends ElComponent {
   static selector = "el-layout";
@@ -13,20 +12,141 @@ export class ElLayout extends ElComponent {
     super();
   }
 
-  menu = [{title:"Geral",links: [{ 
-    title: "Componentes",
-    open: false,
-    link: "#",
-    submenus:[
-      {
-        link: "#",
-        title: "Submenu"
+  headlines = {
+    title: "El framework",
+    description: "Reactive custom web components simplified ",
+  };
+
+  links = {
+    github: {
+      href: "https://github.com/pihh",
+      icon: "ri-github-fill",
+    },
+    twitter: {
+      href: "https://twitter.com/pihh",
+      icon: "ri-twitter-fill",
+    },
+    linkedin: {
+      href: "https://linkedin.com/pihh",
+      icon: "ri-linkedin-fill",
+    },
+  };
+  year = new Date().getFullYear();
+  linkList = Object.keys(this.links).map((key) => this.links[key]);
+  menu = [
+    {
+      title: "EL FRAMEWORK",
+      links: [
+        {
+          title: "Get started",
+          open: true,
+          link: "#",
+          icon:"ri-terminal-box-fill",
+          submenus: [
+            {
+              link: "#",
+              title: "Install",
+            },
+            {
+              link: "#",
+              title: "Write your first component",
+            },
+          ], 
+        },  
+      ],
+    },
+    {
+      title: "FEATURES",
+      links: [
+        {
+          title: "Simple",
+          open: false,
+          link: "#",
+          icon:"ri-code-box-fill",
+          submenus: [
+            {
+              link: "#",
+              title: "Intuitive markup",
+            },
+
+            {
+              link: "#",
+              title: "Reúsable",
+            },
+          ],
+        },
+        {
+          title: "Data binding",
+          open: false,
+          link: "#",
+          icon: "ri-links-line",
+          submenus: [
+            {
+              link: "#",
+              title: "Input",
+            },
+
+            {
+              link: "#",
+              title: "Select",
+            },
+            {
+              link: "#",
+              title: "Checkbox",
+            },
+          ],
+        },
+        {
+          title: "Conditional rendering",
+          open: false,
+          link: "#", 
+          icon: "ri-toggle-fill", 
+          submenus: [ 
+            {
+              link: "#",
+              title: "@if",
+            },
+
+            {
+              link: "#",
+              title: "@for",
+            },
+          ],
+        },
+      ],
+    },
+    {
+      title: "EXTRAS",
+      links: [
+        {
+          title: "Documentation",
+          open: false,
+          link: "#",
+          icon: "ri-book-2-fill",
+          submenus: [ 
+      
+          ],
+        }, 
+      ],
+    }, 
+  ];
+
+  attributeChangedCallback(attribute, oldValue, newValue) {
+    console.log("attribute", attribute);
+  }
+ 
+
+  toggleSeparator($separator,$link){
+    for(let i = 0; i < this.menu.length; i++){
+      for(let k = 0; k < this.menu[i].links.length; k++){
+        if(i == $separator && k == $link){
+          this.menu[i].links[k].open = !this.menu[i].links[k].open
+        }else{
+          this.menu[i].links[k].open = false
+        }
       }
-    ]
-
-}]}]
-
-
+    }
+  }
 }
 /*
 const ANIMATION_DURATION = 300;
