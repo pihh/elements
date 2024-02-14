@@ -1,5 +1,5 @@
+import { ElLayout } from "./src/components/layout";
 import { ElComponent , Component} from "./src/elements/component";
-
 
 @Component({
   selector: "el-web-component",

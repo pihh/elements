@@ -1,3 +1,34 @@
+import './style.css'
+import { Component, ElComponent } from '../../elements/component';
+import Template from './template.html';
+
+
+@Component({
+  selector: "el-layout",
+  template: Template  
+})
+export class ElLayout extends ElComponent {
+  static selector = "el-layout";
+  constructor() {
+    super();
+  }
+
+  menu = [{title:"Geral",links: [{ 
+    title: "Componentes",
+    open: false,
+    link: "#",
+    submenus:[
+      {
+        link: "#",
+        title: "Submenu"
+      }
+    ]
+
+}]}]
+
+
+}
+/*
 const ANIMATION_DURATION = 300;
 
 const SIDEBAR_EL = document.getElementById("sidebar");
@@ -178,7 +209,7 @@ const PoppersInstance = new Poppers();
 
 /**
  * wait for the current animation to finish and update poppers position
- */
+ *
 const updatePoppersTimeout = () => {
   setTimeout(() => {
     PoppersInstance.updatePoppers();
@@ -187,7 +218,7 @@ const updatePoppersTimeout = () => {
 
 /**
  * sidebar collapse handler
- */
+ *
 document.getElementById("btn-collapse").addEventListener("click", () => {
   SIDEBAR_EL.classList.toggle("collapsed");
   PoppersInstance.closePoppers();
@@ -201,7 +232,7 @@ document.getElementById("btn-collapse").addEventListener("click", () => {
 
 /**
  * sidebar toggle handler (on break point )
- */
+ *
 document.getElementById("btn-toggle").addEventListener("click", () => {
   SIDEBAR_EL.classList.toggle("toggled");
 
@@ -210,7 +241,7 @@ document.getElementById("btn-toggle").addEventListener("click", () => {
 
 /**
  * toggle sidebar on overlay click
- */
+ *
 document.getElementById("overlay").addEventListener("click", () => {
   SIDEBAR_EL.classList.toggle("toggled");
 });
@@ -223,7 +254,7 @@ defaultOpenMenus.forEach((element) => {
 
 /**
  * handle top level submenu click
- */
+ *
 FIRST_SUB_MENUS_BTN.forEach((element) => {
   element.addEventListener("click", () => {
     if (SIDEBAR_EL.classList.contains("collapsed"))
@@ -245,9 +276,10 @@ FIRST_SUB_MENUS_BTN.forEach((element) => {
 
 /**
  * handle inner submenu click
- */
+ *
 INNER_SUB_MENUS_BTN.forEach((element) => {
   element.addEventListener("click", () => {
     slideToggle(element.nextElementSibling);
   });
 });
+*/

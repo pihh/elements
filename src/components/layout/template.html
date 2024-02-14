@@ -1,6 +1,9 @@
-<div class="layout has-sidebar fixed-sidebar fixed-header">
+<div>
+  <div class="layout has-sidebar fixed-sidebar fixed-header">
     <aside id="sidebar" class="sidebar break-point-sm has-bg-image">
-      <a id="btn-collapse" class="sidebar-collapser"><i class="ri-arrow-left-s-line"></i></a>
+      <a id="btn-collapse" class="sidebar-collapser"
+        ><i class="ri-arrow-left-s-line"></i
+      ></a>
       <div class="image-wrapper">
         <img src="assets/images/sidebar-bg.jpg" alt="sidebar background" />
       </div>
@@ -14,6 +17,35 @@
         <div class="sidebar-content">
           <nav class="menu open-current-submenu">
             <ul>
+              @for(separator of menu){
+              <div>
+                <li class="menu-header"><span> {{separator.title}} </span></li>
+                @for(link of separator.links){
+                <li class="menu-item sub-menu {{separator.open ? 'open': ''}}">
+                  <a href="#">
+                    <span class="menu-icon">
+                      <i class="ri-vip-diamond-fill"></i>
+                    </span>
+                    <span class="menu-title">Components</span>
+                    <span class="menu-suffix">
+                      <span class="badge primary">Hot</span>
+                    </span>
+                  </a>
+                  <div class="sub-menu-list">
+                    <ul>
+                      @for(submenu of link.submenus){
+                      <li class="menu-item">
+                        <a href="#">
+                          <span class="menu-title">{{submenu.title}}</span>
+                        </a>
+                      </li>
+                      }
+                    </ul>
+                  </div>
+                </li>
+                }
+              </div>
+              }
               <li class="menu-header"><span> GENERAL </span></li>
               <li class="menu-item sub-menu">
                 <a href="#">
@@ -78,8 +110,12 @@
                                     <ul>
                                       <li class="menu-item">
                                         <a href="#">
-                                          <span class="menu-prefix">&#127881;</span>
-                                          <span class="menu-title">You made it </span>
+                                          <span class="menu-prefix"
+                                            >&#127881;</span
+                                          >
+                                          <span class="menu-title"
+                                            >You made it
+                                          </span>
                                         </a>
                                       </li>
                                     </ul>
@@ -173,7 +209,7 @@
               <li class="menu-item sub-menu">
                 <a href="#">
                   <span class="menu-icon">
-                   <i class="ri-paint-brush-fill"></i>
+                    <i class="ri-paint-brush-fill"></i>
                   </span>
                   <span class="menu-title">Theme</span>
                 </a>
@@ -192,7 +228,9 @@
                   </ul>
                 </div>
               </li>
-              <li class="menu-header" style="padding-top: 20px"><span> EXTRA </span></li>
+              <li class="menu-header" style="padding-top: 20px">
+                <span> EXTRA </span>
+              </li>
               <li class="menu-item">
                 <a href="#">
                   <span class="menu-icon">
@@ -243,7 +281,9 @@
                 />
               </div>
               <div>
-                <a href="https://github.com/azouaoui-med/react-pro-sidebar" target="_blank"
+                <a
+                  href="https://github.com/azouaoui-med/react-pro-sidebar"
+                  target="_blank"
                   >Check it out!</a
                 >
               </div>
@@ -261,23 +301,33 @@
           </a>
           <h1 style="margin-bottom: 0">Pro Sidebar</h1>
           <span style="display: inline-block">
-            Responsive layout with advanced sidebar menu built with SCSS and vanilla Javascript
+            Responsive layout with advanced sidebar menu built with SCSS and
+            vanilla Javascript
           </span>
           <br />
           <span>
+            <slot></slot>
             Full Code and documentation available on
-            <a href="https://github.com/azouaoui-med/pro-sidebar-template" target="_blank"
+            <a
+              href="https://github.com/azouaoui-med/pro-sidebar-template"
+              target="_blank"
               >Github</a
             >
           </span>
           <div style="margin-top: 10px">
-            <a href="https://github.com/azouaoui-med/pro-sidebar-template" target="_blank">
+            <a
+              href="https://github.com/azouaoui-med/pro-sidebar-template"
+              target="_blank"
+            >
               <img
                 alt="GitHub stars"
                 src="https://img.shields.io/github/stars/azouaoui-med/pro-sidebar-template?style=social"
               />
             </a>
-            <a href="https://github.com/azouaoui-med/pro-sidebar-template" target="_blank">
+            <a
+              href="https://github.com/azouaoui-med/pro-sidebar-template"
+              target="_blank"
+            >
               <img
                 alt="GitHub forks"
                 src="https://img.shields.io/github/forks/azouaoui-med/pro-sidebar-template?style=social"
@@ -299,12 +349,17 @@
           <h2>Resources</h2>
           <ul>
             <li>
-              <a target="_blank" href="https://github.com/azouaoui-med/css-pro-layout">
+              <a
+                target="_blank"
+                href="https://github.com/azouaoui-med/css-pro-layout"
+              >
                 Css Pro Layout</a
               >
             </li>
             <li>
-              <a target="_blank" href="https://github.com/popperjs/popper-core"> Popper Core</a>
+              <a target="_blank" href="https://github.com/popperjs/popper-core">
+                Popper Core</a
+              >
             </li>
             <li>
               <a target="_blank" href="https://remixicon.com/"> Remix Icons</a>
@@ -315,7 +370,9 @@
           <small style="margin-bottom: 20px; display: inline-block">
             © 2023 made with
             <span style="color: red; font-size: 18px">&#10084;</span> by -
-            <a target="_blank" href="https://azouaoui.netlify.com"> Mohamed Azouaoui </a>
+            <a target="_blank" href="https://azouaoui.netlify.com">
+              Mohamed Azouaoui
+            </a>
           </small>
           <br />
           <div class="social-links">
@@ -328,7 +385,10 @@
             <a href="https://codepen.io/azouaoui-med" target="_blank">
               <i class="ri-codepen-fill ri-xl"></i>
             </a>
-            <a href="https://www.linkedin.com/in/mohamed-azouaoui/" target="_blank">
+            <a
+              href="https://www.linkedin.com/in/mohamed-azouaoui/"
+              target="_blank"
+            >
               <i class="ri-linkedin-box-fill ri-xl"></i>
             </a>
           </div>
@@ -337,3 +397,4 @@
       <div class="overlay"></div>
     </div>
   </div>
+</div>

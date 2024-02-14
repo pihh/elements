@@ -8,6 +8,12 @@ export function Component(config) {
   const _config = {
     ...config,
   };
+  if(_config.template){
+  const template =   document.createElement('template');
+  document.head.appendChild(template);
+  template.id = "template-"+_config.selector;
+  template.innerHTML = _config.template
+  }
   return function (component) {
     class Component extends component {
       static selector = _config.selector;
@@ -64,17 +70,7 @@ export class ElComponent extends HTMLElement {
     console.log(this);
   }
 
-  fn($event, $index, text, str, num) {
-    console.log("FN CALLED", { $event, $index, text, str, num });
-  }
 
-  addColor() {
-    this.colors.push("new-color");
-  }
-
-  customFn() {
-    console.log("Custom FN CALLED");
-  }
 }
 
 //customElements.define("my-button", MyWebComponent);

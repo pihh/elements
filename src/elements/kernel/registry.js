@@ -38,6 +38,7 @@ class _Registry {
   componentSetup(component) {
     
     let name = component.constructor.name;
+    console.log({name})
     let componentSetup = this.components[name];
     if (!componentSetup) {
       let setup = Object.assign({}, ElComponentSetup);
@@ -53,6 +54,7 @@ class _Registry {
             mode: self.__config.shadowRoot,
           });
           if (self.__config.styles == "global") {
+            console.log(self);
             addGlobalStylesToShadowRoot(self.__shadowRoot);
           }
           self.__setup.initialSetup = true;

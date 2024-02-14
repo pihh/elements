@@ -15,7 +15,12 @@ export function getGlobalStyleSheets() {
 }
 
 export function addGlobalStylesToShadowRoot(shadowRoot) {
-  shadowRoot.adoptedStyleSheets.push(
-    ...getGlobalStyleSheets()
-  );
+  try{
+
+    shadowRoot.adoptedStyleSheets.push(
+      ...getGlobalStyleSheets()
+      );
+    }catch(e){
+      console.log(e)
+    }
 }
