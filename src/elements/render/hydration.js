@@ -703,6 +703,7 @@ export const parseTemplatePointers = function (
 
     $template.setAttribute("id", $templateId);
     $template.innerHTML = template;
+  
     $head.appendChild($template);
   }
   return $template;

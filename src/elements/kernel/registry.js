@@ -38,7 +38,7 @@ class _Registry {
   componentSetup(component) {
     
     let name = component.constructor.name;
-    console.log({name})
+
     let componentSetup = this.components[name];
     if (!componentSetup) {
       let setup = Object.assign({}, ElComponentSetup);
@@ -54,7 +54,7 @@ class _Registry {
             mode: self.__config.shadowRoot,
           });
           if (self.__config.styles == "global") {
-            console.log(self);
+     
             addGlobalStylesToShadowRoot(self.__shadowRoot);
           }
           self.__setup.initialSetup = true;
@@ -87,9 +87,9 @@ class _Registry {
     //
     if (template) return template;
     this.templates[name] = new Promise(async (res) => {
-      const templateObject = new TemplateManager(name,props);
-      const $template = templateObject.setup();
-
+      
+      const $template = new TemplateManager(name,props);
+    
       res($template.__template.content.cloneNode(true).firstElementChild);
     });
     return this.templates[name];

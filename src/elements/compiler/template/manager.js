@@ -17,20 +17,21 @@ export class TemplateManager {
     ) {
       this.__originalId = id;
       this.__id = "template-" + id;
-  
       this.__scope = scope || [];
       this.initialSetup = false;
       if(templateRegistry.hasOwnProperty(this.__id)){
         return templateRegistry[this.__id];
       }else{
-        this.__original = document.querySelector("#" + this.__id);
         templateRegistry[this.__id] = this;
+        return templateRegistry[this.__id].setup()
       }
     }
   
     setup() {
+  
       if (!templateRegistry[this.__id].initialSetup) {
         templateRegistry[this.__id].initialSetup = true;
+        this.__original = document.querySelector("#" + this.__id);
         templateRegistry[this.__id].__template = document.createElement("template");
        
         templateRegistry[this.__id].__cleanedUpInnerHTML = initialExpressionCleanup(this.__original);
@@ -53,6 +54,7 @@ export class TemplateManager {
           templateRegistry[this.__id].__template.dataset[key] =  templateRegistry[this.__id].__original.dataset[key]
         }
         document.querySelector("#" + templateRegistry[this.__id].__id).replaceWith(templateRegistry[this.__id].__template);
+    
       }      
       return templateRegistry[this.__id]
     }

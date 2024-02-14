@@ -68,8 +68,9 @@ export class Render{
       template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
     }
 
-    // $template.setAttribute("id", "el-component-template__" + selector);
+  
     $template.innerHTML = template;
+    
     $head.appendChild($template);
 
     return $template;

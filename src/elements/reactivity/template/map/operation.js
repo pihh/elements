@@ -166,7 +166,9 @@ export class OperationMap {
         configuration.node.textContent = "";
         return;
       }
+ 
       let _setup = getForLoopSetup(query);
+ 
 
       const operation = {
         operation: "for",
@@ -177,15 +179,20 @@ export class OperationMap {
         ..._setup,
         callback: function () {},
         connect: function (instance, config = {}) {
+          this.connected = true;
           const $replacement = instance.shadowRoot.querySelector(
             '[data-for-connection="' + connection + '"]'
           );
-          if (!$replacement) return;
-          let $placeholder = document.createComment("for placeholder ");
-          let originalQuery = $replacement.dataset.forQuery;
 
+          if (!$replacement) {
+            console.log("failed for" ,connection_setup,)
+            return;
+          }
+          let $placeholder = document.createComment("for placeholder ");
+        
+    
           let content = new TemplateManager(connection, instance.__props);
-          content = content.setup();
+       
           $placeholder._setup = _setup;
           $replacement.replaceWith($placeholder);
           $placeholder.content = content;
@@ -218,7 +225,7 @@ export class OperationMap {
               }
             }
             $placeholder.after(_template);
-
+            
             const e = await connectHtmlReactivity(instance, _template);
 
             _template.remove();
@@ -231,7 +238,7 @@ export class OperationMap {
             if (value === undefined) {
               value = modelValue(instance, _setup.query.source + ".length");
             }
-            // console.log({value},_setup.query.source + ".length",value)
+         
 
             let promises = [];
             for (let i = $placeholder.stack.length; i < value; i++) {
