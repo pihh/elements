@@ -35,9 +35,9 @@ class MyWebComponent extends ElComponent {
   cards = [
     // "Card title 1",
     // "Card title 2",
-     {title: "Card 1 ", description: "Card 1 description"},
-     {title: "Card 2 ", description: "Card 2 description"},
-     {title: "Card 3 ", description: "Card 3 description"},
+     {title: "Card 1 ", description: "Card 1 description",list: ['list 1','list 2']},
+    //  {title: "Card 2 ", description: "Card 2 description"},
+    //  {title: "Card 3 ", description: "Card 3 description"},
     
   ]
 

@@ -1,6 +1,8 @@
+import { modelValue } from "../../../compiler/model/update";
 import { TemplateManager } from "../../../compiler/template/manager";
 import { filterNonEmpty } from "../../../helpers/array";
 import { findTextNodes } from "../../../helpers/dom";
+import { getForLoopSetup } from "../../../helpers/expression/get-for-loop-setup";
 import {
   getExpressionProperties,
   getStrBetween,
@@ -14,13 +16,8 @@ export class OperationMap {
   stack = { if: [], for: [] };
   map = { if: [], for: [] };
   async onDidConnect(instance) {
-    this.map.for.reverse().forEach(async (el) => {
-      // console.log(el.query, el);
-      
-      // let fn = Function("return `${" + el.query + "}`;");
-      // let output = Number(fn.apply(instance));
-      // let n = output || 0;
-       await el.callback(1);
+    this.map.for.forEach(async (el) => {
+      await el.callback();
     });
     this.map.if.forEach((el) => {
       el.callback();
@@ -141,7 +138,6 @@ export class OperationMap {
             } catch (ex) {}
 
             let callback = function () {
-   
               const $fn = Function("return `${" + last.query + "}`");
               const output = $fn.call(instance);
 
@@ -168,11 +164,15 @@ export class OperationMap {
         console.warn(ex);
       }
     } else if (prop == "@for") {
- 
       const replacement = configuration.node.parentElement;
-      const query = replacement.dataset.forQuery
-      const connection = replacement.dataset.forConnection
+      const query = replacement.dataset.forQuery;
 
+      const connection = replacement.dataset.forConnection;
+      if (!query || query.indexOf("<sp") > -1) {
+        configuration.node.textContent = "";
+        return;
+      }
+      let _setup = getForLoopSetup(query);
 
       const operation = {
         operation: "for",
@@ -180,34 +180,106 @@ export class OperationMap {
         query,
         connection,
         connected: false,
+        ..._setup,
         callback: function () {},
-        connect: async function (instance) {
-          const $replacement = instance.shadowRoot.querySelector('[data-for-connection="'+connection+'"]');
-          const $placeholder = document.createComment("for placeholder ");
-          $replacement.replaceWith($placeholder);
-          $placeholder.content = new TemplateManager(connection,instance.__props);
-         
-          let generate = function(id){
-         
-           const _template = $placeholder.content.__template.content.firstElementChild.cloneNode(true);
-           _template.innerHTML = _template.innerHTML.replaceAll('$index0',id);
-           _template.innerHTML = _template.innerHTML.replaceAll('$index1',id);
-       
-            $placeholder.after(_template);
-            connectHtmlReactivity(instance,_template)
+        connect: function (instance, config = {}) {
+          const $replacement = instance.shadowRoot.querySelector(
+            '[data-for-connection="' + connection + '"]'
+          );
+          if (!$replacement) return;
+          let $placeholder = document.createComment("for placeholder ");
+          let originalQuery = $replacement.dataset.forQuery;
 
-          }
-          generate(0)
-    
-          
-      
+          const indices = config?.indices || {};
+          let content = new TemplateManager(connection, instance.__props);
+          content = content.setup();
+          $placeholder._setup = _setup;
+          $replacement.replaceWith($placeholder);
+          $placeholder.content = content;
+          $placeholder.controller = instance;
+          $placeholder.stack = [];
+          $placeholder.display = [];
+          $placeholder._indices = {};
+          let generate = async function (index) {
+            const _template =
+              $placeholder.content.__template.content.firstElementChild.cloneNode(
+                true
+              );
+            _template.dataset.elIndex = JSON.stringify({
+              ...indices,
+              [_setup.index]: index,
+            });
+            $placeholder._indices[_setup.index] = index;
+            _template.innerHTML = _template.innerHTML.replaceAll(
+              _setup.index,
+              index
+            );
+            for (let key of Object.keys(indices)) {
+              if (key !== _setup.index) {
+                _template.innerHTML = _template.innerHTML.replaceAll(
+                  key,
+                  indices[key]
+                );
+              }
+            }
+            $placeholder.after(_template);
+
+            const e = await connectHtmlReactivity(instance, _template);
+
+            _template.remove();
+            return _template;
+          };
+          const callback = function (value) {
+            if (value === undefined) {
+              value = modelValue(instance, _setup.query.source + ".length");
+            }
+            // console.log({value},_setup.query.source + ".length",value)
+
+            let promises = [];
+            for (let i = $placeholder.stack.length; i < value; i++) {
+              promises.push(
+                new Promise((res) => {
+                  generate(i).then(($item) => {
+                    $placeholder.after($item);
+                    $placeholder.stack.push($item);
+                    $placeholder.display.push($item);
+                    res($item);
+                  });
+                })
+              );
+            }
+            Promise.all(promises).then((res) => {
+              for (let i = $placeholder.display.length; i < value; i++) {
+                $placeholder.display.push($placeholder.stack[i]);
+                $placeholder.after($placeholder.stack[i]);
+              }
+              let pops = [];
+              for (let i = value; i < $placeholder.display.length; i++) {
+                pops.push(i);
+              }
+              pops.reverse();
+
+              for (let pop of pops) {
+                $placeholder.display[pop].remove();
+                $placeholder.display.pop();
+              }
+            });
+          };
+
+          $placeholder.callback = callback;
+          $placeholder.generate = generate;
+
+          instance.connect(_setup.query.source + ".length", callback);
+
+          this.callback = callback;
         },
-        setup: function (instance) {
+        setup: function (instance, config = {}) {
           if (this.connected) return;
           this.connected = true;
-          this.connect(instance);
+          this.connect(instance, config);
+          this.callback();
         },
-      }
+      };
       this.map.for.push(operation);
     }
   }

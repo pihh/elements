@@ -8,7 +8,6 @@ import { reactivityMap } from "./map";
 export const connectHtmlReactivity = function(instance, element){
   if (element?.__setup?.templateConnected) return;
   const {props,actions,operations} = reactivityMap(element);
-
   const connections = props.map;
 
   for (let key of Object.keys(connections)) {
@@ -33,17 +32,21 @@ export const connectHtmlReactivity = function(instance, element){
 
   let forOps = operations.map.for
   for (let operation of forOps) {
-
-    operation.setup(instance);
+    let config = {}
+  if(element.dataset.elIndex){
+    config.indices = JSON.parse(element.dataset.elIndex);
+  }    
+    operation.setup(instance,config);
 
   }
   let ifOps = instance.operations.map.if
   for (let operation of ifOps) {
-
+    
     operation.setup(instance);
   }
   element.__setup = {}
   element.__setup.templateConnected = true;
+  return element;
 }
 export const connectTemplateReactivity = function (instance) {
   if (instance.__setup.templateConnected) return;
@@ -69,7 +72,7 @@ export const connectTemplateReactivity = function (instance) {
   for (let operation of forOps) {
     // console.log(key)
     operation.setup(instance);
-    console.log({operation})
+    // console.log({operation})
   }
   let ifOps = instance.operations.map.if
   for (let operation of ifOps) {
