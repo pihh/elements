@@ -49,7 +49,7 @@ export const modelUpdate = function(scope,modelName,value){
 export const modelValue = function(scope,modelName){
   
     try{
-
+        
         const $fn = Function("return this."+modelName )
         return $fn.call(scope)
     }catch(err){

@@ -10,14 +10,20 @@
       <div>
         <div>
           @if(checked){
-            <div>
-              Checked
-            </div>
-          }@endif()
+          <div>
+            Checked 
+            
+            @if(checkedd){
+              <div>Checked v2</div>
+            }
+          </div>
+          }
           <button class="btn" @onClick="onToggleChecked">Checked</button>
+          <button class="btn" @onClick="onToggleCheckedV2">CheckedV2</button>
         </div>
-      
-        @for(card of cards;index = $i){
+
+        @for(card of cards;index = $i){ 
+          
         <div
           class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
           style="
@@ -33,16 +39,20 @@
               />
             </figure>
             <a
-            
               class="card-collapser sidebar-collapser"
               @onClick="onToggleCard($i)"
-            > 
-              @if(card.expanded)
-              <span>
-                <i class="ri-toggle-line"></i>
-              </span>
-              @endif()
-              
+            >
+            
+              @if(card.expanded){
+                <span>
+                  <i class="ri-toggle-line"></i>
+                </span>
+              }@else{
+                <span>
+                  xxx
+                </span>
+              }
+       
             </a>
             <div class="card-body">
               <h2 class="card-title">{{card.title}}</h2>
@@ -53,7 +63,7 @@
                 maiores optio facilis velit, omnis hic ea ipsam voluptates sequi
                 nostrum tempore perspiciatis est!
               </p>
-
+              <button class="btn" @onClick="onToggleCard($i)">Expand</button>
               <div>
                 @for(l of card.list){
                 <li>

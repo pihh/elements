@@ -7,6 +7,7 @@ import { reactivityMap } from "./map";
 
 export const connectHtmlReactivity = function(instance, element){
   if (element?.__setup?.templateConnected) return;
+ 
   const {props,actions,operations} = reactivityMap(element);
   const connections = props.map;
 

@@ -8,6 +8,7 @@ export class PropConnector {
         node.textContent = value;
       };
   
+      
       instance.connect(keyword, callback);
       return callback;
     }

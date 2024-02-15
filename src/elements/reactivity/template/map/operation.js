@@ -1,20 +1,21 @@
-import { modelValue } from "../../../compiler/model/update";
-import { TemplateManager } from "../../../compiler/template/manager";
+
 import { filterNonEmpty } from "../../../helpers/array";
-import { getForLoopSetup } from "../../../helpers/expression/get-for-loop-setup";
+
 import { getExpressionProperties } from "../../../helpers/regex";
 
-import { connectHtmlReactivity } from "../connection";
+import { operationFor } from "./operations/for";
+import { operationIf } from "./operations/if";
 
 export class OperationMap {
   stack = { if: [], for: [] };
   map = { if: [], for: [] };
   async onDidConnect(instance) {
+
     this.map.for.forEach(async (el) => {
       await el.callback();
     });
-    this.map.if.forEach((el) => {
-      el.callback();
+    this.map.if.forEach(async (el) => {
+      await el.callback();
     });
   }
   constructor(instance) {}
@@ -67,231 +68,15 @@ export class OperationMap {
     }
   }
   extractQuery(node) {
-    if (node.textContent.indexOf("@if") > -1) {
-      return this.extractQueryIf(node);
-    } else {
-      // return this.extractQueryFor(node);
-    }
+  
   }
   __connId = 0;
   track(prop, configuration = {}) {
-    if (prop == "@if") {
-      const { query, value, keywords } = this.extractQuery(configuration.node);
-      let id = "if-stack-" + Date.now();
-      let $placeholder = configuration.node.nextElementSibling;
-      $placeholder.dataset.elIfContainer = Date.now();
-      const entry = {
-        operation: "if",
-        prop,
-        query,
-        value,
-        keywords,
-        placeholder: $placeholder,
-        nodes: [configuration.node],
-      };
-      if (this.stack.if.length > 0) {
-        const $container = document.createElement("div");
-        $container.setAttribute("id", id);
+    if (prop == "@for") {
+      operationFor(configuration,this.map.for)
+    }else if (prop == "@if") {
+      operationIf(configuration, this.map.if)
 
-        this.stack.if[this.stack.if.length - 1].nodes.push($container);
-        entry.connector = "#" + id;
-      }
-
-      this.stack.if.push(entry);
-    } else if (prop == "@endif") {
-      try {
-        let last = this.stack.if.pop();
-
-        let start = last.nodes[0];
-        let content = last.placeholder;
-
-        let operation = {
-          operation: "if",
-          start,
-          content,
-          query: last.query,
-          value: last.value,
-          keywords: last.keywords,
-          hasParent: last.connector,
-          connected: false,
-          callback: function () {},
-          connect: function (instance) {
-            const $placeholder = document.createComment("if placeholder ");
-            $placeholder.content = content;
-
-            const $parent = instance.shadowRoot.querySelector(
-              '[data-el-if-container="' +
-                last.placeholder.dataset.elIfContainer +
-                '"]'
-            );
-
-            last.nodes[0].replaceWith($placeholder);
-
-            try {
-              content.remove();
-            } catch (ex) {}
-
-            let callback = function () {
-              const $fn = Function("return `${" + last.query + "}`");
-              const output = $fn.call(instance);
-
-              let value = ["true", true].indexOf(output) > -1 ? true : false;
-              if (value) {
-                $placeholder.after(content);
-              } else {
-                content.remove();
-              }
-            };
-            for (let keyword of last.keywords) {
-              instance.connect(keyword, callback);
-            }
-            this.callback = callback;
-          },
-          setup: function (instance) {
-            if (this.connected) return;
-            this.connected = true;
-            this.connect(instance);
-          },
-        };
-        this.map.if.push(operation);
-      } catch (ex) {
-        console.warn(ex);
-      }
-    } else if (prop == "@for") {
-      const replacement = configuration.node.parentElement;
-      const query = replacement.dataset.forQuery;
-
-      const connection = replacement.dataset.forConnection;
-      if (!query || query.indexOf("<sp") > -1) {
-        configuration.node.textContent = "";
-        return;
-      }
- 
-      let _setup = getForLoopSetup(query);
- 
-
-      const operation = {
-        operation: "for",
-        replacement,
-        query,
-        connection,
-        connected: false,
-        ..._setup,
-        callback: function () {},
-        connect: function (instance, config = {}) {
-          this.connected = true;
-          const $replacement = instance.shadowRoot.querySelector(
-            '[data-for-connection="' + connection + '"]'
-          );
-
-          if (!$replacement) {
-            console.log("failed for" ,connection_setup,)
-            return;
-          }
-          let $placeholder = document.createComment("for placeholder ");
-        
-    
-          let content = new TemplateManager(connection, instance.__props);
-       
-          $placeholder._setup = _setup;
-          $replacement.replaceWith($placeholder);
-          $placeholder.content = content;
-          $placeholder.controller = instance;
-          $placeholder.stack = [];
-          $placeholder.display = [];
-          $placeholder._indices = {};
-          let generate = async function (index) {
-            const indices = config?.indices || {};
-            const _template =
-              $placeholder.content.__template.content.firstElementChild.cloneNode(
-                true
-              );
-            _template.dataset.elIndex = JSON.stringify({
-              ...indices,
-              [_setup.index]: index,
-            });
-
-            $placeholder._indices[_setup.index] = index;
-            _template.innerHTML = _template.innerHTML.replaceAll(
-              _setup.index,
-              index
-            );
-            for (let key of Object.keys(indices)) {
-              if (key !== _setup.index) {
-                _template.innerHTML = _template.innerHTML.replaceAll(
-                  key,
-                  indices[key]
-                );
-              }
-            }
-            $placeholder.after(_template);
-            
-            const e = await connectHtmlReactivity(instance, _template);
-
-            _template.remove();
-            _template.firstElementChild.__setup = _template.__setup
-            _template.firstElementChild.controller = _template.controller
-            _template.firstElementChild.dataset.elIndex = _template.dataset.elIndex
-            return _template.firstElementChild;
-          };
-          const callback = function (value) {
-            if (value === undefined) {
-              value = modelValue(instance, _setup.query.source + ".length");
-            }
-         
-
-            let promises = [];
-            for (let i = $placeholder.stack.length; i < value; i++) {
-              promises.push(
-                new Promise((res) => {
-                  generate(i).then(($item) => {
-                    $placeholder.after($item);
-                    $placeholder.stack.unshift($item);
-                    // $placeholder.display.push($item);
-                    res($item);
-                  });
-                })
-              );
-            }
-            Promise.all(promises).then((res) => {
-              for (let i = $placeholder.display.length; i < value; i++) {
-                let $stack = $placeholder.stack[i];
-                let $display = $placeholder.stack[i];
-                // $display.dataset.elIndex = $stack.dataset.elIndex;
-
-                $placeholder.display.push($display);
-                $placeholder.after($display);
-         
-              }
-              let pops = [];
-              for (let i = value; i < $placeholder.display.length; i++) {
-                pops.push(i);
-              }
-              pops.reverse();
-
-              for (let pop of pops) {
-                $placeholder.display[pop].remove();
-                // $placeholder.stack[pop].remove();
-                $placeholder.display.pop();
-              }
-            });
-          };
-
-          $placeholder.callback = callback;
-          $placeholder.generate = generate;
-
-          instance.connect(_setup.query.source + ".length", callback);
-
-          this.callback = callback;
-        },
-        setup: function (instance, config = {}) {
-          if (this.connected) return;
-          this.connected = true;
-          this.connect(instance, config);
-          this.callback();
-        },
-      };
-      this.map.for.push(operation);
     }
   }
 }

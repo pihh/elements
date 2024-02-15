@@ -18,7 +18,8 @@ export const parseTemplateString = function (
     let parsedTemplate = template;
     let nextChar = template.charAt(index + originalExpression.length);
     let prevChar = template.charAt(index - 1);
-    let prevValid = index == 0 || (!isChar(prevChar) && prevChar != ".");
+    let prevValid = index == 0 || (!isChar(prevChar) && prevChar != ".") || (!isChar(prevChar) && prevChar == "!" );
+ 
     let nextValid =
       index + originalExpression.length > template.length || !isChar(nextChar);
     if (prevValid && nextValid) {

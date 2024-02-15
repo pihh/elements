@@ -15,10 +15,10 @@ export class ElLayout extends ElComponent {
   headlines = {
     title: "El framework",
     description: "Reactive custom web components simplified ",
-  };
+  }; 
 
   links = {
-    github: {
+    github: { 
       href: "https://github.com/pihh",
       icon: "ri-github-fill",
     },

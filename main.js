@@ -49,6 +49,9 @@ class MyWebComponent extends ElComponent {
   onToggleChecked(){
     this.scope.checked = !this.scope.checked;
   }
+  onToggleCheckedV2(){
+    this.scope.checkedd = !this.scope.checkedd;
+  }
 
   onToggleCard(cardIndex) {
     console.log(cardIndex)
