@@ -18,13 +18,11 @@ export const parseTemplateOperations = function (template, id) {
     if(forIndex > -1 && forIndex > ifIndex) {
       template = parseSingleForOperation(template,id, forIndex, openIndexes,[]);
     }else if (ifIndex > -1 && ifIndex > forIndex) {
-      console.log(template.substring(ifIndex,ifIndex+15));
       template = parseSingleIfOperation(template, id,ifIndex, openIndexes,[]);
-   
     }
     
   }
   template = template.replaceAll('@__for','@for')
-  template = template.replaceAll('@__if','@if')
+   template = template.replaceAll('@__if','@if')
   return template;
 };

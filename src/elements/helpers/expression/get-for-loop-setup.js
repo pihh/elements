@@ -10,6 +10,9 @@ export const getForLoopSetup = function (expression) {
     index: index,
     success: false,
   };
+
+  // console.log({expression});
+  // debugger;
   let expressionContent = getStackContent(expression, "(", ")");
 
   expressionContent.content = expressionContent.content.replace("(", "").trim();

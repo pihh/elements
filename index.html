@@ -6,24 +6,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
+
     <template id="template-el-web-component">
       <div>
-        <div>
+        <div class="lil-card">
           @if(checked){
-          <div>
-            Checked 
-            
-            @if(checkedd){
-              <div>Checked v2</div>
+          <div class="lil-card">
+            Checked @if(checkedd){
+            <div class="lil-card">Checked v2</div>
             }
+            <div class="lil-card-button">
+              <button class="btn" @onClick="onToggleCheckedV2">
+                CheckedV2
+              </button>
+            </div>
           </div>
           }
-          <button class="btn" @onClick="onToggleChecked">Checked</button>
-          <button class="btn" @onClick="onToggleCheckedV2">CheckedV2</button>
+          <div class="lil-card-button">
+            <button class="btn" @onClick="onToggleChecked">Checked</button>
+          </div>
         </div>
 
-        @for(card of cards;index = $i){ 
-          
+        @if(items.length > 0){ 
+            <div class="lil-card">
+            Second if {{items.length}} 
+          </div>
+          }@else{ 
+            <div class="lil-card">
+              No items {{items.length}} 
+            </div>
+          }
+
+        @for(card of cards;index = $i){
+
         <div
           class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
           style="
@@ -33,7 +48,7 @@
           "
         >
           <div class="card w-96 glass">
-            <figure>
+            <figure style="display: {{card.expanded ? '' : 'none'}}">
               <img
                 src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
               />
@@ -42,17 +57,11 @@
               class="card-collapser sidebar-collapser"
               @onClick="onToggleCard($i)"
             >
-            
               @if(card.expanded){
-                <span>
-                  <i class="ri-toggle-line"></i>
-                </span>
+              <span> - </span>
               }@else{
-                <span>
-                  xxx
-                </span>
+              <span> + </span>
               }
-       
             </a>
             <div class="card-body">
               <h2 class="card-title">{{card.title}}</h2>
@@ -63,15 +72,15 @@
                 maiores optio facilis velit, omnis hic ea ipsam voluptates sequi
                 nostrum tempore perspiciatis est!
               </p>
-              <button class="btn" @onClick="onToggleCard($i)">Expand</button>
               <div>
-                @for(l of card.list){
+                @for(l of card.list; let index = $cardListIndex){
                 <li>
-                  {{l}}
+                  {{l}} {{$cardListIndex}}
                   <input model="l" class="input" />
                 </li>
                 }
               </div>
+
               <div class="justify-end card-actions">
                 <button class="btn btn-primary" @onClick="onPush($i)">
                   Push
@@ -93,7 +102,7 @@
                 <button class="btn btn-primary" @onClick="onPushItem()">
                   Push
                 </button>
-                <button class="btn btn-primary" @onClick="onPopItem($i)">
+                <button class="btn btn-primary" @onClick="onPopItem()">
                   Pop
                 </button>
               </div>
@@ -106,7 +115,6 @@
   </head>
   <body>
     <div id="app">
-      <my-button></my-button>
       <el-layout>
         <el-web-component></el-web-component>
       </el-layout>

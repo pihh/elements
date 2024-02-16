@@ -8,7 +8,7 @@ export const getIfSetup = function (connection, stack = []) {
   
     let isIdx = el.indexOf(item)>-1 ? 1:0;
     return value+isIdx
-}, 0) == 0).filter(el => isNaN(el)).map(el => el.trim().replaceAll('this.',''))//.replaceAll('!',''));
+}, 0) == 0).filter(el => isNaN(el)).map(el => el.trim().replaceAll('this.','').replaceAll('!',''));
 
 
 

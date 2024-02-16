@@ -11,6 +11,7 @@ export const operationFor = function (configuration, stack = []) {
 // get info
   const connection = replacement.dataset.forConnection;
   // extract information
+  console.log({configuration: configuration,query: query,replacement: replacement});
   let _setup = getForLoopSetup(query);
 
   // Create info object
@@ -70,7 +71,7 @@ export const operationFor = function (configuration, stack = []) {
             );
           }
         }
-        $placeholder.after(_template);
+        $placeholder.before(_template);
 
         const e = await connectHtmlReactivity(instance, _template);
 
@@ -97,11 +98,11 @@ export const operationFor = function (configuration, stack = []) {
             childStack.push(wraper[0]);
           }
         }
-
+       
         _template.firstElementChild.__setup = _template.__setup;
         _template.firstElementChild.controller = _template.controller;
         _template.firstElementChild.dataset.elIndex = _template.dataset.elIndex;
-    
+        _template.remove();
         return _template.firstElementChild;
       };
       const callback = function (value) {
@@ -114,29 +115,28 @@ export const operationFor = function (configuration, stack = []) {
           promises.push(
             new Promise((res) => {
               generate(i).then(($item) => {
-                $placeholder.after($item);
+                $placeholder.before($item);
                 $placeholder.stack.push($item);
-             
-                // $placeholder.display.push($item);
+                
+                $placeholder.display.push($item);
                 res($item);
               });
             })
           );
         }
         Promise.all(promises).then((res) => {
-          
           for (let i = $placeholder.display.length; i < value; i++) {
-            let $stack = $placeholder.stack[i];
+           
             let $display = $placeholder.stack[i];
-            // $display.dataset.elIndex = $stack.dataset.elIndex;
+           
         
-            $display.__i = i
+            // $display.__i = i
             $placeholder.display.push($display);
-            // $placeholder.after($display);
+            
           }
+          // console.log($placeholder.display.length ,' len after',value)
           for(let $display of $placeholder.display.reverse()) {
-         
-            $placeholder.after($display);
+            $placeholder.before($display);
           }
           for (let con of childStack) {
             con.setup(instance, (config = {}));
@@ -151,6 +151,8 @@ export const operationFor = function (configuration, stack = []) {
           for (let pop of pops) {
             $placeholder.display[pop].remove();
             $placeholder.display.pop();
+            $placeholder.stack.pop();
+            
           }
         });
       };
@@ -158,7 +160,7 @@ export const operationFor = function (configuration, stack = []) {
       $placeholder.callback = callback;
       $placeholder.generate = generate;
 
-      
+      console.log('Will connect ',_setup.query.source+'.length')
       instance.connect(_setup.query.source + ".length", callback);
 
       this.callback = callback;

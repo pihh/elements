@@ -98,6 +98,7 @@ export const parseSingleIfOperation = function (
   ifIndex,
   openIndexes,scope=[]
 ) {
+  ifIndex = template.indexOf("@if")
   let open = openIndexes.filter((openIndex) => openIndex > ifIndex)[0];
   let stack = [0];
   for (let k = open + 1; k < template.length; k++) {
@@ -113,14 +114,16 @@ export const parseSingleIfOperation = function (
       
   
       let left = template.slice(0, ifIndex - 1);
-      let right = template.slice(k + 1);
+      let right = template.slice(k +1 );
+      
+
       let content = template.slice(open + 1, k - 1);
       let replacement_id = id + "_if-" + Date.now();
       if (replacementIds.indexOf(replacement_id) == -1) {
         replacementIds.push(replacement_id);
         let query = template.slice(ifIndex + CONFIG.operation.length, open);
         let setup = getIfSetup(query);
-console.log(query)
+
         let replacementQuery = `${setup.query}`;
 
         let replacement =
@@ -129,7 +132,6 @@ console.log(query)
             .replaceAll("@endif", "")
             .replaceAll("}", "")
             .replaceAll("{", "")
-            .trim();
 
         const $template = document.createElement("template");
         const $wrapper = document.createElement("div");
@@ -150,9 +152,12 @@ console.log(query)
         let _ifIndex = template.indexOf('@if');
         if( elseIndex > -1 ){
           if(_ifIndex == -1 || elseIndex < _ifIndex ){
+            
+            // console.log('will parse else ',template)
+            template = template.slice(0,elseIndex )+ ' @if(!'+replacementQuery+')' + template.slice(elseIndex+5);
             let openIndexes = getOcorrenceIndexes(template, "{");
-            template = template.replace('@else','@if(!'+replacementQuery+")")
-            template = parseSingleIfOperation(template,replacement_id+'_'+(parseInt(Math.random()*100)),elseIndex,openIndexes)
+            console.log('will replace else')
+            return parseSingleIfOperation(template,replacement_id+'_'+(parseInt(Math.random()*100)),elseIndex-1,openIndexes)
           }
         }
       

@@ -7252,7 +7252,21 @@ a {
     border-radius: 100%;
     width: 2em;
     height: 2em;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 .menu-item.open .menu-list,.menu-item.open .sub-menu-list{
   display: block !important;
+}
+
+.lil-card{
+  padding: 1em;
+  border: 1px solid #ccc;
+  border-radius: 0.5em;
+}
+
+.lil-card-button{
+  direction: rtl;
+  padding-top: 1em;
 }

@@ -23,6 +23,8 @@ export const initialExpressionCleanup = function (element) {
       innerHTML = innerHTML.replaceAll(original, replacement);
     }
     // $placeholder.innerHTML = innerHTML;
+    innerHTML = innerHTML.replaceAll('}@', '} @').replaceAll('{@', '{ @');
+    innerHTML = innerHTML.replaceAll('@else{', '@else {').replaceAll('}@else','} @else')
     try {
       element.innerHTML = innerHTML
     } catch (e) {

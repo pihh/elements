@@ -208,11 +208,11 @@ export const parseSingleForOperation = function (
         let replacementQuery =
           "(" + setup.query.query + ";index = " + setup.index + ")";
         let replacement =
-          '<span data-for-connection="' +
+          '                               <span data-for-connection="' +
           replacement_id +
           '" data-for-query="' +
           replacementQuery +
-          '">@__for()</span>';
+          '">@__for()</span>                                     ';
 
         const $template = document.createElement("template");
         const $wrapper = document.createElement("div");

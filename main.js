@@ -27,21 +27,21 @@ class MyWebComponent extends ElComponent {
   colors = ["green", "red", "yellow"];
   items = [
     {
-      name: "item 1",
+      name: "item 0",
     },
     {
-      name: "item 2",
+      name: "item 1",
     },
   ];
 
 
   cards = [
  
-    { title: "Card 1 ", expanded:false, description: "Card 1 description", list: ["list 1"] },
+    { title: "Card 1 ", expanded:false, description: "Card 1 description", list: ["list 0"] },
     {
       title: "Card 2 ",expanded:true,
       description: "Card 2 description",
-      list: ["list 1", "list 2"],
+      list: ["list 0", "list 1"],
     },
     { title: "Card 3 ",expanded:true, description: "Card 3 description", list: [] },
   ];
@@ -54,23 +54,25 @@ class MyWebComponent extends ElComponent {
   }
 
   onToggleCard(cardIndex) {
-    console.log(cardIndex)
+    
     this.cards[cardIndex].expanded = !this.cards[cardIndex].expanded;
   }
   onPush(cardIndex) {
+    console.log(this.cards[cardIndex].list,cardIndex)
     this.cards[cardIndex].list.push(
       "list " + this.cards[cardIndex].list.length
-    );
-  }
-  onPop(cardIndex) {
-    this.cards[cardIndex].list.pop();
-  }
-  onPushItem() {
-    this.items.push(
-      "item " + this.items.length
-    );
-  }
-  onPopItem() {
+      );
+    }
+    onPop(cardIndex) {
+      this.cards[cardIndex].list.pop();
+    }
+    onPushItem() {
+      this.items.push(
+        {name:"item " + this.items.length}
+        );
+      }
+      onPopItem() {
+    console.log(this.items,this.items.length)
     this.items.pop();
   }
 }

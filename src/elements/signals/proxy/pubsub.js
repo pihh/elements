@@ -52,6 +52,7 @@ export class PubSub {
      * @param {String|Number|Boolean} data 
      */
     publish(event, data) {
+      console.log(event)
       if (this.events[event]) {
         if (this.prevValues[event] != data) {
           this.prevValues[event] = data;
@@ -67,7 +68,7 @@ export class PubSub {
      * @todo
      * @param {*} subscription 
      */
-    unsubscribe(subscription) {
+    unsubscribe(subscription) { 
         console.log('@TODO unsubscribe')
     }
   

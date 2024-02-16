@@ -55,7 +55,7 @@ export const Reactive = function (scope) {
         //     delete pubsub.events[eventName];
         //   }
         // }
-        delete pubsub.events[pathName(path)];
+        // delete pubsub.events[pathName(path)];
   
         // pubsub.track()
       },

@@ -13,7 +13,7 @@ export const extractQueryIf = function (node) {
 
   let keywords = getExpressionProperties("{{" + content + "}}");
   let query = content;
-  console.log({ query, keywords });
+ 
   for (let keyword of keywords.sort((a, b) => b - a)) {
     query = query.replaceAll("this.scope." + keyword, keyword);
     query = query.replaceAll("this." + keyword, keyword);
@@ -45,13 +45,14 @@ export const operationIf = function (configuration, stack = []) {
     ..._setup,
     callback: function () {},
     connect: async function (instance, config = {}) {
+      try{
       this.connected = true;
       const childStack = [];
       const $replacement = instance.shadowRoot.querySelector(
         '[data-if-connection="' + connection + '"]'
       );
 
-      console.log(replacement)
+
       if (!$replacement) {
         console.log("failed if", { connection, _setup });
         return;
@@ -79,13 +80,12 @@ export const operationIf = function (configuration, stack = []) {
         ...$placeholder.template.querySelectorAll("[data-for-connection]"),
       ];
       if (ifConnections.length > 0 || forConnections.length > 0) {
-        // console.log($placeholder.template);
-        // debugger;
+   
 
         for (let ifConnection of ifConnections) {
           let wraper = [];
          
-          let setup = operationIf({ node: ifConnection.childNodes[0] }, wraper);
+       operationIf({ node: ifConnection.childNodes[0] }, wraper);
           childStack.push(wraper[0]);
         }
         for (let forConnection of forConnections) {
@@ -97,20 +97,16 @@ export const operationIf = function (configuration, stack = []) {
           childStack.push(wraper[0]);
         }
       }
-
+      console.log($placeholder.template);
       $placeholder.template.firstElementChild.__setup =
         $placeholder.template.__setup;
       $placeholder.template.firstElementChild.controller =
         $placeholder.template.controller;
 
       const callback = function (value) {
-        //   $placeholder.content = data;
-        console.log(_setup)
-        
+
         value = PropConnector.evaluate(instance, _setup.query);
         
-        console.log({_setup,value})
-
         if ([true, "true"].indexOf(value) > -1) {
           if (!$placeholder.template.isConnected) {
             $placeholder.after($placeholder.template);
@@ -128,12 +124,14 @@ export const operationIf = function (configuration, stack = []) {
       }
       $placeholder.callback = callback;
 
-      console.log('if connection', _setup,$placeholder)
       for (let attribute of _setup.attribute) {
-        console.log("will connect", attribute);
         instance.connect(attribute, callback);
       }
       callback();
+    }catch(ex){
+      console.log(query,connection)
+      console.warn(ex)
+    }
     },
     setup: function (instance, config = {}) {
       if (this.connected) {
