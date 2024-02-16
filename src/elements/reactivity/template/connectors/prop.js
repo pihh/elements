@@ -30,6 +30,8 @@ export class PropConnector {
         node.nodeName == "SELECT"
           ? "select"
           : node.getAttribute("type") || "text";
+
+  
   
       const cb = ModelConnector[type](instance, node, query, keyword);
       const callback = function () {
@@ -41,10 +43,9 @@ export class PropConnector {
     }
   
     static evaluate(instance, query, type = "text",node=false) {
-   
+     
       try{
-        // const $index = node?.$index || 0;
- 
+   
         const ist = instance;
         // ist.scope.$index = 0
      
@@ -60,6 +61,7 @@ export class PropConnector {
           }
         } else if (type == "number") {
           value = Number(value);
+
         }
         return value;
       }catch(ex){

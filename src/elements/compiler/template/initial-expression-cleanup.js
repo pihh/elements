@@ -6,10 +6,7 @@ import { getStrBetween } from "../../helpers/regex";
  * @returns 
  */
 export const initialExpressionCleanup = function (element) {
-    // Step 1: Wrap the element so we can evaluate it as a whole then extract it's innerHTML   
-    // let $placeholder = document.createElement("div");
-    // $placeholder.appendChild = element;
-    
+  
     // Get innerHTML for evaluation
     let innerHTML = element.content.firstElementChild.innerHTML;
     

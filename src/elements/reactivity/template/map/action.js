@@ -21,6 +21,7 @@ export class ActionMap {
              */
         },
         setup: function (instance) {
+          
           if (this.connected) return;
           this.connected = true;
           this.connect(instance);

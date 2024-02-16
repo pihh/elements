@@ -20,6 +20,7 @@ export const parseTemplateExpressions = function (
         m = parseTemplateString(m, index, sourceExpression, targetExpression);
       }
     }
+  
     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
   }
 

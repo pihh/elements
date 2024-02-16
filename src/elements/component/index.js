@@ -16,9 +16,14 @@ export function Component(config) {
   }
   return function (component) {
     class Component extends component {
+
       static selector = _config.selector;
+      static get observedAttributes() {
+        return this.__props || []  
+      }
       constructor() {
         super();
+      
       }
     }
     try {
@@ -31,9 +36,11 @@ export function Component(config) {
 }
 
 export class ElComponent extends HTMLElement {
+
+
   constructor() {
     super(...arguments);
-
+   
     this.__init();
   }
 
@@ -60,6 +67,8 @@ export class ElComponent extends HTMLElement {
     this.__initialConnection();
   
     this.render();
+    
+   
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -67,7 +76,7 @@ export class ElComponent extends HTMLElement {
   }
 
   render() {
-    console.log(this);
+  
   }
 
 

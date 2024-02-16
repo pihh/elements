@@ -9,17 +9,18 @@
 
     <template id="template-el-web-component">
       <div>
-        <select class="input" model="color">
-          @for(_c of colors){
-          <option value="{{_c}}">{{_c}} _c</option>
+        <select class="input border border-gray-100 w-full pb-4" model="color">
+          @for(__color of colors){
+          <option value="{{__color}}" class="text-{{__color}}-900">{{__color}}</option>
           }
         </select>
 
-        <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">
+        <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
           @if(checked){
-          <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">
+          <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
             Checked @if(checkedd){
-            <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">Checked v2</div>
+            <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">Checked v2</div>
+            <input model="listNumbers[2]" type="number"  class="input"/>
             }
             <div class="lil-card-button">
               <button class="btn" @onClick="onToggleCheckedV2">
@@ -33,12 +34,14 @@
           </div>
         </div>
 
+        <input model="num" type="number"  class="input"/>
         @if( items.length > 0 ){
-        <div class="lil-card bg-green-100 border-green-300 border">Second if {{items.length}}</div>
-        } @else {
-        <div class="lil-card bg-red-100 border-red-300 border">No items {{items.length}}</div>
+        <div class="lil-card">If there are items: items.length > 0 <input type="checkbox" checked="{{items.length >0}}" disabled /> <i class="text-green-900">V</i> </div>
+      } @else {
+          <div class="lil-card">If there are no items: items.length == 0 <input type="checkbox" checked="{{items.length ==0}}" disabled/> <i class="text-red-900">X</i> </div>
+ 
         } 
-        
+        <button class="btn" @onClick="onClickWithData(color,colors)">Click With Colors</button>
         
         @for(card of cards;index = $i){
 
@@ -80,14 +83,14 @@
               <div>
                 @for(l of card.list; let index = $cardListIndex){
                 <li>
-                  {{l}} {{$cardListIndex}}
+                  {{l}} {{$cardListIndex}} {{num}}
                   <input model="l" class="input" />
                 </li>
                 }
               </div>
 
               <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onPush($i)">
+                <button class="btn btn-primary" @onClick="onPush($i, card,'text',listNumbers[2])">
                   Push
                 </button>
                 <button class="btn btn-primary" @onClick="onPop($i)">
@@ -122,7 +125,7 @@
     <div id="app">
       <el-layout>
 
-        <el-web-component></el-web-component>
+        <el-web-component num="314"></el-web-component>
       </el-layout>
     </div>
 

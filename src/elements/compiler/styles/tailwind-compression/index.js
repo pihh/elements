@@ -4,7 +4,7 @@ for(let i = 0; i < singleClassLists.length; i++){
   let s = singleClassLists[i]
   for (let k = i+1; k < singleClassLists-length; k++){
     let t = singleClassLists[k]
-      console.log(s.indexOf(t))
+
     if(s.indexOf(t) > -1 || t.indexOf(s)>-1){
         if(!map.hasOwnProperty(s)){
             map[s] = []

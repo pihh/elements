@@ -4,7 +4,9 @@
  * @param {String} sourceExpression 
  * @param {String} targetExpression 
  * @returns 
+ * @note @todo ver se é p apgar
  */
+
 export const parseTemplateExpressions = function (
     template,
     sourceExpression,
@@ -23,6 +25,7 @@ export const parseTemplateExpressions = function (
           m = parseTemplateString(m, index, sourceExpression, targetExpression);
         }
       }
+
       template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
     }
   
@@ -37,7 +40,8 @@ export const parseTemplateExpressions = function (
           m = parseTemplateString(m, index, sourceExpression, targetExpression);
         }
       }
-  
+
+
       template = template.replaceAll("(" + match + ")", "(" + m + ")");
     }
     return template;

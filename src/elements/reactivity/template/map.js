@@ -1,3 +1,4 @@
+import { modelValue } from "../../compiler/model/update";
 import { getExpressionProperties, getStrBetween } from "../../helpers/regex";
 
 import { PropConnector } from "./connectors/prop";
@@ -237,7 +238,7 @@ export const reactivityMap = function (element) {
           if (split.length > 1) {
     
             args = split[1].replaceAll(')','').trim().split(",");
-       
+            
             
           }
           if (
@@ -259,22 +260,38 @@ export const reactivityMap = function (element) {
               node.addEventListener(eventName, function ($event) {
                 const customArguments = instance.scope;
                 customArguments.$event = $event;
+                
                 let $indexList = JSON.parse(
-                  node.getAttribute("el-index") || JSON.stringify({ $index: 0 })
+                  node.getAttribute("el-index") || JSON.stringify({  })
                 );
                 for (let [k, v] of Object.entries($indexList)) {
                   customArguments[k] = v;
                 }
-                let parsedArguments = args.map((arg) =>
-                  customArguments.hasOwnProperty(arg)
-                    ? customArguments[arg]
+                let parsedArguments = args.map((arg) => {
+                  let argKey = arg;
+                  let parsedArg;
+                  let value;
+                  try{
+                    console.log('here',arg)
+                    parsedArg = arg.replaceAll('[','.').replaceAll(']', '').trim().split('.').map(el=>el.trim()).filter(el => el.length>0)//.join('.');
+                    argKey = parsedArg[0];
+                    value = modelValue(instance,arg)
+                    if(!isNaN(value)){
+                      value = Number(value);
+                    }
+                  }catch(ex){
+
+                  }
+                  return customArguments.hasOwnProperty(argKey)
+                    ? value
                     : !isNaN(arg)
                     ? Number(arg)
                     : ["'", '"', "`"].indexOf(arg.trim().charAt(0)) > -1
                     ? arg.trim().slice(1, arg.trim().length - 1)
                     : arg
+                }
                 );
-               
+                
                 instance[actionName](...parsedArguments);
               });
             },

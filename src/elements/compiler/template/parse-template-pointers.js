@@ -31,6 +31,7 @@ export const parseTemplatePointers = function (
         }
       }
     }
+
     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
   }
 
@@ -38,16 +39,29 @@ export const parseTemplatePointers = function (
   matches = getStrBetween(template);
 
   for (let match of matches) {
+
     let m = match;
     for (let prop of props) {
+  
       let indexes = getOcorrenceIndexes(match, prop);
-
+    
       if (indexes.length > 0) {
         indexes.reverse();
+
         for (let index of indexes) {
-          m = parseTemplateString(m, index, prop, "this." + prop);
+          if(index > 0){
+            let char = match.charAt(index-1);
+            if([' ','.','!','?',':'].indexOf(char) >-1){
+
+              m = parseTemplateString(m, index, prop, "this." + prop);
+            }
+          }else{
+            m = parseTemplateString(m, index, prop, "this." + prop);
+          }
         }
+
       }
+ 
     }
     template = template.replaceAll("{{" + match + "}}", "{{" + m + "}}");
   }

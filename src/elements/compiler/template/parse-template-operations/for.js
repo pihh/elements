@@ -7,12 +7,11 @@ import { parseIndexItem } from "../parse-index-item";
 let indexKeyId = 0;
 let replacementIds = [];
 
-
 export const parseSingleForOperation = function (
   template,
   id,
   forIndex,
-  scope=[]
+  scope = []
 ) {
   let openIndexes = getOcorrenceIndexes(template, "{");
   let open = openIndexes.filter((openIndex) => openIndex >= forIndex)[0];
@@ -27,7 +26,6 @@ export const parseSingleForOperation = function (
       stack.push(1);
     }
     if (stack.length == 0) {
- 
       let left = template.slice(0, forIndex - 1);
       let right = template.slice(k + 1);
       let content = template.slice(open + 1, k - 1);
@@ -70,11 +68,10 @@ export const parseSingleForOperation = function (
         }
 
         const matchesIf = getStrBetween(content, "@if(", ")");
-  
+
         for (let match of matchesIf) {
-          
           let idx = match.indexOf(variable);
-          let nextIdx = idx + variable.length ;
+          let nextIdx = idx + variable.length;
           let prevValid = false;
           let nextValid = false;
           if (idx > -1) {
@@ -95,19 +92,86 @@ export const parseSingleForOperation = function (
             }
           }
           if (prevValid && nextValid) {
-       
-            let left = match.slice(0, idx );
+            let left = match.slice(0, idx);
             let right = match.slice(idx + variable.length);
-            let m = left + 'this.'+source+"[" + index + "]" + right;
-   
-            content = content.replace("@if(" + match + ")", " @if(" + m.trim() + ") ");
-            
+            let m = left + "this." + source + "[" + index + "]" + right;
+
+            content = content.replace(
+              "@if(" + match + ")",
+              " @if(" + m.trim() + ") "
+            );
           }
         }
-      
- 
 
-  
+        // Actions
+        let matchesActions = getStrBetween(content, '="', '"').filter(
+          (el) => el.indexOf("(") > -1 && el.indexOf(";") == -1 && el.indexOf(",") > -1
+        );
+
+        if (matchesActions.length > 0) {
+     
+          matchesActions = matchesActions.map((act) => {
+            let el = act.trim();
+            if(el.charAt(el.length  -1) ===")" && el.indexOf(',')>-1){
+
+              el = el.split("(");
+              let action = el[0];
+              let args = el.slice(1).join("(").trim().slice(0, -1).trim();
+              args = args.split(",").map((arg) => {
+              let idx = arg.indexOf(variable);
+
+              let prevValid = false;
+              let nextValid = false;
+              if (idx > -1) {
+                if (idx == 0) {
+                  prevValid = true;
+                } else {
+                  let char = arg.charAt(idx - 1);
+                  if (!isChar(char)) {
+                    if ([" ", ".", "!", "?", ":"].indexOf(char) > -1) {
+                      prevValid = true;
+                    }
+                  }
+                }
+          
+                let char = arg.charAt(idx + variable.length + 1);
+                if (!char) {
+                  nextValid = true;
+                } else {
+                  if (!isChar(char)) {
+                    if ([".", "[", " "].indexOf(char) > -1) {
+                      nextValid = true;
+                    }
+                  }
+                }
+                if (prevValid && nextValid) {
+           
+                  arg = arg.replace(
+                    variable,
+                     source + "[" + index + "]"
+                    );
+                  }
+          
+                  
+                }
+                return arg;
+              });
+         
+              return {
+                original: act,
+                replacement: action+'('+args.join(',')+')'
+              }
+            }
+            return { original: act, replacement: original};
+          });
+      
+     
+          matchesActions.forEach(m => {
+            content = content.replaceAll('="' + m.original + '"','="' + m.replacement + '"')
+          })
+
+        }
+     
         let replacementQuery =
           "(" + setup.query.query + ";index = " + setup.index + ")";
         let replacement =
@@ -121,9 +185,7 @@ export const parseSingleForOperation = function (
         const $wrapper = document.createElement("div");
 
         document.head.appendChild($template);
-        $wrapper.innerHTML = content
-      
-          
+        $wrapper.innerHTML = content;
 
         $template.content.appendChild($wrapper);
         $template.setAttribute("id", "template-" + replacement_id);
@@ -132,17 +194,11 @@ export const parseSingleForOperation = function (
         template = parseIndexItem(template, variable, source, index);
 
         new TemplateManager(replacement_id, scope);
-        
-       
-      }else{
-        /*
-     
-        */
-      //  console.log(template)
-      //  debugger;
+      } else {
+      
       }
       break;
     }
   }
-  return template
+  return template;
 };

@@ -47,14 +47,7 @@ export const updateAttribute = function (instance, element, attribute, query) {
     const $fn = Function("return `" + query + "`");
     element.setAttribute(attribute, $fn.call(instance));
   } catch (ex) {
-    console.log({
-      instance,
-      colors: instance.colors,
-      attribute,
-      query,
-      element,
-      ex,
-    });
+
   }
 };
 export const updateTextNode = function (instance, element, query) {

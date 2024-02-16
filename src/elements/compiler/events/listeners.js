@@ -40,7 +40,8 @@ export const AddEventListener = function (element, scope, attribute) {
           if (arg == "$event") {
             arg = $event;
           } else if (arg == "$index") {
-            arg = element.$index;
+            // console.log({arg,element})
+            // arg = element.$index;
           } else if (scope.hasOwnProperty(arg)) {
             arg = scope[arg];
           }
@@ -85,10 +86,10 @@ export const bindEventBroadcaster = function (parent, child, attribute) {
       if (!parent.__events) parent.__events = [];
       parent.__events.push(eventName);
       parent.addEventListener(eventName,function ($event) {
-        console.log("did ear this ", { $event, parent, eventName, action });
+     
         const $fn = Function("return this." + action+'(...arguments)');
         const output = $fn.call(parent, $event)//.call(parent,$event);
-        console.log(output);
+  
       });
     }
   } catch (ex) {
