@@ -11,9 +11,13 @@ export const getForLoopSetup = function (expression) {
     success: false,
   };
 
-  // console.log({expression});
-  // debugger;
-  let expressionContent = getStackContent(expression, "(", ")");
+
+   if(!expression){
+    return setup;
+   }
+   
+   let expressionContent = getStackContent(expression, "(", ")");
+
 
   expressionContent.content = expressionContent.content.replace("(", "").trim();
   expressionContent.args = filterNonEmpty(expressionContent.content.split(";"))
@@ -27,11 +31,11 @@ export const getForLoopSetup = function (expression) {
       }
       return el;
     });
-  let hasIndex = false;
+  let hasIndex = false; 
   expressionContent = expressionContent.args.map((el) => {
     let queryType = el.indexOf(" of ") > -1 ? "query" : "index";
-    let query = filterNonEmpty(el.split(queryType == "query" ? " of " : " = "));
-    
+    let query = filterNonEmpty(el.split(queryType == "query" ? " of " : "="));
+
     el = {
       query: el,
       attribute: query[0].trim(),

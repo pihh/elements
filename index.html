@@ -9,11 +9,17 @@
 
     <template id="template-el-web-component">
       <div>
-        <div class="lil-card">
+        <select class="input" model="color">
+          @for(_c of colors){
+          <option value="{{_c}}">{{_c}} _c</option>
+          }
+        </select>
+
+        <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">
           @if(checked){
-          <div class="lil-card">
+          <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">
             Checked @if(checkedd){
-            <div class="lil-card">Checked v2</div>
+            <div class="lil-card bg-{{color}}-100 border border-{{color}}-300">Checked v2</div>
             }
             <div class="lil-card-button">
               <button class="btn" @onClick="onToggleCheckedV2">
@@ -27,16 +33,13 @@
           </div>
         </div>
 
-        @if(items.length > 0){ 
-            <div class="lil-card">
-            Second if {{items.length}} 
-          </div>
-          }@else{ 
-            <div class="lil-card">
-              No items {{items.length}} 
-            </div>
-          }
-
+        @if( items.length > 0 ){
+        <div class="lil-card bg-green-100 border-green-300 border">Second if {{items.length}}</div>
+        } @else {
+        <div class="lil-card bg-red-100 border-red-300 border">No items {{items.length}}</div>
+        } 
+        
+        
         @for(card of cards;index = $i){
 
         <div
@@ -57,11 +60,13 @@
               class="card-collapser sidebar-collapser"
               @onClick="onToggleCard($i)"
             >
+
               @if(card.expanded){
-              <span> - </span>
+                <span> - </span>
               }@else{
-              <span> + </span>
+                <span> + </span>
               }
+
             </a>
             <div class="card-body">
               <h2 class="card-title">{{card.title}}</h2>
@@ -116,6 +121,7 @@
   <body>
     <div id="app">
       <el-layout>
+
         <el-web-component></el-web-component>
       </el-layout>
     </div>

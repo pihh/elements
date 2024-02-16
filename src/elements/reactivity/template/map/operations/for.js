@@ -6,12 +6,15 @@ import { operationIf } from "./if";
 
 export const operationFor = function (configuration, stack = []) {
     // get container and query
+
   const replacement = configuration.node.parentElement;
+
   const query = replacement.dataset.forQuery;
 // get info
   const connection = replacement.dataset.forConnection;
   // extract information
-  console.log({configuration: configuration,query: query,replacement: replacement});
+
+  
   let _setup = getForLoopSetup(query);
 
   // Create info object
@@ -32,7 +35,8 @@ export const operationFor = function (configuration, stack = []) {
       );
 
       if (!$replacement) {
-        console.log("failed for", {connection,_setup});
+        // console.log("failed for", {connection,_setup,configuration});
+        // debugger
         return;
       }
       let $placeholder = document.createComment("for placeholder ");
@@ -40,6 +44,7 @@ export const operationFor = function (configuration, stack = []) {
       let content = new TemplateManager(connection, instance.__props);
       
       $placeholder._setup = _setup;
+
       $replacement.replaceWith($placeholder);
       $placeholder.content = content;
       $placeholder.controller = instance;
@@ -160,7 +165,7 @@ export const operationFor = function (configuration, stack = []) {
       $placeholder.callback = callback;
       $placeholder.generate = generate;
 
-      console.log('Will connect ',_setup.query.source+'.length')
+    
       instance.connect(_setup.query.source + ".length", callback);
 
       this.callback = callback;

@@ -13,6 +13,7 @@ const CONFIG = {
 };
 let indexKeyId = 0;
 let replacementIds = [];
+/*
 export const parseIfOperations = function (template, id, scope) {
   let loop = true;
   let loops = 0;
@@ -47,7 +48,7 @@ export const parseIfOperations = function (template, id, scope) {
         stack.push(1);
       }
       if (stack.length == 0) {
-        let left = template.slice(0, ifIndex - 1);
+        let left = template.slice(0, ifIndex - 1); 
         let right = template.slice(k + 1);
         let content = template.slice(open + 1, k - 1);
         let replacement_id = id + "_if-" + Date.now();
@@ -83,6 +84,9 @@ export const parseIfOperations = function (template, id, scope) {
           // Create a new template
           new TemplateManager(replacement_id, scope);
           break;
+        }else{
+          console.log(replacement_id,'IF');
+          debugger;
         }
       }
     }
@@ -91,15 +95,16 @@ export const parseIfOperations = function (template, id, scope) {
   template = template.replaceAll("@__if", "@if");
   return template;
 };
-
+*/
 export const parseSingleIfOperation = function (
   template,
   id,
   ifIndex,
-  openIndexes,scope=[]
+ scope=[]
 ) {
   ifIndex = template.indexOf("@if")
-  let open = openIndexes.filter((openIndex) => openIndex > ifIndex)[0];
+  let openIndexes = getOcorrenceIndexes(template, "{");
+  let open = openIndexes.filter((openIndex) => openIndex >= ifIndex)[0];
   let stack = [0];
   for (let k = open + 1; k < template.length; k++) {
     let char = template.charAt(k);
@@ -127,7 +132,7 @@ export const parseSingleIfOperation = function (
         let replacementQuery = `${setup.query}`;
 
         let replacement =
-          `<span data-if-connection="${replacement_id}" data-if-query="${replacementQuery}">${CONFIG.replacement}()</span>`
+          `<option data-if-connection="${replacement_id}" data-if-query="${replacementQuery}">${CONFIG.replacement}()</option>`
             .replaceAll("@endif()", "")
             .replaceAll("@endif", "")
             .replaceAll("}", "")
@@ -145,23 +150,28 @@ export const parseSingleIfOperation = function (
         $template.content.appendChild($wrapper);
         $template.setAttribute("id", "template-" + replacement_id);
 
-        template = left + replacement + right;
+        //template = left + replacement + right;
         new TemplateManager(replacement_id, scope);
 
-        let elseIndex = template.indexOf('@else');
-        let _ifIndex = template.indexOf('@if');
+        let elseIndex = right.indexOf('@else');
+        let _ifIndex = right.indexOf('@if');
         if( elseIndex > -1 ){
           if(_ifIndex == -1 || elseIndex < _ifIndex ){
             
             // console.log('will parse else ',template)
-            template = template.slice(0,elseIndex )+ ' @if(!'+replacementQuery+')' + template.slice(elseIndex+5);
-            let openIndexes = getOcorrenceIndexes(template, "{");
-            console.log('will replace else')
-            return parseSingleIfOperation(template,replacement_id+'_'+(parseInt(Math.random()*100)),elseIndex-1,openIndexes)
+            right = right.slice(0,elseIndex )+ ' @if(!'+replacementQuery+')' + right.slice(elseIndex+5);
+            
+      
+             //parseSingleIfOperation(template,replacement_id+'_'+(parseInt(Math.random()*100)),elseIndex-1)
           }
         }
+        template = left+replacement+right;
       
      
+        break;
+      }else{
+        console.log(replacement_id,'IF');
+        return template;
         break;
       }
     }

@@ -97,7 +97,7 @@ export const operationIf = function (configuration, stack = []) {
           childStack.push(wraper[0]);
         }
       }
-      console.log($placeholder.template);
+  
       $placeholder.template.firstElementChild.__setup =
         $placeholder.template.__setup;
       $placeholder.template.firstElementChild.controller =

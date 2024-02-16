@@ -129,8 +129,8 @@ class OperationMap {
   onDidConnect() {
 
     this.map.for.forEach((el) => {
-      console.log({el})
-      debugger;
+      // console.log({el})
+      // debugger;
       el.callback();
     });
     this.map.if.forEach((el) => {

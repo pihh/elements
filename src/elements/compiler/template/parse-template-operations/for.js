@@ -6,121 +6,16 @@ import { parseIndexItem } from "../parse-index-item";
 
 let indexKeyId = 0;
 let replacementIds = [];
-export const parseLoopOperations = function (template, id, scope) {
-  let loop = true;
-  let loops = 0;
-  while (template.indexOf("@for") > -1) {
-    loops++;
 
-    if (loops > 25) {
-      loop = false;
-      break;
-    }
-    // const ifIndexs = getOcorrenceIndexes(template, "@if");
-    const forIndexs = getOcorrenceIndexes(template, "@for");
-    const openIndexes = getOcorrenceIndexes(template, "{");
-
-    if (forIndexs.length == 0) {
-      loop = false;
-      break;
-    }
-
-    let forIndex = forIndexs[0];
-    let open = openIndexes.filter((openIndex) => openIndex > forIndex)[0];
-    let stack = [0];
-    for (let k = open + 1; k < template.length; k++) {
-      let char = template.charAt(k);
-
-      if (char == "}") {
-        stack.pop();
-      }
-      if (char == "{") {
-        stack.push(1);
-      }
-      if (stack.length == 0) {
-        let left = template.slice(0, forIndex - 1);
-        let right = template.slice(k + 1);
-        let content = template.slice(open + 1, k - 1);
-        let replacement_id = id + "_for-" + Date.now();
-        if (replacementIds.indexOf(replacement_id) == -1) {
-          replacementIds.push(replacement_id);
-
-          let index = "$index" + indexKeyId++;
-          let query = template.slice(forIndex + 4, open); // + ";index = " + index + ")";
-
-          let setup = getForLoopSetup(query);
-          let variable = setup.query.attribute;
-          let source = setup.query.source;
-
-          index = setup.index;
-          content = parseIndexItem(content, variable, source, index);
-
-          const matches = getStrBetween(content, "@for(", ")");
-          for (let match of matches) {
-            let newSource = match.split(" of ");
-            if (newSource.length > 1) {
-              newSource = newSource[1].trim();
-              if (newSource.indexOf(variable) == 0) {
-                let nextChar = newSource.replace(variable, "");
-                if (nextChar.length > 0 && isChar(nextChar.charAt(0))) {
-                  // .. continue
-                } else {
-                  let m = match.replace(
-                    " of " + variable,
-                    " of " + variable + "[" + index + "]"
-                  );
-                  content = content.replace(
-                    "@for(" + match + ")",
-                    "@for(" + m + ")"
-                  );
-                }
-              }
-            }
-          }
-        
-          let replacementQuery =
-            "(" + setup.query.query + ";index = " + setup.index + ")";
-          let replacement =
-            '<span data-for-connection="' +
-            replacement_id +
-            '" data-for-query="' +
-            replacementQuery +
-            '">@__for()</span>';
-
-          const $template = document.createElement("template");
-          const $wrapper = document.createElement("div");
-
-          document.head.appendChild($template);
-          $wrapper.innerHTML = content
-            .replaceAll("\r", "")
-            .replaceAll("\n", "")
-            .trim();
-
-          $template.content.appendChild($wrapper);
-          $template.setAttribute("id", "template-" + replacement_id);
-
-          template = left + replacement + right;
-          template = parseIndexItem(template, variable, source, index);
-
-          new TemplateManager(replacement_id, scope);
-          break;
-        }
-      }
-    }
-  
-  }
-  template = template.replaceAll("@__for", "@for");
-  return template;
-};
 
 export const parseSingleForOperation = function (
   template,
   id,
   forIndex,
-  openIndexes,
   scope=[]
 ) {
-  let open = openIndexes.filter((openIndex) => openIndex > forIndex)[0];
+  let openIndexes = getOcorrenceIndexes(template, "{");
+  let open = openIndexes.filter((openIndex) => openIndex >= forIndex)[0];
   let stack = [0];
   for (let k = open + 1; k < template.length; k++) {
     let char = template.charAt(k);
@@ -132,6 +27,7 @@ export const parseSingleForOperation = function (
       stack.push(1);
     }
     if (stack.length == 0) {
+ 
       let left = template.slice(0, forIndex - 1);
       let right = template.slice(k + 1);
       let content = template.slice(open + 1, k - 1);
@@ -172,7 +68,9 @@ export const parseSingleForOperation = function (
             }
           }
         }
+
         const matchesIf = getStrBetween(content, "@if(", ")");
+  
         for (let match of matchesIf) {
           
           let idx = match.indexOf(variable);
@@ -200,28 +98,32 @@ export const parseSingleForOperation = function (
        
             let left = match.slice(0, idx );
             let right = match.slice(idx + variable.length);
-            let m = left + source+"[" + index + "]" + right;
-            content = content.replace("@if(" + match + ")", "@if(" + m.trim() + ")");
+            let m = left + 'this.'+source+"[" + index + "]" + right;
+   
+            content = content.replace("@if(" + match + ")", " @if(" + m.trim() + ") ");
             
           }
         }
+      
+ 
+
+  
         let replacementQuery =
           "(" + setup.query.query + ";index = " + setup.index + ")";
         let replacement =
-          '                               <span data-for-connection="' +
+          '<option data-for-connection="' +
           replacement_id +
           '" data-for-query="' +
           replacementQuery +
-          '">@__for()</span>                                     ';
+          '">@__for()</option>';
 
         const $template = document.createElement("template");
         const $wrapper = document.createElement("div");
 
         document.head.appendChild($template);
         $wrapper.innerHTML = content
-          .replaceAll("\r", "")
-          .replaceAll("\n", "")
-          .trim();
+      
+          
 
         $template.content.appendChild($wrapper);
         $template.setAttribute("id", "template-" + replacement_id);
@@ -230,8 +132,16 @@ export const parseSingleForOperation = function (
         template = parseIndexItem(template, variable, source, index);
 
         new TemplateManager(replacement_id, scope);
-        break;
+        
+       
+      }else{
+        /*
+     
+        */
+      //  console.log(template)
+      //  debugger;
       }
+      break;
     }
   }
   return template

@@ -28,7 +28,7 @@ export const initialExpressionCleanup = function (element) {
     try {
       element.innerHTML = innerHTML
     } catch (e) {
-      debugger
+      // debugger
       // const tmp = document.createElement("template");
       // tmp.setAttribute("id", element.id);
       // element.replaceWith(tmp);

@@ -42,6 +42,7 @@ export const parseIndexItem = function (context, variable, source, indexKey) {
         }
       }
     }
+
     for (let match of getStrBetween(context, "@if(", ")")) {
       let m = match.trim();
       if (m.indexOf(variable) == 0) {

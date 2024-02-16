@@ -1,4 +1,6 @@
 export function getStackContent(string,open,close){
+
+  
     let stack = [];
     let start = string.indexOf(open);
     let content = string;
