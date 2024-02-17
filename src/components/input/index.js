@@ -1,40 +1,23 @@
-import { Component } from "../../elements/component2";
+import "./style.css";
+import { Component, ElComponent } from "../../elements/component";
+import Template from "./template.html";
 
-export class InputComponent extends Component {
-  static config = {
-    selector: "el-input",
-    template: `
-    <div >
-    <p>{{this.model ? this.model : 'Nothing to show here' }}</p>
-    <input class="input" [model]="this.model" />
-    
-    </div>`,
-    styles: ` 
-    .example-section-container { 
-      padding: 1rem;
-      border-radius: 0.75rem;
-      border-width: 1px;
-      max-width: 680px; 
-      margin: 1em auto;
-    } 
-    .conditional-container{
-      padding: 0.5em 1em;
-      border-radius: 0.75rem;
-      border-width: 1px;
-    }
-    .input{
-      width: -webkit-fill-available
-    }
-    `,
-  };
-
+@Component({
+  selector: "el-input",
+  template: Template, 
+}) 
+export class ElInput extends ElComponent { 
+  static selector = "el-input";
+  static observedAttributes = ["value"]
   constructor() {
     super();
   }
- 
-  props={
-    model: "Default model"
+
+  value = "El Input Component";
+  type = "text";
+
+  attributeChangedCallback(name,oldValue,newValue) {
+    console.log("attribute changed", {name, oldValue, newValue});
   }
 }
 
-InputComponent.register(InputComponent);

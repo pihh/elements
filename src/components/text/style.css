@@ -1,0 +1,11 @@
+h1 {
+  font-weight: 800;
+  font-size: 1.75rem;
+  letter-spacing: -1px;
+  line-height: 2rem;
+  /* margin-bottom: 1rem; */
+}
+
+p {
+  margin-bottom: 1rem;
+}

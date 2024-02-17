@@ -35,22 +35,27 @@ class _Registry {
    * When a component is initialized for the first time, store it's configurations
    * Go to cache and return the required file/function
    */
-  componentSetup(component) {
+  componentSetup(component, force=false) {
     
     let name = component.constructor.name;
 
     let componentSetup = this.components[name];
-    if (!componentSetup) {
+    if (!componentSetup || force) {
       let setup = Object.assign({}, ElComponentSetup);
       let configuration = Object.assign({}, ElComponentConfiguration);
-      configuration.selector = configuration.prefix + component.constructor.selector;
-      
+      let selector  = configuration.prefix + component.constructor.selector;
+      configuration.selector = selector
       let callback = function (self) {
+     
         if(!self.__setup || !self.__setup.initialSetup){
+          setup = Object.assign({}, ElComponentSetup);
+          configuration = Object.assign({}, ElComponentConfiguration);
+          configuration.selector = selector
           self.__props = {}
           self.__setup = setup;
           self.__config = configuration;
-          self.__shadowRoot = self.attachShadow({
+          self.__config.templateConnected = false
+          self.__shadowRoot = self.shadowRoot || self.attachShadow({
             mode: self.__config.shadowRoot,
           });
           if (self.__config.styles == "global") {
@@ -86,12 +91,13 @@ class _Registry {
 
     //
     if (template) return template;
-    this.templates[name] = new Promise(async (res) => {
+    const $template = new TemplateManager(name,props);
+    this.templates[name] = $template.__template.content.cloneNode(true).firstElementChild
+    // new Promise(async (res) => {
       
-      const $template = new TemplateManager(name,props);
     
-      res($template.__template.content.cloneNode(true).firstElementChild);
-    });
+    //   res($template.__template.content.cloneNode(true).firstElementChild);
+    // });
     return this.templates[name];
   }
 }

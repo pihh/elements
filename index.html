@@ -7,127 +7,18 @@
     <title>Elements Framework</title>
     <link href="style.css" rel="stylesheet" />
 
-    <template id="template-el-web-component">
-      <div>
-        <select class="input border border-gray-100 w-full pb-4" model="color">
-          @for(__color of colors){
-          <option value="{{__color}}" class="text-{{__color}}-900">{{__color}}</option>
-          }
-        </select>
 
-        <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
-          @if(checked){
-          <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
-            Checked @if(checkedd){
-            <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">Checked v2</div>
-            <input model="listNumbers[2]" type="number"  class="input"/>
-            }
-            <div class="lil-card-button">
-              <button class="btn" @onClick="onToggleCheckedV2">
-                CheckedV2
-              </button>
-            </div>
-          </div>
-          }
-          <div class="lil-card-button">
-            <button class="btn" @onClick="onToggleChecked">Checked</button>
-          </div>
-        </div>
-
-        <input model="num" type="number"  class="input"/>
-        @if( items.length > 0 ){
-        <div class="lil-card">If there are items: items.length > 0 <input type="checkbox" checked="{{items.length >0}}" disabled /> <i class="text-green-900">V</i> </div>
-      } @else {
-          <div class="lil-card">If there are no items: items.length == 0 <input type="checkbox" checked="{{items.length ==0}}" disabled/> <i class="text-red-900">X</i> </div>
- 
-        } 
-        <button class="btn" @onClick="onClickWithData(color,colors)">Click With Colors</button>
-        
-        @for(card of cards;index = $i){
-
-        <div
-          class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
-          style="
-            background-image: url(https://daisyui.com/images/stock/photo-1481026469463-66327c86e544.jpg);
-            background-size: cover;
-            border-radius: 1em;
-          "
-        >
-          <div class="card w-96 glass">
-            <figure style="display: {{card.expanded ? '' : 'none'}}">
-              <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              />
-            </figure>
-            <a
-              class="card-collapser sidebar-collapser"
-              @onClick="onToggleCard($i)"
-            >
-
-              @if(card.expanded){
-                <span> - </span>
-              }@else{
-                <span> + </span>
-              }
-
-            </a>
-            <div class="card-body">
-              <h2 class="card-title">{{card.title}}</h2>
-
-              <p>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                Dolores magnam quisquam iusto, autem eveniet, veniam vitae
-                maiores optio facilis velit, omnis hic ea ipsam voluptates sequi
-                nostrum tempore perspiciatis est!
-              </p>
-              <div>
-                @for(l of card.list; let index = $cardListIndex){
-                <li>
-                  {{l}} {{$cardListIndex}} {{num}}
-                  <input model="l" class="input" />
-                </li>
-                }
-              </div>
-
-              <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onPush($i, card,'text',listNumbers[2])">
-                  Push
-                </button>
-                <button class="btn btn-primary" @onClick="onPop($i)">
-                  Pop
-                </button>
-              </div>
-
-              <div>
-                @for(item of items){
-                <li>
-                  {{item.name}}
-                  <input model="item.name" class="input" />
-                </li>
-                }
-              </div>
-              <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onPushItem()">
-                  Push
-                </button>
-                <button class="btn btn-primary" @onClick="onPopItem()">
-                  Pop
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        }
-      </div>
-    </template>
   </head>
   <body>
-    <div id="app">
+    <div id="app">  
+      <!-- <el-input value="xxxx"></el-input> -->
+      <el-card title="El Title Card"></el-card>
+
+      <!-- 
       <el-layout>
 
-        <el-web-component num="314"></el-web-component>
-      </el-layout>
-    </div>
+      </el-layout> -->
+    </div>  
 
     <script type="module" src="/main.js"></script>
   </body>

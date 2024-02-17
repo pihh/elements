@@ -16,9 +16,11 @@ var getAttributes = function (attributes) {
     return {
       att: attribute.name,
       value: attribute.value,
-      reactive: attribute.value.indexOf("{{") > -1,
+      reactive:
+        attribute.value.indexOf("{{") > -1 || attribute.name.indexOf("*") > -1,
       action: attribute.name.indexOf("@") > -1,
       model: attribute.name.indexOf("model") == 0,
+      propagated: attribute.name.indexOf("*") == 0,
     };
   });
 };
@@ -53,6 +55,7 @@ var createDOMMap = function (element, isSVG) {
       !details.operation;
     details.reactiveAttributes = details.atts.filter((el) => el.reactive);
     details.action = details.atts.filter((el) => el.action > -1);
+    details.propagated = [];
     details.isSVG = isSVG || details.type === "svg";
     details.children = createDOMMap(node, details.isSVG);
     return details;
@@ -64,18 +67,16 @@ var createDOMMap = function (element, isSVG) {
  */
 
 export const reactivityMap = function (element) {
+  let controller = element.parentController || element;
 
-  // console.log({elName:element.constructor.name})
   const props = new PropMap();
   const actions = new ActionMap();
   const operations = new OperationMap(element);
 
-  
   var createDOMMap = function (element, isSVG) {
-    const controller = element.controller || element;
-    element.controller = controller;
+    element.parentController = controller;
     return Array.prototype.map.call(element.childNodes, function (node) {
-      node.controller = element.controller;
+      node.parentController = element.parentController;
       var details = {
         content:
           node.childNodes && node.childNodes.length > 0
@@ -111,16 +112,26 @@ export const reactivityMap = function (element) {
         details.content &&
         details.content.indexOf("{{") > -1 &&
         !details.operation;
+
       let reactiveAtts = details.atts.filter((el) => el.reactive);
+
       if (reactiveAtts.length > 0) {
         shouldTrack = true;
         for (let att of reactiveAtts) {
-     
           let attribute = att.att;
           let value = att.value;
+          let parent = false;
+          if (attribute.indexOf("*") > -1) {
+            parent = true;
+            node.removeAttribute(attribute);
+            attribute = attribute.replaceAll("*", "");
+            node.removeAttribute(attribute);
+            //att.value = value.replaceAll("this.","this.parentController.");
+          }
+
           for (let match of getStrBetween(att.value)) {
             let keywords = getExpressionProperties("{{" + match.trim() + "}}");
-
+          
             for (let keyword of keywords) {
               let originalKeyword = keyword;
               let query = att.value;
@@ -137,24 +148,66 @@ export const reactivityMap = function (element) {
                 value: value,
                 query: query,
                 connect: function (instance) {
-                  let callback;
-                  if (attribute == "model") {
-                    callback = PropConnector.model(
-                      instance,
-                      keyword,
-                      node,
-                      query
-                    );
+                  let callback = function () {};
+                  //let addParentControllerCallback = node.parentController == node ? instance: node.connect ? node : node.parentController;
+                  if (parent) {
+                    if (
+                      instance &&
+                      instance == node.parentController &&
+                      node != instance &&
+                      node.connect
+                    ) {
+          
+
+                      let parentCtrl = instance;
+                      let child = node;
+
+                      let parsedAtt = att.att.replaceAll("*", "").trim();
+                      if (!parentCtrl.hasOwnProperty("__propagation")) {
+                        parentCtrl.__propagation = {};
+                      }
+                      if (!parentCtrl.__propagation[parsedAtt]) {
+                        parentCtrl.__propagation[parsedAtt] = {};
+                      }
+                      if (!parentCtrl.__propagation[parsedAtt][child]) {
+                        parentCtrl.__propagation[parsedAtt][child] = true;
+
+                        callback = function () {
+                          let parentCtrl = instance;
+                          let child = node;
+                          const fn = Function(
+                            "return `${this.child.scope." +
+                              parsedAtt +
+                              "=this.parentCtrl.scope." +
+                              keyword +
+                              "}`;"
+                          );
+                          fn.call({ parentCtrl, child });
+                       
+                        };
+
+                        parentCtrl.connect(keyword, callback);
+                      }
+                    }
                   } else {
-                    callback = PropConnector.attribute(
-                      instance,
-                      keyword,
-                      node,
-                      query,
-                      attribute
-                    );
+                    if (attribute == "model") {
+                      callback = PropConnector.model(
+                        instance,
+                        keyword,
+                        node,
+                        query
+                      );
+                    } else {
+                      callback = PropConnector.attribute(
+                        instance,
+                        keyword,
+                        node,
+                        query,
+                        attribute
+                      );
+                    }
+                    callback();
                   }
-                  callback();
                 },
               });
             }
@@ -224,7 +277,7 @@ export const reactivityMap = function (element) {
 
         for (let evt of events) {
           evt = evt.att;
- 
+
           const type = node.hasOwnProperty(evt) ? "native" : "custom";
           let eventName = evt.replaceAll("@", "");
           const value = node.getAttribute(evt);
@@ -236,10 +289,7 @@ export const reactivityMap = function (element) {
           const actionName = split[0];
           let args = [];
           if (split.length > 1) {
-    
-            args = split[1].replaceAll(')','').trim().split(",");
-            
-            
+            args = split[1].replaceAll(")", "").trim().split(",");
           }
           if (
             eventName.indexOf("on") == 0 &&
@@ -260,9 +310,9 @@ export const reactivityMap = function (element) {
               node.addEventListener(eventName, function ($event) {
                 const customArguments = instance.scope;
                 customArguments.$event = $event;
-                
+
                 let $indexList = JSON.parse(
-                  node.getAttribute("el-index") || JSON.stringify({  })
+                  node.getAttribute("el-index") || JSON.stringify({})
                 );
                 for (let [k, v] of Object.entries($indexList)) {
                   customArguments[k] = v;
@@ -271,27 +321,29 @@ export const reactivityMap = function (element) {
                   let argKey = arg;
                   let parsedArg;
                   let value;
-                  try{
-                    console.log('here',arg)
-                    parsedArg = arg.replaceAll('[','.').replaceAll(']', '').trim().split('.').map(el=>el.trim()).filter(el => el.length>0)//.join('.');
+                  try {
+                    parsedArg = arg
+                      .replaceAll("[", ".")
+                      .replaceAll("]", "")
+                      .trim()
+                      .split(".")
+                      .map((el) => el.trim())
+                      .filter((el) => el.length > 0); //.join('.');
                     argKey = parsedArg[0];
-                    value = modelValue(instance,arg)
-                    if(!isNaN(value)){
+                    value = modelValue(instance, arg);
+                    if (!isNaN(value)) {
                       value = Number(value);
                     }
-                  }catch(ex){
-
-                  }
+                  } catch (ex) {}
                   return customArguments.hasOwnProperty(argKey)
                     ? value
                     : !isNaN(arg)
                     ? Number(arg)
                     : ["'", '"', "`"].indexOf(arg.trim().charAt(0)) > -1
                     ? arg.trim().slice(1, arg.trim().length - 1)
-                    : arg
-                }
-                );
-                
+                    : arg;
+                });
+
                 instance[actionName](...parsedArguments);
               });
             },
@@ -304,8 +356,9 @@ export const reactivityMap = function (element) {
       return details;
     });
   };
-  // console.log(operations);
+
 
   createDOMMap(element);
+
   return { props, actions, operations };
 };

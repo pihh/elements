@@ -47,9 +47,7 @@ export class PropConnector {
       try{
    
         const ist = instance;
-        // ist.scope.$index = 0
-     
-        // query = query.replaceAll('$index',node?.$index || instance?.$index || 0)
+    
         const fn = Function("return " + query);
         const output = fn.call(ist.scope,);
         let value = output;

@@ -1,5 +1,12 @@
-<button class="btn bg-{{this.color}}-200" (click)="callback">
-  <span>
-    <slot name="btn-primary">Primary Btn slot</slot>
-  </span>
-</button>
+<div>
+  <div>
+    <button
+      class="btn bg-{{color}}-200 border border-{{border}}-500"
+      @onClick="onClick()"
+    >
+    {{color}} - 
+    <slot> </slot>
+    - {{placeholder}}
+    </button>
+  </div>
+</div>

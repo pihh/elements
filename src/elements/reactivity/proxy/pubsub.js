@@ -54,12 +54,12 @@ export class PubSub {
     publish(event, data) {
       console.log(event);
       if (this.events[event]) {
-        if (this.prevValues[event] != data) {
-          this.prevValues[event] = data;
+        // if (this.prevValues[event] != data) {
+        //   this.prevValues[event] = data;
           this.events[event].forEach((callback) => callback(data));
-        } else {
-          console.log("data didnt change:", event);
-        }
+        // } else {
+        //   console.log("data didnt change:", event);
+        // }
       } else {
         console.log("no events subscribed yet:", event);
       }

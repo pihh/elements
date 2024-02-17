@@ -8,22 +8,20 @@ export function Component(config) {
   const _config = {
     ...config,
   };
-  if(_config.template){
-  const template =   document.createElement('template');
-  document.head.appendChild(template);
-  template.id = "template-"+_config.selector;
-  template.innerHTML = _config.template
+  if (_config.template) {
+    const template = document.createElement("template");
+    document.head.appendChild(template);
+    template.id = "template-" + _config.selector;
+    template.innerHTML = _config.template;
   }
   return function (component) {
     class Component extends component {
-
       static selector = _config.selector;
       static get observedAttributes() {
-        return this.__props || []  
+        return this.__props || [];
       }
       constructor() {
         super();
-      
       }
     }
     try {
@@ -36,50 +34,55 @@ export function Component(config) {
 }
 
 export class ElComponent extends HTMLElement {
-
-
   constructor() {
     super(...arguments);
-   
     this.__init();
   }
 
   __init() {
     const { setup, configuration, callback } = Registry.componentSetup(this);
+
+    if (!this.__setup) {
+      this.__setup = setup;
+      this.__setup.initialSetup = false;
+      this.__setup.templateConnected = false;
+      this.__config = configuration;
+
+      callback(this);
+    }
   }
 
   async __hidrate() {
     connectScope(this);
-    await connectTemplate(this);
-    await mapTemplate(this);
-    await connectTemplateReactivity(this);
+    connectTemplate(this);
+    mapTemplate(this);
+    connectTemplateReactivity(this);
   }
 
   async __initialConnection() {
-    if (!this.__setup.didConnect) {
-      this.__setup.didConnect = true;
-      await this.__hidrate();
-      this.operations.onDidConnect(this);
+    if (!this.__setup || !this.__template) {
+      delete this.__setup;
+      // delete this.controller;
+      this.__init(true);
     }
 
+    if (!this.__setup.didConnect) {
+      this.__setup.didConnect = true;
+    
+      this.__hidrate();
+      this.operations.onDidConnect(this);
+    }
   }
   connectedCallback() {
     this.__initialConnection();
-  
     this.render();
-    
-   
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     console.log("attributeChangedCallback", name, oldValue, newValue);
   }
 
-  render() {
-  
-  }
-
-
+  render() {}
 }
 
 //customElements.define("my-button", MyWebComponent);

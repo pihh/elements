@@ -1,3 +1,38 @@
+import { Component, ElComponent } from "../../elements/component";
+import "./style.css";
+
+import Template from "./template.html";
+
+@Component({
+  selector: "el-btn",
+  template: Template,  
+})
+export class ElBtn extends ElComponent {
+  static selector = "el-btn"; 
+  static observedAttributes = ["color"]
+  constructor() {  
+    super();
+  }
+ 
+  color = "white";
+  border = "gray";
+
+  placeholder = "El Btn Component";
+ 
+  onClick(){
+    console.log('callback ',this);
+  }
+
+
+  borderChangeCallback(){
+    this.border = this.color == "white" ? "gray" :this.color;
+  }
+  attributeChangedCallback(){
+    
+    console.log('attributeChangedCallback',...arguments)
+  }
+}
+/*
 import { Component } from "../../elements/component2";
 import Template from "./template.html";
 export class BtnComponent extends Component {
@@ -13,10 +48,6 @@ export class BtnComponent extends Component {
     
   }
 
-  props = {
-    color: "white",
-  };
-  color = "white";
 
   callback() {
 
@@ -35,3 +66,5 @@ export class BtnComponent extends Component {
 }
 
 BtnComponent.register(BtnComponent);
+
+*/
