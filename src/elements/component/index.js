@@ -36,20 +36,21 @@ export function Component(config) {
 export class ElComponent extends HTMLElement {
   constructor() {
     super(...arguments);
-    this.__init();
+
   }
 
   __init() {
     const { setup, configuration, callback } = Registry.componentSetup(this);
 
-    if (!this.__setup) {
-      this.__setup = setup;
-      this.__setup.initialSetup = false;
-      this.__setup.templateConnected = false;
-      this.__config = configuration;
+    // callback(this);
+    // if (!this.__setup) {
+    //    this.__setup = setup;
+    //    this.__setup.initialSetup = false;
+    //    this.__setup.templateConnected = false;
+    //    this.__config = configuration;
 
-      callback(this);
-    }
+    //    callback(this);
+    //  }
   }
 
   async __hidrate() {
@@ -60,20 +61,25 @@ export class ElComponent extends HTMLElement {
   }
 
   async __initialConnection() {
+    
     if (!this.__setup || !this.__template) {
       delete this.__setup;
       // delete this.controller;
       this.__init(true);
+      
     }
-
+    
     if (!this.__setup.didConnect) {
       this.__setup.didConnect = true;
-    
+      
       this.__hidrate();
       this.operations.onDidConnect(this);
+      // console.log({template:this.__template})
     }
   }
   connectedCallback() {
+    this.__init();
+
     this.__initialConnection();
     this.render();
   }
@@ -86,3 +92,12 @@ export class ElComponent extends HTMLElement {
 }
 
 //customElements.define("my-button", MyWebComponent);
+
+
+export default class {
+  constructor(props) {  
+    //  view = view || {}; //this is default value for param.
+    //  this.id = view.id; 
+    //  this.title = view.title;
+  }
+}

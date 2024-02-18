@@ -5,77 +5,21 @@
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Elements Framework</title>
-     <template id="template-el-web-component">
-      <div>
-        @for(card of cards;index = $i){
-        <div
-          class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
-          style="
-            background-image: url(https://daisyui.com/images/stock/photo-1481026469463-66327c86e544.jpg);
-            background-size: cover;
-            border-radius: 1em;
-          "
-        >
-          <div class="card w-96 glass">
-            <figure>
-              <img
-                src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-              />
-            </figure>
-            <div class="card-body">
-              <h2 class="card-title">{{card.title}}</h2>
 
-              <p>
-                Lorem ipsum, dolor sit amet consectetur adipisicing elit.
-                Dolores magnam quisquam iusto, autem eveniet, veniam vitae
-                maiores optio facilis velit, omnis hic ea ipsam voluptates sequi
-                nostrum tempore perspiciatis est!
-              </p>
 
-              <div>
-                @for(l of card.list){
-                <li>
-                  {{l}}
-                  <input model="l" class="input" />
-                </li>
-                }  
-              </div>
-             
-
-              <div>
-                @for(item of items){
-                <li>
-                  {{item.name}}
-                  <input model="item.name" class="input" />
-                </li>
-                }
-              </div>
-              <div class="justify-end card-actions">
-                <button class="btn btn-primary" @onClick="onPush($i)">
-                  Push
-                </button>
-                <button class="btn btn-primary" @onClick="onPop($i)">
-                  Pop
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-        }
-      </div>
-    </template>
-    <script type="module" crossorigin src="/assets/index-d291sAVp.js"></script>
-    <link rel="stylesheet" crossorigin href="/assets/index-uw6ddL96.css">
+    <script type="module" crossorigin src="/assets/index-OOenHls2.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-x8haYuCL.css">
   </head>
   <body>
-    <div id="app">
-      <my-button></my-button>
+    <div id="app">  
+      <!-- <el-input value="xxxx"></el-input> -->
+      <el-card title="El Title Card"></el-card>
+
+      <!-- 
       <el-layout>
 
-        <el-web-component></el-web-component>
-
-      </el-layout>
-    </div>
+      </el-layout> -->
+    </div>  
 
   </body>
 </html>

@@ -15,7 +15,7 @@ export class ElCard extends ElComponent {
   static selector = "el-card"; 
   constructor() {
     super(); 
-    console.log(this.__template)
+    
   }
  
   checked = true;

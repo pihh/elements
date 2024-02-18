@@ -5,16 +5,15 @@ import { connectHtmlReactivity } from "../../connection";
 import { operationIf } from "./if";
 
 export const operationFor = function (configuration, stack = []) {
-    // get container and query
+  // get container and query
 
   const replacement = configuration.node.parentElement;
 
   const query = replacement.dataset.forQuery;
-// get info
+  // get info
   const connection = replacement.dataset.forConnection;
   // extract information
 
-  
   let _setup = getForLoopSetup(query);
 
   // Create info object
@@ -27,7 +26,6 @@ export const operationFor = function (configuration, stack = []) {
     ..._setup,
     callback: function () {},
     connect: function (instance, config = {}) {
-      
       this.connected = true;
       let childStack = [];
       const $replacement = instance.shadowRoot.querySelector(
@@ -42,7 +40,7 @@ export const operationFor = function (configuration, stack = []) {
       let $placeholder = document.createComment("for placeholder ");
 
       let content = new TemplateManager(connection, instance.__props);
-      
+
       $placeholder._setup = _setup;
 
       $replacement.replaceWith($placeholder);
@@ -51,8 +49,7 @@ export const operationFor = function (configuration, stack = []) {
       $placeholder.stack = [];
       $placeholder.display = [];
       $placeholder._indices = {};
-      let generate = async function (index) {
-      
+      let generate = function (index) {
         const indices = config?.indices || {};
         const _template =
           $placeholder.content.__template.content.firstElementChild.cloneNode(
@@ -78,7 +75,7 @@ export const operationFor = function (configuration, stack = []) {
         }
         $placeholder.before(_template);
 
-        const e = await connectHtmlReactivity(instance, _template);
+        const e = connectHtmlReactivity(instance, _template);
 
         let ifConnections = [
           ..._template.querySelectorAll("[data-if-connection]"),
@@ -87,8 +84,6 @@ export const operationFor = function (configuration, stack = []) {
           ..._template.querySelectorAll("[data-for-connection]"),
         ];
         if (ifConnections.length > 0 || forConnections.length > 0) {
-    
-  
           for (let ifConnection of ifConnections) {
             let wraper = [];
             operationIf({ node: ifConnection.childNodes[0] }, wraper);
@@ -96,14 +91,11 @@ export const operationFor = function (configuration, stack = []) {
           }
           for (let forConnection of forConnections) {
             let wraper = [];
-            operationFor(
-              { node: forConnection.childNodes[0] },
-              wraper
-            );
+            operationFor({ node: forConnection.childNodes[0] }, wraper);
             childStack.push(wraper[0]);
           }
         }
-       
+
         _template.firstElementChild.__setup = _template.__setup;
         _template.firstElementChild.controller = _template.controller;
         _template.firstElementChild.dataset.elIndex = _template.dataset.elIndex;
@@ -117,55 +109,52 @@ export const operationFor = function (configuration, stack = []) {
 
         let promises = [];
         for (let i = $placeholder.stack.length; i < value; i++) {
-          promises.push(
-            new Promise((res) => {
-              generate(i).then(($item) => {
-                $placeholder.before($item);
-                $placeholder.stack.push($item);
-                
-                $placeholder.display.push($item);
-                res($item);
-              });
-            })
-          );
-        }
-        Promise.all(promises).then((res) => {
-          for (let i = $placeholder.display.length; i < value; i++) {
-           
-            let $display = $placeholder.stack[i];
-           
-        
-            // $display.__i = i
-            $placeholder.display.push($display);
-            
-          }
-          // console.log($placeholder.display.length ,' len after',value)
-          for(let $display of $placeholder.display.reverse()) {
-            $placeholder.before($display);
-          }
-          for (let con of childStack) {
-            con.setup(instance, (config = {}));
-          }
-          childStack = []
-          let pops = [];
-          for (let i = value; i < $placeholder.display.length; i++) {
-            pops.push(i);
-          }
-          pops.reverse();
+          // promises.push(
+          //   new Promise((res) => {
+          // generate(i).then(($item) => {
+          const $item = generate(i);
+          $placeholder.before($item);
+          $placeholder.stack.push($item);
 
-          for (let pop of pops) {
-            $placeholder.display[pop].remove();
-            $placeholder.display.pop();
-            $placeholder.stack.pop();
-            
-          }
-        });
+          $placeholder.display.push($item);
+          // res($item);
+          // });
+          // })
+          // );
+        }
+        // Promise.all(promises).then((res) => {
+        for (let i = $placeholder.display.length; i < value; i++) {
+          let $display = $placeholder.stack[i];
+
+          // $display.__i = i
+          $placeholder.display.push($display);
+        }
+        // console.log($placeholder.display.length ,' len after',value)
+        for (let $display of $placeholder.display.reverse()) {
+          $placeholder.before($display);
+        }
+        for (let con of childStack) {
+          con.setup(instance, (config = {}));
+        }
+        childStack = [];
+        let pops = [];
+        for (let i = value; i < $placeholder.display.length; i++) {
+          pops.push(i);
+        }
+        pops.reverse();
+
+        for (let pop of pops) {
+          $placeholder.display[pop].remove();
+          $placeholder.display.pop();
+          $placeholder.stack.pop();
+        }
       };
+      // });
+      // };
 
       $placeholder.callback = callback;
       $placeholder.generate = generate;
 
-    
       instance.connect(_setup.query.source + ".length", callback);
 
       this.callback = callback;
@@ -179,4 +168,3 @@ export const operationFor = function (configuration, stack = []) {
   };
   stack.push(operation);
 };
-

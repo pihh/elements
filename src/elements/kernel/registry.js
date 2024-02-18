@@ -1,6 +1,6 @@
 import { addGlobalStylesToShadowRoot } from "../compiler/styles/global-styles";
 
-import {TemplateManager} from "../compiler/template/manager";
+import { TemplateManager } from "../compiler/template/manager";
 
 /**
  * Registry class is used to compile templates and it's dependencies in real time.
@@ -35,45 +35,47 @@ class _Registry {
    * When a component is initialized for the first time, store it's configurations
    * Go to cache and return the required file/function
    */
-  componentSetup(component, force=false) {
-    
+  componentSetup(component, force = false) {
     let name = component.constructor.name;
 
     let componentSetup = this.components[name];
     if (!componentSetup || force) {
       let setup = Object.assign({}, ElComponentSetup);
       let configuration = Object.assign({}, ElComponentConfiguration);
-      let selector  = configuration.prefix + component.constructor.selector;
-      configuration.selector = selector
+      let selector = configuration.prefix + component.constructor.selector;
+      configuration.selector = selector;
       let callback = function (self) {
-     
-        if(!self.__setup || !self.__setup.initialSetup){
+        if (!self.__setup || !self.__setup.initialSetup) {
           setup = Object.assign({}, ElComponentSetup);
           configuration = Object.assign({}, ElComponentConfiguration);
-          configuration.selector = selector
-          self.__props = {}
+          configuration.selector = selector;
+          self.__props = {};
           self.__setup = setup;
           self.__config = configuration;
-          self.__config.templateConnected = false
-          self.__shadowRoot = self.shadowRoot || self.attachShadow({
-            mode: self.__config.shadowRoot,
-          });
+          self.__config.templateConnected = false;
+          self.__shadowRoot =
+            self.shadowRoot ||
+            self.attachShadow({
+              mode: self.__config.shadowRoot,
+            });
           if (self.__config.styles == "global") {
-     
             addGlobalStylesToShadowRoot(self.__shadowRoot);
           }
           self.__setup.initialSetup = true;
         }
 
-        return self
+        return self;
       };
       callback(component);
       this.components[name] = {
-        setup,configuration,callback
-      }
-      
+        setup,
+        configuration,
+        callback,
+      };
+
       // customElements.define(configuration.selector, component.constructor);
     }
+    this.components[name].callback(component);
     return this.components[name];
   }
 
@@ -84,18 +86,18 @@ class _Registry {
    * @param {String} path
    * @return {Promise } HTMLTemplateElement
    */
-  template(path,props=[]) {
+  template(path, props = []) {
     // Get template name and check for availability
     let name = this.getName(path);
     let template = this.templates[name];
 
     //
     if (template) return template;
-    const $template = new TemplateManager(name,props);
-    this.templates[name] = $template.__template.content.cloneNode(true).firstElementChild
+    const $template = new TemplateManager(name, props);
+    this.templates[name] =
+      $template.__template.content.cloneNode(true).firstElementChild;
     // new Promise(async (res) => {
-      
-    
+
     //   res($template.__template.content.cloneNode(true).firstElementChild);
     // });
     return this.templates[name];
@@ -103,7 +105,7 @@ class _Registry {
 }
 
 const ElComponentSetup = {
-  didConnect:false,
+  didConnect: false,
   templateConnected: false,
   propertiesTracked: false,
   initialSetup: false,

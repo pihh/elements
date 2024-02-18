@@ -17,7 +17,7 @@ export class ElInput extends ElComponent {
   type = "text";
 
   attributeChangedCallback(name,oldValue,newValue) {
-    console.log("attribute changed", {name, oldValue, newValue});
+    // console.log("attribute changed", {name, oldValue, newValue});
   }
 }
 
