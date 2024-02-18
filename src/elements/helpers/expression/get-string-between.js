@@ -27,7 +27,7 @@ export function getStrBetweenStack(
   end = ")"
 ) {
   let matches = [];
-  
+
   let idx = str.indexOf(search);
   str = str.substring(idx + search.length);
   str = str.substring(str.indexOf(start) + 1);
@@ -42,7 +42,6 @@ export function getStrBetweenStack(
         stack.pop();
       }
       if (stack.length == 0) {
-        
         matches.push(str.slice(0, i));
         idx = str.indexOf(search);
         str = str.substring(idx + search.length);
@@ -52,9 +51,8 @@ export function getStrBetweenStack(
     }
   }
 
-  return matches
+  return matches;
 }
-
 
 export function findActions(
   selector,
@@ -63,7 +61,49 @@ export function findActions(
   start = "{",
   end = "}"
 ) {
+  let matches = [];
+  let idx = parsedTemplate.indexOf(search);
+  while (idx > -1) {
+    let left = parsedTemplate
+      .substring(0, idx + search.length)
+      .replaceAll(search, "");
+    left = left.split(" ");
+    let action = left[left.length - 1].trim();
+    left.pop();
+    left = left.join(" ");
+    let right = parsedTemplate.substring(idx + search.length);
+    right = right.substring(right.indexOf("{")+1);
+    let stack = 1;
 
+
+    //while(stack > 0 || i < right.length){
+    for (let i = 0; 0 < right.length; i++) {
+      let char = right.charAt(i);
+
+      if (char === start) {
+        stack++;
+      }
+      if (char === end) {
+        stack--;
+      }
+      if (stack == 0) {
+        let uuid = parseInt(Date.now() + Math.random() * 1000);
+        let match = {
+          uuid: uuid,
+          datasetSelector: 'data-el-action="' + uuid + '"',
+          datasetParam: "elAction",
+          action,
+          query: right.substring(0, i),
+          callback: right.substring(0, i),
+        };
+        matches.push(match);
+        parsedTemplate =
+          left + " " + match.datasetSelector + " " + right.substring(i+1);
+        idx = parsedTemplate.indexOf(search);
+        break;
+      }
+    }
+  }
   /*
   let parsedTemplate = str;
   let matches = [];
@@ -133,7 +173,6 @@ export function findActions(
   }
 
   */
-  let matches = []
 
-  return {parsedTemplate,matches};
+  return { parsedTemplate, matches };
 }

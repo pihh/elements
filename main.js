@@ -26,7 +26,7 @@ const template = `
         </select>
         <ul>
             @for(let item of items){
-                <li onClick={onClickItem(e)} >
+                <li onClick={onClickItem(e)}>
                 {{item.name}}
             </li>
             }
@@ -143,13 +143,51 @@ function Component(component, config) {
     // Create initial component
     const configuration = {
       actions: {},
-      props: {},
+      reactivity: {},
       operations: {},
+      props: {}
     };
     const _component = new component();
 
     // Get it's tracked properties
-    const props = Object.getOwnPropertyNames(_component);
+    let parseObject = function(data){
+      try{
+        return JSON.parse(data);
+      }catch(ex){
+        return data
+      }
+    }
+    let parseBoolean = function(data){
+      return ["true",true].indexOf(data)>-1 ? true : false;
+    }
+    let parseNumber = function(data){
+      let d = Number(data);
+      return !isNaN(d) ? d : data
+    }
+    const props = Object.getOwnPropertyNames(_component).forEach(prop => {
+      let key= prop;
+      let type= typeof _component[key];
+      let defaultValue=_component[key];
+      console.log(key)
+      configuration.props[key] = {
+        key,
+        type,
+        defaultValue,
+        reactivity: [],
+        setup(instance){
+          instance[key] = instance.getAttribute(key) || instance[key] || defaultValue;
+          if(type == "string"){
+            instance[key] = instance[key] || "" 
+          }else if(type == "object"){
+            instance[key] = parseObject(instance[key])
+          }else if(type == "number"){
+            instance[key] = parseNumber(instance[key])
+          }else if(type == "boolean"){
+            instance[key] = parseBoolean(instance[key])
+          }
+        }
+      }
+    });
 
     // Get it's actions
     const actions = Object.getOwnPropertyNames(
@@ -194,15 +232,16 @@ function Component(component, config) {
     for (let match of matchedActions) {
       let action = match.action.toLowerCase();
       let callback = match.callback;
-      const randomUUid = match.query;
+      const randomUUid = match.uuid;
       configuration.actions[randomUUid] = {
         action: action,
         callback: callback,
         dataset: {
           selector: "data-action",
-          uuid: match.query,
-          expression: `data-action="${match.query}"`,
-          query: `[data-action="${match.query}"]`,
+          uuid: match.uuid,
+          expression: match.datasetSelector,
+          query: `[${match.datasetSelector}]`,
+          callback,
         },
 
         callback: function (instance, e) {
@@ -211,8 +250,8 @@ function Component(component, config) {
         },
         setup(instance, node) {
             console.log({node,self:this})
-          if (!node.hasOwnAttribute("action_" + match.query)) {
-            node["action_" + match.query] = true;
+          if (!node.hasOwnAttribute("action_" + match.uuid)) {
+            node["action_" + match.uuid] = true;
             const cb = this.callback;
             this.callback = function () {
               cb(instance, ...arguments);
@@ -257,8 +296,8 @@ function Component(component, config) {
             ds.push(pointer);
             parent.dataset.elText = JSON.stringify(ds);
             
-            configuration.props[pointer] = configuration.props.pointer || [];
-            configuration.props[pointer].push({
+            configuration.reactivity[pointer] = configuration.reactivity.pointer || [];
+            configuration.reactivity[pointer].push({
               type: "text",
               pointer,
               query,
@@ -282,8 +321,8 @@ function Component(component, config) {
           let ds = JSON.parse(el.dataset.elAttributes);
           ds.push(pointer);
           el.dataset.elAttributes = JSON.stringify(ds);
-          configuration.props[pointer] = configuration.props.pointer || [];
-          configuration.props[pointer].push({
+          configuration.reactivity[pointer] = configuration.reactivity.pointer || [];
+          configuration.reactivity[pointer].push({
             pointer,
             type: "attribute",
             attribute:attr,
@@ -308,17 +347,16 @@ function Component(component, config) {
         instance.shadow.innerHTML = parsedTemplate;
       }
       function connect(instance) {
-
-        for(let prop of props){
-            instance[prop] = instance.getAttribute(prop) || _component[prop] 
-      
+        for(let key of Object.keys(configuration.props)){
+          let prop = configuration.props[key];
+          prop.setup(instance) //instance.getAttribute(prop) || _component[prop] 
         }
         const attrElements = [...instance.shadow.querySelectorAll("[data-el-attributes]")]
         attrElements.forEach(el =>{
             let keys = JSON.parse(el.dataset.elAttributes) || [];
             
             for(let key of keys) {
-                for(let conf of configuration.props[key]){
+                for(let conf of configuration.reactivity[key]){
                     let attr = conf.attribute
                     let replace = Function ("return `" + conf.query + "`");
                     replace = replace.call(instance);
@@ -330,7 +368,7 @@ function Component(component, config) {
        const textElements = [...instance.shadow.querySelectorAll("[data-el-text]")].map(el =>{
             let keys = JSON.parse(el.dataset.elText) || [];
             for(let key of keys) {
-                for(let conf of configuration.props[key]){
+                for(let conf of configuration.reactivity[key]){
                     try{
 
                         let node = [...el.childNodes][conf.nodeIndex]//.textContent
@@ -351,9 +389,9 @@ function Component(component, config) {
           for (let key of Object.keys(configuration.actions)) {
             let action = configuration.actions[key];
       
-            let el = instance.shadow.querySelector("[data-action]");
+            let el = instance.shadow.querySelector('[data-el-action="'+key+'"]');
       
-            console.log({ el, action });
+   
             action.setup(instance, el);
             //    delete el.dataset.action;
           }
@@ -408,7 +446,9 @@ function Component(component, config) {
       setup: setup,
     };
   }
-
+  // console.clear()
+  console.log(ComponentRegistry[selector])
+  debugger;
   return ComponentRegistry[selector];
 }
 
