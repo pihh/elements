@@ -23,7 +23,7 @@ const template = `
             </li>
             }
         </ul>
-
+            <the-inner text="{{text}} @propagate={onInnerTextListen} />
     </main>
     <footer>
             <section>
@@ -71,12 +71,18 @@ export class TheDemoComponent extends TheBaseComponent {
     this.items.pop();
   }
   increment(event,counter,str,num,bool) {
-    console.log({event,counter,str,num,bool})
+    // console.log({event,counter,str,num,bool}) // Passa tudo ya
     // console.log({event,counter:this.counter});
     this.counter++;
   }
   decrement() {
     // console.log(this.items);
     this.counter--;
+  }
+
+  onInnerTextListen($event){
+    // console.log('onInnerTextListen',$event);
+    $event.detail.reference.counter = this.counter;
+    this.counter = $event.detail.data.counter;
   }
 }

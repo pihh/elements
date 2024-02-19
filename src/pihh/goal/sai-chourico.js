@@ -3,7 +3,7 @@
 
 import { State } from "../../elements/reactivity/state";
 import { TheDemoComponent } from "./entra-porco";
-
+import './sai-linguica';
 const configuration = {
   template: `
   <style>
@@ -27,7 +27,8 @@ const configuration = {
             <ul>
                <option data-el-operation="1" ></option>
             </ul>
-    
+            <the-inner data-el-attribute="1" data-el-action="4"></the-inner>
+            <slot></slot>
         </main>
         <footer>
                 <section>
@@ -80,6 +81,7 @@ const configuration = {
   },
 
   connectors: {
+ 
     "data-el-operation": {
       0: {
         id: "for connection",
@@ -110,10 +112,11 @@ const configuration = {
       0: {
         id: Symbol("action connection"),
         props: [],
+        type:"native",
         eventName: "click",
         value: "(event)=>{duplicate(event))}",
         expression: "(event)=>{this.duplicate(event))}",
-
+        args:[],
         setup: function (instance, element) {
           if (!instance.__connections__.hasOwnProperty(this.id)) {
             instance.__connections__[this.id] = this.id;
@@ -137,7 +140,8 @@ const configuration = {
         eventName: "click",
         value: "addItem",
         expression: "this.addItem()",
-
+        args:[],
+        type:"native",
         setup: function (instance, element) {
           if (!instance.__connections__.hasOwnProperty(this.id)) {
             instance.__connections__[this.id] = this.id;
@@ -161,7 +165,7 @@ const configuration = {
         eventName: "click",
         value: "increment",
         expression: "this.increment()",
-
+        type:"native",
         setup: function (instance, element) {
           if (!instance.__connections__.hasOwnProperty(this.id)) {
             instance.__connections__[this.id] = this.id;
@@ -201,10 +205,11 @@ const configuration = {
       3: {
         id: Symbol("action connection"),
         props: [],
+        type:"native",
         eventName: "click",
         value: "decrement",
         expression: "this.decrement()",
-
+        
         setup: function (instance, element) {
           if (!instance.__connections__.hasOwnProperty(this.id)) {
             instance.__connections__[this.id] = this.id;
@@ -217,6 +222,32 @@ const configuration = {
             action.call(instance, event);
           };
           element.addEventListener(this.eventName, callback);
+        },
+        unsubscribe: [],
+      },
+      4: {
+        id: Symbol("action connection"),
+        props: [],
+        type: "broadcast",
+        eventName: "propagate",
+        value: "onInnerTextListen",
+        expression: "this.onInnerTextListen()",
+        args:['$event'],
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const action = instance[this.value];
+          const callback = function (event) {
+            // console.log('here')
+            action.call(instance, event);
+          };
+          
+          element.__addEmitListener__(this.eventName, instance,callback);
+          
         },
         unsubscribe: [],
       },
@@ -401,6 +432,33 @@ const configuration = {
         },
         unsubscribe: [],
       },
+      1: {
+        id: Symbol("attribute connection"),
+        props: ["text"],
+        attribute: "text",
+        value: "{{text}}",
+        expression: "${this.text}",
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const attribute = this.attribute;
+          const fn = Function("return `" + this.expression + "`");
+          const callback = function (value) {
+            const output = fn.call(instance);
+            element.setAttribute(attribute, output);
+          };
+          for (let prop of this.props) {
+      
+            instance.__subscriptions__.push(instance.connect(prop, callback));
+          }
+          callback();
+        },
+        unsubscribe: [],
+      },
     },
   },
 
@@ -497,6 +555,7 @@ export class TheDemoComponentCompiled extends TheDemoComponent {
         let elements = [];
         elements = [...this.__shadow__.querySelectorAll("[data-el-attribute]")];
         for (let element of elements) {
+          
           const identifiers = element.dataset.elAttribute
             .split(",")
             .map((el) => el.trim());
