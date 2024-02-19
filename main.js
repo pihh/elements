@@ -3,53 +3,7 @@ import { ElCard } from "./src/components/card";
 import { ElDemo } from "./src/components/demo";
 import { ElInput } from "./src/components/input";
 import { ElLayout } from "./src/components/layout";
-import { ElText } from "./src/components/text";
-import BaseComponent from "./src/elements/component";
-import {
-  findActions,
-  getStrBetweenStack,
-} from "./src/elements/helpers/expression/get-string-between";
-import { getStrBetween } from "./src/elements/helpers/regex";
-
-const template = `
-<div class="component bg-{{color}}-900">
-    <header>
-        <h1>{{title}}</h1>
-        <p>{{description}}</p>
-        <small><b>Counter:</b> {{counter}}</small>
-    </header>
-    <main>
-        <select model="color" class="input">
-            @for(let _color of colors){
-                <option value="_color">_color</option>
-            }
-        </select>
-        <ul>
-            @for(let item of items){
-                <li onClick={onClickItem(e)}>
-                {{item.name}}
-            </li>
-            }
-        </ul>
-
-    </main>
-    <footer>
-            <section>
-                <h5>Update items</h5>
-                <div class="">
-                    <button class="btn" onClick={addItem}>+</button>
-                    <button class="btn" onClick={removeItem}>-</button>
-                </div>
-            </section>
-            <section>
-            <h5>Update counter</h5>
-            <div class="">
-                <button class="btn" onClick={increment}>+</button>
-                <button class="btn" onClick={decrement}>-</button>
-            </div>
-        </section>
-    </footer>
-</div>`;
+import { State } from "./src/elements/reactivity/state";
 
 class TheBaseComponent extends HTMLElement {
   constructor() {
@@ -97,14 +51,59 @@ class TheBaseComponent extends HTMLElement {
   // }
 }
 
-class TheDemoComponent extends BaseComponent {
+// ENTRA PORCO -------------------------------
+// -------------------------------
+const template = `
+<div class="component bg-{{color}}-900">
+    <header>
+        <h1>{{title}}</h1>
+        <p>{{obj.description}}</p>
+        <p>{{items[0].name}}</p>
+    </header>
+    <main>
+        <select model="color" class="input">
+            @for(let _color of colors){
+                <option value="_color">_color</option>
+            }
+        </select>
+        <ul>
+            @for(let item of items; let $index = index){
+                <li onclick={onClickItem(e)}>
+                {{item.name}}
+            </li>
+            }
+        </ul>
+
+    </main>
+    <footer>
+            <section>
+                <h5>Update items</h5>
+                <div class="">
+                    <button class="btn" onclick={(event)=>{duplicate(event)}}>x2</button>
+                    <button class="btn" onclick={addItem}>+</button>
+                    <button class="btn" onclick={removeItem}>-</button>
+                </div>
+            </section>
+            <section>
+            <h5>Update counter</h5>
+            <div class="">
+                <button class="btn" onclick={increment}>+</button>
+                <button class="btn" onclick={decrement}>-</button>
+            </div>
+        </section>
+    </footer>
+</div>`;
+
+// ENTRA PORCO -------------------------------
+// -------------------------------
+class TheDemoComponent extends TheBaseComponent {
   constructor() {
     super();
-    
   }
   // Scope
   title = "TheDemoComponent Title";
   description = "TheDemoComponent Description";
+  obj = {description : "TheDemoComponent Description"};
   counter = 0;
   color = "green";
   colors = ["green", "red", "yellow", "blue"];
@@ -116,7 +115,6 @@ class TheDemoComponent extends BaseComponent {
     console.log(this.items);
   }
   addItem() {
-    console.log(this.items);
     this.items.push({ name: "Item " + this.items.length });
   }
   removeItem() {
@@ -133,323 +131,431 @@ class TheDemoComponent extends BaseComponent {
   }
 }
 
-// Compile phase
-const ComponentRegistry = {};
-function Component(component, config) {
-  const selector = config.selector;
+// SAI CHOURIÇO -------------------------------
+// -------------------------------
 
-  // Compile and store
-  if (!customElements.get(selector)) {
-    // Create initial component
-    const configuration = {
-      actions: {},
-      reactivity: {},
-      operations: {},
-      props: {}
-    };
-    const _component = new component();
-
-    // Get it's tracked properties
-    let parseObject = function(data){
-      try{
-        return JSON.parse(data);
-      }catch(ex){
-        return data
-      }
-    }
-    let parseBoolean = function(data){
-      return ["true",true].indexOf(data)>-1 ? true : false;
-    }
-    let parseNumber = function(data){
-      let d = Number(data);
-      return !isNaN(d) ? d : data
-    }
-    const props = Object.getOwnPropertyNames(_component).forEach(prop => {
-      let key= prop;
-      let type= typeof _component[key];
-      let defaultValue=_component[key];
-      console.log(key)
-      configuration.props[key] = {
-        key,
-        type,
-        defaultValue,
-        reactivity: [],
-        setup(instance){
-          instance[key] = instance.getAttribute(key) || instance[key] || defaultValue;
-          if(type == "string"){
-            instance[key] = instance[key] || "" 
-          }else if(type == "object"){
-            instance[key] = parseObject(instance[key])
-          }else if(type == "number"){
-            instance[key] = parseNumber(instance[key])
-          }else if(type == "boolean"){
-            instance[key] = parseBoolean(instance[key])
-          }
-        }
-      }
-    });
-
-    // Get it's actions
-    const actions = Object.getOwnPropertyNames(
-      Object.getPrototypeOf(_component)
-    ).filter((el) => ["constructor"].indexOf(el) == -1);
-
-    // Compile it's template
-    // This should be way more well done
-    // @TODO
-
-    let parsedTemplate = template;
-      
-    let len = parsedTemplate.length +1;
-    while(len > parsedTemplate.length){
-        len = parsedTemplate.length;
-       parsedTemplate = parsedTemplate.replaceAll("\n", "")
-      .trim()
-      .replaceAll("  ", " ")
-      .replaceAll("{ ","{").replaceAll(" }","}")
-    }
-    // Remove whitespace
-    let whiteSpaceMatches = getStrBetween(parsedTemplate, ">", "<");
-    for (let match of whiteSpaceMatches) {
-      parsedTemplate = parsedTemplate.replaceAll(
-        ">" + match + "<",
-        ">" + match.trim() + "<"
-      );
-    }
-
-    let matchedAttributes = getStrBetween(parsedTemplate);
-    for (let attr of matchedAttributes) {
-      parsedTemplate = parsedTemplate.replaceAll(
-        "{{" + attr + "}}",
-        "${this." + attr.trim() + "}"
-      );
-    }
-
-    let matchedActions = findActions(selector, parsedTemplate);
-
-    parsedTemplate = matchedActions.parsedTemplate;
-    matchedActions = matchedActions.matches;
-    for (let match of matchedActions) {
-      let action = match.action.toLowerCase();
-      let callback = match.callback;
-      const randomUUid = match.uuid;
-      configuration.actions[randomUUid] = {
-        action: action,
-        callback: callback,
-        dataset: {
-          selector: "data-action",
-          uuid: match.uuid,
-          expression: match.datasetSelector,
-          query: `[${match.datasetSelector}]`,
-          callback,
-        },
-
-        callback: function (instance, e) {
-          const fn = Function("return `${" + callback + "}`;");
-          fn.call(instance, e);
-        },
-        setup(instance, node) {
-            console.log({node,self:this})
-          if (!node.hasOwnAttribute("action_" + match.uuid)) {
-            node["action_" + match.uuid] = true;
-            const cb = this.callback;
-            this.callback = function () {
-              cb(instance, ...arguments);
-            };
-            node.addEventListener(action.replace("on", ""), this.callback);
-            // delete node.dataset.action;
-          }
-        },
-      };
-    }
-
- 
-
-    // Map it's template reactivity to a JSON object with functions and selectors
-    //let instance = BaseComponent.prototype.createInstance()
-
-
-
-    let div = document.createElement("div");
-    document.head.appendChild(div);
-    div.innerHTML = parsedTemplate 
-
-    for (let el of [...div.querySelectorAll("*")]) {
-      for (let node of [...el.childNodes]) {
-        if (node.nodeType === 3) {
-          const query = node.textContent;
-          if (query.indexOf("${") > -1) {
-            let parent = node.parentElement;
-            let nodeIndex = 0;
-            parent.childNodes.forEach((n,i)=>{
-                if(n == node){
-                    nodeIndex = i
-                }
-            })
-       
-            if (!parent.dataset?.elText) {
-                parent.dataset.elText = "[]";
-            }
-            let pointer =
-              selector + "-text-" + Date.now() + parseInt(Math.random() * 1000);
-            let ds = JSON.parse(parent.dataset.elText);
-            ds.push(pointer);
-            parent.dataset.elText = JSON.stringify(ds);
-            
-            configuration.reactivity[pointer] = configuration.reactivity.pointer || [];
-            configuration.reactivity[pointer].push({
-              type: "text",
-              pointer,
-              query,
-              nodeIndex:nodeIndex ,
-              keys: [],
-              callback: function () {},
-              setup: function () {},
-              //props: el.getAttribute.split('this.').map(el => el.split(' ').map(ell => ell.trim().filter(elll => elll.length > 0).map(ell =>))).map(el => el.trim()).filter(el => el.)
-            });
-          }
-        }
-      }
-      for (let attr of el.getAttributeNames()) {
-        const query = el.getAttribute(attr);
-        if (query.indexOf("${") > -1) {
-          if (!el.dataset.elAttributes) {
-            el.dataset.elAttributes = "[]";
-          }
-          let pointer =
-            selector + "-attribute-" + Date.now() + parseInt(Math.random() * 1000);
-          let ds = JSON.parse(el.dataset.elAttributes);
-          ds.push(pointer);
-          el.dataset.elAttributes = JSON.stringify(ds);
-          configuration.reactivity[pointer] = configuration.reactivity.pointer || [];
-          configuration.reactivity[pointer].push({
-            pointer,
-            type: "attribute",
-            attribute:attr,
-            query,
-            callback: function () {},
-            setup: function () {},
-            //props: el.getAttribute.split('this.').map(el => el.split(' ').map(ell => ell.trim().filter(elll => elll.length > 0).map(ell =>))).map(el => el.trim()).filter(el => el.)
-          });
-        }
-      }
-    }
-
-
-
-    parsedTemplate = div.innerHTML;
-    div.remove();
-
-
-    function setup(instance) {
-        const shadow = instance.attachShadow({ mode: "closed" });
-        instance.shadow = shadow;
-        instance.shadow.innerHTML = parsedTemplate;
-      }
-      function connect(instance) {
-        for(let key of Object.keys(configuration.props)){
-          let prop = configuration.props[key];
-          prop.setup(instance) //instance.getAttribute(prop) || _component[prop] 
-        }
-        const attrElements = [...instance.shadow.querySelectorAll("[data-el-attributes]")]
-        attrElements.forEach(el =>{
-            let keys = JSON.parse(el.dataset.elAttributes) || [];
-            
-            for(let key of keys) {
-                for(let conf of configuration.reactivity[key]){
-                    let attr = conf.attribute
-                    let replace = Function ("return `" + conf.query + "`");
-                    replace = replace.call(instance);
-                    el.setAttribute(attr, replace);
-                }
-            }
-            delete el.dataset.elAttributes 
-        })
-       const textElements = [...instance.shadow.querySelectorAll("[data-el-text]")].map(el =>{
-            let keys = JSON.parse(el.dataset.elText) || [];
-            for(let key of keys) {
-                for(let conf of configuration.reactivity[key]){
-                    try{
-
-                        let node = [...el.childNodes][conf.nodeIndex]//.textContent
-                        
-                        let replace = Function ("return `" + conf.query + "`");
-                        replace = replace.call(instance);
-                        node.textContent = replace
-                    }catch(ex){
-                        console.warn(ex);
-                    }
-                }
-                
-            }
-            delete el.dataset.elText
-        })
+const configuration = {
+  template: `
+  <div data-el-attribute="0">
+      <header>
+          <h1 data-el-text="0">{{title}}</h1>
+          <p data-el-text="1">{{obj.description}}</p>
+          <p data-el-text="2">{{items[0].name}}</p>
+          <small data-el-text="3"><b>Counter:</b> {{counter}}</small>
+      </header>
+      <main>
+          <select model="color" class="input">
+              @for(let _color of colors){
+                  <option value="_color">_color</option>
+              }
+          </select>
+          <ul>
+              @for(let item of items;let $index = index){
+                  <li onclick={onClickItem($index)}>
+                  {{item.name}}
+              </li>
+              }
+          </ul>
   
-        try {
-          for (let key of Object.keys(configuration.actions)) {
-            let action = configuration.actions[key];
-      
-            let el = instance.shadow.querySelector('[data-el-action="'+key+'"]');
-      
-   
-            action.setup(instance, el);
-            //    delete el.dataset.action;
+      </main>
+      <footer>
+              <section>
+                  <h5>Update items</h5>
+                  <div class="">
+                      <button class="btn" data-el-action="0">x2</button>
+                      <button class="btn" data-el-action="1">+</button>
+                      <button class="btn" onclick={removeItem}>-</button>
+                  </div>
+              </section>
+              <section>
+              <h5>Update counter</h5>
+              <div class="">
+                  <button class="btn" onclick={increment}>+</button>
+                  <button class="btn" onclick={decrement}>-</button>
+              </div>
+          </section>
+      </footer>
+
+  </div>`,
+  props: {
+    title: {
+      defaultValue: "TheDemoComponent Title",
+      type: "text",
+    },
+    obj: {
+      defaultValue: {description: "TheDemoComponent Description"},
+      type: "object",
+    },
+    description: {
+      defaultValue: "TheDemoComponent Description",
+      type: "text",
+    },
+    counter: {
+      defaultValue: 0,
+      type: "number",
+    },
+    color: {
+      defaultValue: "green",
+      type: "text",
+    },
+    colors: {
+      defaultValue: ["green", "red", "yellow", "blue"],
+      type: "object",
+    },
+    items: {
+      defaultValue: [{ name: "Item 0" }],
+      type: "object",
+    },
+  },
+
+  connectors: {
+    "data-el-action": {
+      // onclick={addItem}
+      // onclick={(event)=>{duplicate(event)}}
+      0: {
+        id: Symbol("action connection"),
+        props: [],
+        eventName: "click",
+        value: "(event)=>{duplicate(event))}",
+        expression: "(event)=>{this.duplicate(event))}",
+
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
           }
-        } catch (ex) {
-          console.log(ex);
-        }
-      }
-    function clone(obj, base) {
-      const fn = Function(
-        `${base};` +
-          "return " +
-          "class " +
-          obj.constructor.name +
-          "Built extends TheBaseComponent {constructor(){super();this.__init()} __init(){}}"
-      );
-      return fn.call({ obj, base });
-    }
-    let element = clone(_component, TheBaseComponent);
-    // for(let prop of props){
-    element.prototype.observedAttributes = props;
+        },
+        connect: function (instance, element) {
+          const fn = Function("return `" + this.expression + "`");
+          const callback = function (event) {
+            fn.call(instance, event);
+          };
+          element.addEventListener(this.eventName, callback);
+        },
+        unsubscribe: [],
+      },
+      1: {
+        id: Symbol("action connection"),
+        props: [],
+        eventName: "click",
+        value: "addItem",
+        expression: "this.addItem()",
 
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const fn = Function("return `" + this.expression + "`");
+          const callback = function (event) {
+            fn.call(instance, event);
+          };
+          element.addEventListener(this.eventName, callback);
+        },
+        unsubscribe: [],
+      },
+    },
+    "data-el-text": {
+      0: {
+        id: Symbol("text connection"),
+        props: ["title"],
+        attribute: "textContent",
+        value: "{{title}}",
+        expression: "${this.title}",
+        childNode: 0,
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const node = [...element.childNodes][this.childNode];
+          const fn = Function("return `" + this.expression + "`");
+          const attribute = this.attribute;
+          const expression = this.expression;
+          const callback = function (value) {
+            try{
+              const output = fn.call(instance);
+              node[attribute] = output;
+            }catch(ex){
+              console.warn(ex)
+            }
+            // node.setAttribute(attribute, output);
+          };
+          
+          for (let prop of this.props) {
+            instance.__subscriptions__.push(instance.connect(prop, callback));
+            console.log({instance,prop,callback});
+          }
+          
 
+          callback();
+        },
+        unsubscribe: [],
+      },
+      1: {
+        id: Symbol("text connection"),
+        props: ["obj.description"],
+        attribute: "textContent",
+        value: "{{obj.description}}",
+        expression: "${this.obj.description}",
+        childNode: 0,
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const node = [...element.childNodes][this.childNode];
+          const fn = Function("return `" + this.expression + "`");
+          const attribute = this.attribute;
+          const expression = this.expression;
+          const callback = function (value) {
+            try{
+              const output = fn.call(instance);
+              node[attribute] = output;
+            }catch(ex){
+              console.warn(ex)
+            }
+            // node.setAttribute(attribute, output);
+          };
+          
+          for (let prop of this.props) {
+            instance.__subscriptions__.push(instance.connect(prop, callback));
+            console.log({instance,prop,callback});
+          }
+          
+
+          callback();
+        },
+        unsubscribe: [],
+      },
+      2: {
+        id: Symbol("text connection"),
+        props: ["items.0.name"],
+        attribute: "textContent",
+        value: "{{items[0].name}}",
+        expression: "${this.items[0].name}",
+        childNode: 0,
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const node = [...element.childNodes][this.childNode];
+          const fn = Function("return `" + this.expression + "`");
+          const attribute = this.attribute;
+          const expression = this.expression;
+          const callback = function (value) {
+            try{
+              const output = fn.call(instance);
+              node[attribute] = output;
+            }catch(ex){
+              console.warn(ex)
+            }
+            // node.setAttribute(attribute, output);
+          };
+          
+          for (let prop of this.props) {
+            instance.__subscriptions__.push(instance.connect(prop, callback));
+            console.log({instance,prop,callback});
+          }
+          
+
+          callback();
+        },
+        unsubscribe: [],
+      },
+      
+    },
+    "data-el-attribute": {
+      0: {
+        id: Symbol("attribute connection"),
+        props: ["color"],
+        attribute: "class",
+        value: "component bg-{{color}}-900",
+        expression: "component bg-${this.color}-900",
+        setup: function (instance, element) {
+          if (!instance.__connections__.hasOwnProperty(this.id)) {
+            instance.__connections__[this.id] = this.id;
+            this.connect(instance, element);
+          }
+        },
+        connect: function (instance, element) {
+          const attribute = this.attribute;
+          const expression = this.expression;
+          const fn = Function("return `" + this.expression + "`");
+          const callback = function (value) {
+            const output = fn.call(instance);
+            element.setAttribute(attribute, output);
+          };
+          for (let prop of this.props) {
+            // console.log({instance,prop,callback});
+            // debugger;
+            instance.__subscriptions__.push(instance.connect(prop, callback));
+          }
+          callback();
+        },
+        unsubscribe: [],
+      },
+    },
+  },
+
+  actions: {
+    // onClickItem: function() {
+    //   console.log("onClick Item");
+    //   console.log(this.items);
     // }
-    element.prototype.__init = function () {
+    // addItem() {
+    //   this.items.push({ name: "Item " + this.items.length });
+    // }
+    // removeItem() {
+    //   console.log(this.items);
+    //   this.items.pop();
+    // }
+    // increment() {
+    //   console.log(this.items);
+    //   this.counter++;
+    // }
+    // decrement() {
+    //   console.log(this.items);
+    //   this.counter--;
+    // }
+  },
+};
 
-
-      setup(this);
-      console.log('setup',this,element);
-      // element.
-    };
-    element.prototype.render = function () {
-      // this.__init();
-      try {
-        connect(this);
-      } catch (ex) {
-        console.log(ex, this);
-      }
-    };
-    element.prototype.connectedCallback = function () {
-      this.render();
-      connect(this);
-    };
-
-    console.log({ selector, element });
-    //Object.assign(Object.create(Object.getPrototypeOf(component)), component)
-
-    customElements.define(selector, element);
-    ComponentRegistry[selector] = {
-      element: element,
-      configuration: configuration,
-      template: parsedTemplate,
-      setup: setup,
-    };
+class TheDemoComponentCompiled extends TheDemoComponent {
+  static get observedAttributes() {
+    return Object.keys(configuration.props);
   }
-  // console.clear()
-  console.log(ComponentRegistry[selector])
-  debugger;
-  return ComponentRegistry[selector];
+  constructor() {
+    super();
+    this.__init__();
+  }
+
+  connect() {
+    console.log("Connecting", ...arguments);
+  }
+
+  connectedCallback() {
+    super.connectedCallback();
+    this.__setup__();
+  }
+
+  disconnectedCallback() {
+    super.disconnectedCallback();
+    console.log("disconnected");
+  }
+
+  __connections__ = {};
+  __subscriptions__ = [];
+  __init__() {
+    // Add shadow root
+    if (this.shadowRoot) {
+      this.__shadow__ = this.shadowRoot;
+    } else {
+      this.__shadow__ = this.attachShadow({ mode: "open" });
+    }
+    this.__shadow__.innerHTML = configuration.template;
+
+    // Create reactivity
+    const __scope__ = {};
+    for (let prop of Object.keys(configuration.props)) {
+      let propConfiguration = configuration.props[prop];
+      __scope__[prop] = propConfiguration.defaultValue;
+      // this[prop] = propConfiguration.defaultValue;
+      // this.__defineGetter__(prop, function () {
+      //   return this.__scope__[prop];
+      // });
+    }
+
+    const { scope, connect, render } = State(__scope__);
+    this.__scope__ = scope;
+    this.connect = connect;
+    // Parse this shit
+    for (let prop of Object.keys(configuration.props)) {
+      this.__defineGetter__(prop, function () {
+        return this.__scope__[prop];
+      });
+      this.__defineSetter__(prop, function (value) {
+        this.__scope__[prop] = value;
+        return true
+      });
+    }
+  }
+
+  __setup__() {
+    if (!this.__setupComplete__) {
+      if (!this.__setupOngoing__) {
+        this.__setupOngoing__ = true;
+
+        // Connect properties
+        for (let prop of Object.keys(configuration.props)) {
+          //this[prop] = this.getAttribute(prop) || this[prop];
+        }
+        // debugger;
+        // Connect reactivity
+        let elements = [];
+        elements = [...this.__shadow__.querySelectorAll("[data-el-attribute]")];
+        for (let element of elements) {
+          const identifiers = element.dataset.elAttribute
+            .split(",")
+            .map((el) => el.trim());
+          for (let identifier of identifiers) {
+         
+            configuration.connectors["data-el-attribute"][identifier].connect(
+              this,
+              element
+            );
+          }
+          delete element.dataset.elAttribute;
+        }
+        
+        elements = [...this.__shadow__.querySelectorAll("[data-el-text]")];
+        for (let element of elements) {
+          const identifiers = element.dataset.elText
+            .split(",")
+            .map((el) => el.trim());
+          for (let identifier of identifiers) {
+            try{
+
+              configuration.connectors["data-el-text"][identifier].connect(
+                this,
+                element
+                );
+              }catch(ex){
+                console.log
+              }
+          }
+          delete element.dataset.elText;
+        }
+        /*
+        // Connect actions
+        elements = [...this.__shadow__.querySelectorAll("[data-el-action]")];
+        for (let element of elements) {
+          const identifiers = element.dataset.elAction
+            .split(",")
+            .map((el) => el.trim());
+          for (let identifier of identifiers) {
+            configuration.connectors["data-el-action"][identifier].connect(
+              this,
+              element
+            );
+          }
+          delete element.dataset.elAction;
+        }
+        */
+        this.__setupOngoing__ = false;
+        this.__setupComplete__ = true;
+      }
+    }
+  }
 }
 
-export default Component(TheDemoComponent, { selector: "the-demo" });
+customElements.define("the-demo", TheDemoComponentCompiled);
