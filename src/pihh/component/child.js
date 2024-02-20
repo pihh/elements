@@ -11,10 +11,10 @@ const config = {
     letter-spacing: -1px;
     line-height: 2rem;
 }</style>
-            <h1 data-el-text="0">{{this.title}} inner</h1>
-            <small data-el-text="1"><b>Counter:</b> {{this.counter}}</small>
-            <input type="text" name="title" model="{{this.title}}" class="input"/>
-            <button class="btn" data-el-action="0">Propagate</button>
+            <h1 >{{title}} inner</h1>
+            <small ><b>Counter:</b> {{counter}}</small>
+            <input type="text" name="title" model="{{title}}" class="input"/>
+            <button class="btn" onclick={propagate}>Propagate</button>
             `,
   // props: {
   //   title: {
@@ -27,136 +27,136 @@ const config = {
   //   },
   // },
 
-  connectors: {
-    "data-el-operation": {},
+  // connectors: {
+  //   "data-el-operation": {},
 
-    "data-el-action": {
-      // onclick={addItem}
-      // onclick={(event)=>{duplicate(event)}}
-      0: {
-        id: Symbol("action connection"),
-        props: [],
-        eventName: "click",
-        value: "propagate",
-        expression: "this.propagate",
+  //   "data-el-action": {
+  //     // onclick={addItem}
+  //     // onclick={(event)=>{duplicate(event)}}
+  //     0: {
+  //       id: Symbol("action connection"),
+  //       props: [],
+  //       eventName: "click",
+  //       value: "propagate",
+  //       expression: "this.propagate",
 
-        setup: function (instance, element) {
-          if (!instance.__connections__.hasOwnProperty(this.id)) {
-            instance.__connections__[this.id] = this.id;
-            this.connect(instance, element);
-          }
-        },
-        connect: function (instance, element) {
-          const fn = Function("return `" + this.expression + "`");
-          const action = instance[this.value];
-          const callback = function (event) {
-            action.call(instance, event);
-          };
-          element.addEventListener(this.eventName, callback);
-        },
-        unsubscribe: [],
-      },
-    },
-    "data-el-text": {
-      0: {
-        id: Symbol("text connection"),
-        props: ["title"],
-        attribute: "textContent",
-        value: "{{title}} inner",
-        expression: "${this.title} inner",
-        childNode: 0,
-        setup: function (instance, element) {
-          if (!instance.__connections__.hasOwnProperty(this.id)) {
-            instance.__connections__[this.id] = this.id;
-            this.connect(instance, element);
-          }
-        },
-        connect: function (instance, element) {
-          const node = [...element.childNodes][this.childNode];
-          const fn = Function("return `" + this.expression + "`");
-          const attribute = this.attribute;
-          const expression = this.expression;
-          const callback = function (value) {
-            try {
-              const output = fn.call(instance);
-              node[attribute] = output;
-            } catch (ex) {
-              console.warn(ex);
-            }
-            // node.setAttribute(attribute, output);
-          };
+  //       setup: function (instance, element) {
+  //         if (!instance.__connections__.hasOwnProperty(this.id)) {
+  //           instance.__connections__[this.id] = this.id;
+  //           this.connect(instance, element);
+  //         }
+  //       },
+  //       connect: function (instance, element) {
+  //         const fn = Function("return `" + this.expression + "`");
+  //         const action = instance[this.value];
+  //         const callback = function (event) {
+  //           action.call(instance, event);
+  //         };
+  //         element.addEventListener(this.eventName, callback);
+  //       },
+  //       unsubscribe: [],
+  //     },
+  //   },
+  //   "data-el-text": {
+  //     0: {
+  //       id: Symbol("text connection"),
+  //       props: ["title"],
+  //       attribute: "textContent",
+  //       value: "{{title}} inner",
+  //       expression: "${this.title} inner",
+  //       childNode: 0,
+  //       setup: function (instance, element) {
+  //         if (!instance.__connections__.hasOwnProperty(this.id)) {
+  //           instance.__connections__[this.id] = this.id;
+  //           this.connect(instance, element);
+  //         }
+  //       },
+  //       connect: function (instance, element) {
+  //         const node = [...element.childNodes][this.childNode];
+  //         const fn = Function("return `" + this.expression + "`");
+  //         const attribute = this.attribute;
+  //         const expression = this.expression;
+  //         const callback = function (value) {
+  //           try {
+  //             const output = fn.call(instance);
+  //             node[attribute] = output;
+  //           } catch (ex) {
+  //             console.warn(ex);
+  //           }
+  //           // node.setAttribute(attribute, output);
+  //         };
 
-          for (let prop of this.props) {
-            instance.__subscriptions__.push(instance.connect(prop, callback));
-            // console.log({ instance, prop, callback });
-          }
+  //         for (let prop of this.props) {
+  //           instance.__subscriptions__.push(instance.connect(prop, callback));
+  //           // console.log({ instance, prop, callback });
+  //         }
 
-          callback();
-        },
-        unsubscribe: [],
-      },
-      1: {
-        id: Symbol("text connection"),
-        props: ["counter"],
-        attribute: "textContent",
-        value: "{{counter}} inner",
-        expression: "${this.counter} inner",
-        childNode: 1,
-        setup: function (instance, element) {
-          if (!instance.__connections__.hasOwnProperty(this.id)) {
-            instance.__connections__[this.id] = this.id;
-            this.connect(instance, element);
-          }
-        },
-        connect: function (instance, element) {
-          const node = [...element.childNodes][this.childNode];
-          const fn = Function("return `" + this.expression + "`");
-          const attribute = this.attribute;
-          const expression = this.expression;
+  //         callback();
+  //       },
+  //       unsubscribe: [],
+  //     },
+  //     1: {
+  //       id: Symbol("text connection"),
+  //       props: ["counter"],
+  //       attribute: "textContent",
+  //       value: "{{counter}} inner",
+  //       expression: "${this.counter} inner",
+  //       childNode: 1,
+  //       setup: function (instance, element) {
+  //         if (!instance.__connections__.hasOwnProperty(this.id)) {
+  //           instance.__connections__[this.id] = this.id;
+  //           this.connect(instance, element);
+  //         }
+  //       },
+  //       connect: function (instance, element) {
+  //         const node = [...element.childNodes][this.childNode];
+  //         const fn = Function("return `" + this.expression + "`");
+  //         const attribute = this.attribute;
+  //         const expression = this.expression;
 
-          const callback = function (value) {
-            try {
-              const output = fn.call(instance);
-              node[attribute] = output;
-            } catch (ex) {
-              console.warn(ex);
-            }
-            // node.setAttribute(attribute, output);
-          };
+  //         const callback = function (value) {
+  //           try {
+  //             const output = fn.call(instance);
+  //             node[attribute] = output;
+  //           } catch (ex) {
+  //             console.warn(ex);
+  //           }
+  //           // node.setAttribute(attribute, output);
+  //         };
 
-          for (let prop of this.props) {
-            instance.__subscriptions__.push(instance.connect(prop, callback));
-          }
+  //         for (let prop of this.props) {
+  //           instance.__subscriptions__.push(instance.connect(prop, callback));
+  //         }
 
-          callback();
-        },
-        unsubscribe: [],
-      },
-    },
-    "data-el-attribute": {},
-  },
+  //         callback();
+  //       },
+  //       unsubscribe: [],
+  //     },
+  //   },
+  //   "data-el-attribute": {},
+  // },
 
-  actions: {
-    // onClickItem: function() {
-    //   console.log("onClick Item");
-    //   console.log(this.items);
-    // }
-    // addItem() {
-    //   this.items.push({ name: "Item " + this.items.length });
-    // }
-    // removeItem() {
-    //   console.log(this.items);
-    //   this.items.pop();
-    // }
-    // increment() {
-    //   console.log(this.items);
-    //   this.counter++;
-    // }
-    // decrement() {
-    //   console.log(this.items);
-    //   this.counter--;
-    // }
-  },
+  // actions: {
+  //   // onClickItem: function() {
+  //   //   console.log("onClick Item");
+  //   //   console.log(this.items);
+  //   // }
+  //   // addItem() {
+  //   //   this.items.push({ name: "Item " + this.items.length });
+  //   // }
+  //   // removeItem() {
+  //   //   console.log(this.items);
+  //   //   this.items.pop();
+  //   // }
+  //   // increment() {
+  //   //   console.log(this.items);
+  //   //   this.counter++;
+  //   // }
+  //   // decrement() {
+  //   //   console.log(this.items);
+  //   //   this.counter--;
+  //   // }
+  // },
 };
 
 class TheChildComponent extends TheComponent {

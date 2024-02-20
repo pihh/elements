@@ -58,7 +58,7 @@ const Boilerplate = {
     };
     // console.log(this.eventName, this.type,callback, element);
     if (this.type === "native") {
-      
+
       element.addEventListener(eventName, callback);
     } else {
       //     // console.log(this,element)
@@ -70,7 +70,7 @@ const Boilerplate = {
             clearTimeout(timeout);
             timeout = timeoutFn();
           } else {
-        
+            
             element.__addEmitListener__(this.eventName, instance, callback);
           }
         }, 10);
@@ -97,7 +97,7 @@ export let connectionBoilerplateAction = function (
   setup.expression = expression;
   setup.eventName = eventName;
   setup.args = args;
-  if (eventName === "propagate") {
+  if (eventName === "@propagate") {
     setup.type = "broadcast";
   }
   boilerplate[id] = setup;
