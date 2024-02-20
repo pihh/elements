@@ -3,21 +3,6 @@ import { Component } from "../compiler";
 
 const config = {
   selector: "the-child",
-  //   template: `
-  //     <style>
-  //     h1 {
-  //       font-weight: 800;
-  //       font-size: 1.75rem;
-  //       letter-spacing: -1px;
-  //       line-height: 2rem;
-  //   }</style>
-  //               <h1 data-el-text="0">{{this.title}} inner</h1>
-  //               <small data-el-text="1"><b>Counter:</b> {{this.counter}}</small>
-  //               <input type="text" name="title" model="{{this.title}}" class="input"/>
-  //               <button class="btn" data-el-action="0">Propagate</button>
-  //               `,
-  // };
-  // const configuration = {
   template: `
   <style>
   h1 {

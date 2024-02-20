@@ -49,7 +49,14 @@ export const connectAttribute = function (template, properties) {
         "component bg-${this.color}-900",
         "class"
       ),
-      ...connectionBoilerplate(1, ["text"], "{{text}}", "${this.text}", "text"),
+
+      ...connectionBoilerplate(
+        1,
+        ["title"],
+        "{{title}}",
+        "${this.title}",
+        "title"
+      ),
     },
   };
 };

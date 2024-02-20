@@ -6,6 +6,7 @@ import { connectOperations } from "./connect/operation";
 import { connectText } from "./connect/text";
 import TemplateCompiler from "./template";
 import { aggregation } from "./utils/aggregation";
+import { extractClassInfo } from "./utils/extract-info";
 
 let __idx = 0;
 export const Component = function (
@@ -14,28 +15,8 @@ export const Component = function (
 ) {
   // Steps for component compilation:
 
-  // Get it's properties //
-  const methods = Object.getOwnPropertyNames(OriginalComponent.prototype);
-
-  // Get template and map it's properties
-  let props = {};
-  let tmp = new OriginalComponent();
-  Object.keys(new OriginalComponent()).filter(key => 
-    key.indexOf('__') == -1 && ['template','selector'].indexOf(key) == -1
-  ).forEach((key) => {
-    
-      props[key] = { type: typeof tmp[key], defaultValue: tmp[key] };
-    
-  });
-  delete props.template;
-  delete props.selector;
-  delete props.prototype;
-
-  let configuration = OriginalConfiguration
-  configuration.props = props 
-
-
-
+  // Get it's properties // 
+  let {methods,props,configuration} = extractClassInfo(OriginalComponent,OriginalConfiguration)
                
   const compile = function () {
 
@@ -107,7 +88,7 @@ export const Component = function (
 
             // Connect properties
             for (let prop of Object.keys(configuration.props)) {
-              //this[prop] = this.getAttribute(prop) || this[prop];
+              this[prop] = this.getAttribute(prop) || this[prop];
             }
             // debugger;
             // Connect reactivity
