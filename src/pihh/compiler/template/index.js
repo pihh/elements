@@ -1,12 +1,13 @@
 
 
-import './extract-properties'
+
 import { parseTemplateActions } from './actions';
 import { parseTemplateOperations } from './operations';
 import { parseTemplateAttributes } from './attributes';
 
 // Deveria entrar porquete e sair chouriço 
 export default function TemplateCompiler(input,props=[],methods){
+
     // First the actions -> it's easier to distinguish them;
     let connectors = {}
     let output = input.replaceAll('\n','').trim();

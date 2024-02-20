@@ -61,7 +61,7 @@ export class PubSub {
         //   console.log("data didnt change:", event);
         // }
       } else {
-        console.log("no events subscribed yet:", event);
+        // console.log("no events subscribed yet:", event);
       }
     }
     /**

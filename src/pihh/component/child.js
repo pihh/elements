@@ -15,6 +15,7 @@ const config = {
             <small ><b>Counter:</b> {{counter}}</small>
             <input type="text" name="title" model="{{title}}" class="input"/>
             <button class="btn" onclick={propagate}>Propagate</button>
+            <button class="btn" onclick={update}>Update</button>
             `,
   // props: {
   //   title: {
@@ -168,6 +169,12 @@ class TheChildComponent extends TheComponent {
   counter = 1;
   propagate() {
     this.emit("propagate", {
+      name: "John",
+      counter: this.counter,
+    });
+  }
+  update() {
+    this.emit("update", {
       name: "John",
       counter: this.counter,
     });

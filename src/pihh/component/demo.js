@@ -6,10 +6,18 @@ const config = {
     selector: "the-demo",
     template: `<div class="component bg-{{color}}-900">
     <header>
-        <h1>{{title}}</h1>
-        <p>{{obj.description}}</p>
-        <p>{{items[0].name}}</p>
-        <p>{{counter}}</p>
+       
+        @if(show == false){ 
+          <h3> It is suposedly hidden </h3>
+        }
+        @if(show){
+          <h1> It shows </h1>
+          <h1>{{title}}</h1>
+          <p>{{obj.description}}</p>
+          <p>{{items[0].name}}</p>
+          <p>{{counter}}</p>
+        }
+        <button onclick={toggleShow}>Toggle</button>
     </header>
     <main>
         <select model="color" class="input">
@@ -24,7 +32,11 @@ const config = {
             </li>
             }
         </ul>
-        <the-child  @propagate={onInnerTextListen()}></the-child>
+        <the-child 
+          title="{{title}}" 
+          @propagate={onInnerTextListen()}
+          @update={onChildUpdate()}>
+        </the-child>
     </main>
     <footer>
             <section>
@@ -59,31 +71,43 @@ class TheDemoComponent extends TheComponent {
     colors = ["green", "red", "yellow", "blue"];
     items = [{ name: "Item 0" }];
   
+    show = true;
     // Methods
     onClickItem() {
-      console.log("onClick Item");
+      console.log('onClickItem',...arguments);
       console.log(this.items);
     }
     addItem() {
+      console.log('addItem',...arguments);
       this.items.push({ name: "Item " + this.items.length });
     }
     removeItem() {
-      console.log(this.items);
+      console.log('removeItem',...arguments);
       this.items.pop();
     }
     increment(event,counter,str,num,bool) {
+      console.log('increment',...arguments);
     
       this.counter++;
     }
     decrement() {
-      // console.log(this.items);
+      console.log('decrement',...arguments);
       this.counter--;
     }
   
     onInnerTextListen($event){
-      // console.log('onInnerTextListen',$event);
+      console.log('onInnerTextListen',...arguments);
       $event.detail.reference.counter = this.counter;
       this.counter = $event.detail.data.counter;
+    }
+    onChildUpdate($event){
+      console.log('onChildUpdate',...arguments);
+      $event.detail.reference.counter = this.counter;
+      this.counter += $event.detail.data.counter;
+    }
+
+    toggleShow(){
+      this.show = !this.show;
     }
   }
   

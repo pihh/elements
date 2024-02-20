@@ -6,3 +6,4 @@
 export function isChar(char) {
     return char.toUpperCase() != char.toLowerCase();
 }
+ 

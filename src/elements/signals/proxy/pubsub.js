@@ -52,7 +52,7 @@ export class PubSub {
      * @param {String|Number|Boolean} data 
      */
     publish(event, data) {
-      console.log(event)
+      // console.log(event)
       if (this.events[event]) {
         if (this.prevValues[event] != data) {
           this.prevValues[event] = data;
@@ -61,7 +61,7 @@ export class PubSub {
           console.log("data didnt change:", event);
         }
       } else {
-        console.log("no events subscribed yet:", event);
+        // console.log("no events subscribed yet:", event);
       }
     }
     /**

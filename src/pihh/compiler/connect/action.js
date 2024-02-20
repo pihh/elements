@@ -31,38 +31,22 @@ const Boilerplate = {
     if (!instance.__connections__.hasOwnProperty(this.id)) {
       instance.__connections__[this.id] = this.id;
       let eventName = this.eventName;
-
-      let isNative =
-        element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
-          -1 || false;
-  
-      if (isNative) {
-        this.type = "native";
-        eventName = eventName.slice(2);
-      } else {
-        this.type = "broadcast";
-      }
-
       this.connect(instance, element, eventName);
     }
   },
   connect: function (instance, element, eventName) {
     const action = instance[this.expression];
     const args = this.args || [];
-
     let self = this;
     const callback = function (event) {
-      console.log(self,action,instance)
+      // console.log({self,action,instance})
       //   console.log(extractArguments(instance, event, args));
       action.call(instance, ...extractArguments(instance, event, args));
     };
     // console.log(this.eventName, this.type,callback, element);
     if (this.type === "native") {
-
       element.addEventListener(eventName, callback);
     } else {
-      //     // console.log(this,element)
-
       let timeout;
       let timeoutFn = () =>
         setTimeout(() => {
@@ -95,11 +79,16 @@ export let connectionBoilerplateAction = function (
   setup.props = props;
   setup.value = value;
   setup.expression = expression;
-  setup.eventName = eventName;
+
   setup.args = args;
-  if (eventName === "@propagate") {
+
+  if(eventName.indexOf('(') >-1 || eventName.indexOf('@') > -1) {
     setup.type = "broadcast";
+    eventName = eventName.replaceAll('(','').replaceAll(')','').replaceAll('@','');
+  }else if(eventName.indexOf('on') ==0) {
+    eventName = eventName.slice(2);
   }
+  setup.eventName = eventName;
   boilerplate[id] = setup;
   return boilerplate;
 };
@@ -107,6 +96,7 @@ export let connectionBoilerplateAction = function (
 // Picks up the template, replaces the text entries with data-el-text attributes ;
 // Creates the connector object for the template;
 
+/*
 export const connectAction = function (template, properties) {
   return {
     "data-el-action": {

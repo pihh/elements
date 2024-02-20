@@ -130,6 +130,6 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
 
   template = $placeholder.innerHTML;
 
-  console.log({ template, connections });
+  // console.log({ template, connections });
   return { template, connections };
 }

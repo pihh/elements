@@ -1,36 +1,40 @@
-import { State } from "../../elements/reactivity/state";
-import { TheBaseComponent } from "../component";
-import { connectAction } from "./connect/action";
-import { connectAttribute } from "./connect/attribute";
-import { connectOperations } from "./connect/operation";
-import { connectText } from "./connect/text";
 import TemplateCompiler from "./template";
+import { TheBaseComponent } from "../component";
+
+import { State } from "../../elements/reactivity/state";
+
 import { aggregation } from "./utils/aggregation";
 import { extractClassInfo } from "./utils/extract-info";
 
-let __idx = 0;
 export const Component = function (
   OriginalComponent,
   OriginalConfiguration = {}
 ) {
   // Steps for component compilation:
 
-  // Get it's properties // 
-  let {methods,props,configuration} = extractClassInfo(OriginalComponent,OriginalConfiguration)
-  let {input,output,connectors} = TemplateCompiler(configuration.template,Object.keys(props));
+  // Get it's properties //
+  let { methods, props, configuration } = extractClassInfo(
+    OriginalComponent,
+    OriginalConfiguration
+  );
+  let { input, output, connectors } = TemplateCompiler(
+    configuration.template,
+    Object.keys(props)
+  );
   configuration.template = output;
-  configuration.connectors = connectors
-               
-  const compile = function () {
+  configuration.connectors = connectors;
 
-    class CompiledComponent extends aggregation(TheBaseComponent,OriginalComponent) {
+  const compile = function () {
+    class CompiledComponent extends aggregation(
+      TheBaseComponent,
+      OriginalComponent
+    ) {
       static get observedAttributes() {
         return Object.keys(configuration.props);
       }
       constructor() {
         super();
-        this.__idx = __idx++
-      
+
         this.__init__();
       }
 
@@ -51,7 +55,6 @@ export const Component = function (
       __connections__ = {};
       __subscriptions__ = [];
       __init__() {
-    
         // Add shadow root
         if (this.shadowRoot) {
           this.__shadow__ = this.shadowRoot;
@@ -83,10 +86,8 @@ export const Component = function (
       }
 
       __setup__() {
-   
         if (!this.__setupComplete__) {
           if (!this.__setupOngoing__) {
-        
             this.__setupOngoing__ = true;
 
             // Connect properties
@@ -119,13 +120,13 @@ export const Component = function (
                 .map((el) => el.trim());
               for (let identifier of identifiers) {
                 try {
-                  console.log('identifier: ' + identifier)
+                  // console.log('identifier: ' + identifier)
                   configuration.connectors["data-el-text"][identifier].connect(
                     this,
                     element
                   );
                 } catch (ex) {
-                  console.log(ex)
+                  console.log(ex);
                 }
               }
               delete element.dataset.elText;
@@ -140,7 +141,6 @@ export const Component = function (
                 .split(",")
                 .map((el) => el.trim());
               for (let identifier of identifiers) {
-           
                 configuration.connectors["data-el-action"][identifier].setup(
                   this,
                   element
@@ -154,9 +154,11 @@ export const Component = function (
           }
         }
       }
-    };
+    }
 
-    Object.defineProperty(CompiledComponent,"name",{value: OriginalComponent.prototype.constructor.name+'Compiled'})
+    Object.defineProperty(CompiledComponent, "name", {
+      value: OriginalComponent.prototype.constructor.name + "Compiled",
+    });
     return CompiledComponent;
   };
 

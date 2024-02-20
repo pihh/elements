@@ -69,16 +69,33 @@ export class TheComponent  {
   // }
 }
 export class TheBaseComponent extends HTMLElement {
-    static observedAttributes = ['xxx']
+    static observedAttributes = []
     constructor() {
       super();
       // element created
     }
 
+
+    /**
+     * Publically available method
+     * @param {eventName} eventName 
+     * @param {*} data 
+     */     
+    emit(eventName,data){
+      eventName = eventName.toLowerCase();
+      // console.log('EMIT',eventName);
+      this.__emitListeners__[eventName].forEach(listener => {
+        listener.dispatchEvent(new CustomEvent(eventName, {detail:{reference: this,data}}));
+      })
+      
+    }
+
+    // Track parent components for event emission
     __emitListeners__={}
     __addEmitListener__(eventName,listener,callback){
-      console.log(this.__emitListeners__,eventName,this)
+
       eventName = eventName.toLowerCase();
+      // console.log('ADD ',eventName)
       if(!this.__emitListeners__.hasOwnProperty(eventName)){
         this.__emitListeners__[eventName] = []
       }
@@ -87,16 +104,7 @@ export class TheBaseComponent extends HTMLElement {
         listener.addEventListener(eventName, callback);
       }
     }
-    emit(eventName,data){
-      console.log(this.__emitListeners__,eventName,this)
-      eventName = eventName.toLowerCase();
-      // console.log(this,eventName)
-      
-      this.__emitListeners__[eventName].forEach(listener => {
-        listener.dispatchEvent(new CustomEvent(eventName, {detail:{reference: this,data}}));
-      })
-      
-    }
+
     connectedCallback() {
       // browser calls this method when the element is added to the document
       // (can be called many times if an element is repeatedly added/removed)

@@ -1,3 +1,4 @@
+import { isChar } from "../../../elements/helpers/validation/is-char";
 import { connectionBoilerplateAction } from "../connect/action";
 
 const actions = {
@@ -43,6 +44,8 @@ let extractActionArguments = function (expression) {
  * @param {*} methods 
  * @returns 
  */
+
+
 export function parseTemplateActions(template, props = [], methods = []) {
 
   let actionIndex = 0;
@@ -57,9 +60,20 @@ export function parseTemplateActions(template, props = [], methods = []) {
     let right = template.split(actions.search.start).slice(1);
     let action = left[left.length - 1].trim();
     let selector = 'data-el-action="' + actionIndex + '"';
+    for(let i = left.length-1; i > 0 ;i--){
+      let l = left[i];
+      if(l.indexOf("<") == 0 && isChar(l.charAt(1))){
+        break;
+      }else if(l.indexOf("data-el-action=") >-1){
+        selector = 'data-el-action="'+l.split('"')[1]+','+actionIndex+'"';
+        left[i] = selector;
+        break;
+      }
+    }
     right = right.join(actions.search.start);
     left.pop();
     left = left.join(" ") + " " + selector + " ";
+
     let match = {
       id: actionIndex,
       selector: selector,
@@ -99,5 +113,7 @@ export function parseTemplateActions(template, props = [], methods = []) {
       }
     }
   }
+
+  
   return {template, connections:actionConnections};
 }

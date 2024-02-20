@@ -64,7 +64,13 @@ export function parseTemplateOperations(template, props = [], methods = []) {
       if: {},
     },
   };
+  let loop =0
   while (operationForIndex > -1 || operationIfIndex > -1) {
+    loop++;
+    if(loop > 100){
+      console.log({operationForIndex, operationIfIndex})
+      return
+    }
     if (operationIfIndex == -1) {
       let result = extractOperationFor(template, connections, operationIndex);
       template = result.template;
@@ -74,7 +80,13 @@ export function parseTemplateOperations(template, props = [], methods = []) {
       operationIfIndex = indices.operationIfIndex;
       operationForIndex = indices.operationForIndex;
     } else if (operationForIndex == -1) {
-      // extrai operation if
+      let result = extractOperationIf(template, connections, operationIndex);
+      template = result.template;
+      connections = result.connections;
+      operationIndex = result.operationIndex;
+      let indices = reset(template);
+      operationIfIndex = indices.operationIfIndex;
+      operationForIndex = indices.operationForIndex;
     } else if (operationForIndex < operationIfIndex) {
       // extrai for
       let result = extractOperationFor(template, connections, operationIndex);
@@ -86,22 +98,25 @@ export function parseTemplateOperations(template, props = [], methods = []) {
       operationForIndex = indices.operationForIndex;
     } else {
       //extrai if
+      let result = extractOperationIf(template, connections, operationIndex);
+      template = result.template;
+      connections = result.connections;
+      operationIndex = result.operationIndex;
+      let indices = reset(template);
+      operationIfIndex = indices.operationIfIndex;
+      operationForIndex = indices.operationForIndex;
     }
   }
   return {template, connections};
 }
 
-const extractOperationFor = function (template, connections, operationIndex) {
-  // extrai operation for
-  let left = template.split("@for")[0];
-  let right = template.split("@for").slice(1).join("@for");
+const extractQueryParameters = function(right){
   let value;
   let expression;
-  let childTemplate;
-
-  // Busca o query
+  
   let entry = right.indexOf("(") + 1;
   let stack = 1;
+  
   for (let i = entry; i < right.length; i++) {
     let char = right.charAt(i);
     if (char == "(") {
@@ -112,13 +127,83 @@ const extractOperationFor = function (template, connections, operationIndex) {
     if (stack == 0) {
       value = right.slice(entry, i);
       expression = value;
-      right = right.slice(i );
+      right = right.slice(i +1);
 
       break;
     }
   }
+  return {value,expression,right}
+}
+
+const extractOperationIf = function (template, connections, operationIndex) {
+  let left = template.split("@if")[0];
+  let right = template.split("@if").slice(1).join("@if");
+  let value;
+  let expression;
+  let childTemplate;
+  let query = extractQueryParameters(right)
+
+  value = query.value;
+  expression = query.expression;
+  right = query.right;
+
   let subTemplateStart = right.indexOf("{")+1;
-  stack = 1;
+  let stack = 1;
+  for (let i = subTemplateStart; i < right.length; i++) {
+    let char = right.charAt(i);
+    if (char == "{") {
+      stack++;
+    } else if (char == "}") {
+      stack--;
+    }
+    if (stack == 0) {
+      
+      childTemplate = right.slice(subTemplateStart, i - 1).trim();
+      right = right.slice(i + 1);
+      let id = operationIndex;
+      template =
+        left.trim() +
+        '<the-if data-el-operation="'+id+'" condition="{{' +
+        expression +'}}">'+childTemplate+"</the-if>"+
+        
+        right.trim();
+
+    
+      connections["data-el-operation"].if = {
+        ...connections["data-el-operation"].if,
+        ...connectionBoilerplateOperation(
+          id,
+          [],
+          value,
+          expression,
+          "if",
+          childTemplate,
+          
+        ),
+      };
+    //   console.log({left,right})
+      operationIndex++
+      break;
+    }
+  }
+
+  return { template, connections, operationIndex };
+}
+
+const extractOperationFor = function (template, connections, operationIndex) {
+  // extrai operation for
+  let left = template.split("@for")[0];
+  let right = template.split("@for").slice(1).join("@for");
+  let value;
+  let expression;
+  let childTemplate;
+  let query = extractQueryParameters(right)
+  value = query.value;
+  expression = query.expression;
+  right = query.right;
+
+  let subTemplateStart = right.indexOf("{")+1;
+  let stack = 1;
   for (let i = subTemplateStart; i < right.length; i++) {
     let char = right.charAt(i);
     if (char == "{") {
