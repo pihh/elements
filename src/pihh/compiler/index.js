@@ -5,6 +5,8 @@ import { connectAttribute } from "./connect/attribute";
 import { connectOperations } from "./connect/operation";
 import { connectText } from "./connect/text";
 import TemplateCompiler from "./template";
+import { aggregation } from "./utils/aggregation";
+
 let __idx = 0;
 export const Component = function (
   OriginalComponent,
@@ -29,101 +31,15 @@ export const Component = function (
   delete props.selector;
   delete props.prototype;
 
-  let configuration = {
-    template: TemplateCompiler(OriginalConfiguration.template),
-    selector: OriginalConfiguration.selector,
-    props: props,
-    /*
-    
-      title: {
-        defaultValue: "TheDemoComponent Title",
-        type: "text",
-      },
-      obj: {
-        defaultValue: { description: "TheDemoComponent Description" },
-        type: "object",
-      },
-      description: {
-        defaultValue: "TheDemoComponent Description",
-        type: "text",
-      },
-      counter: {
-        defaultValue: 0,
-        type: "number",
-      },
-      color: {
-        defaultValue: "green",
-        type: "text",
-      },
-      colors: {
-        defaultValue: ["green", "red", "yellow", "blue"],
-        type: "object",
-      },
-      items: {
-        defaultValue: [{ name: "Item 0" }],
-        type: "object",
-      },
-    },
-    */
-
-    connectors: {
-      ...connectText(),
-      ...connectOperations(),
-
-      ...connectAction(),
-      ...connectAttribute(),
-    },
-
-    actions: {
-      // onClickItem: function() {
-      //   console.log("onClick Item");
-      //   console.log(this.items);
-      // }
-      // addItem() {
-      //   this.items.push({ name: "Item " + this.items.length });
-      // }
-      // removeItem() {
-      //   console.log(this.items);
-      //   this.items.pop();
-      // }
-      // increment() {
-      //   console.log(this.items);
-      //   this.counter++;
-      // }
-      // decrement() {
-      //   console.log(this.items);
-      //   this.counter--;
-      // }
-    },
-  };
+  let configuration = OriginalConfiguration
+  configuration.props = props 
 
 
 
-
-  var aggregation = (BaseClass,...mixins)=>{
-    class base extends BaseClass {
-        constructor(...args){
-            super(...args);
-            mixins.forEach(mixin => {
-                copyProps(this,(new mixin))
-            })
-        }
-    }
-    let copyProps = (target,source) => {
-        Object.getOwnPropertyNames(source)
-        .concat(Object.getOwnPropertySymbols(source))
-        .forEach(prop =>{
-            if(!prop.match(/^(?:constructor|prototype|arguments|caller|name|bind|call|apply|toString|length)$/)) Object.defineProperty(target,prop,Object.getOwnPropertyDescriptor(source,prop))
-        })
-    }
-
-    mixins.forEach(mixin => {copyProps(base.prototype,mixin.prototype); copyProps(base,mixin)})
-    return base 
-}
                
   const compile = function () {
 
-    return class extends aggregation(TheBaseComponent,OriginalComponent) {
+    class CompiledComponent extends aggregation(TheBaseComponent,OriginalComponent) {
       static get observedAttributes() {
         return Object.keys(configuration.props);
       }
@@ -254,6 +170,9 @@ export const Component = function (
         }
       }
     };
+
+    Object.defineProperty(CompiledComponent,"name",{value: OriginalComponent.prototype.constructor.name+'Compiled'})
+    return CompiledComponent;
   };
 
   if (!customElements[OriginalConfiguration.selector]) {

@@ -32,16 +32,18 @@ const Boilerplate = {
       instance.__connections__[this.id] = this.id;
       let eventName = this.eventName;
 
-      let isNative = true;
+      let isNative =
+        element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
+          -1 || false;
       // Ver esta bosta pq n funca
-    //     element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
-    //       -1 || false;
-    //   if (!isNative) {
-    //     console.log({
-    //       element,
-    //       eventName,
-    //     });
-    //   }
+      //     element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
+      //       -1 || false;
+      //   if (!isNative) {
+      //     console.log({
+      //       element,
+      //       eventName,
+      //     });
+      //   }
 
       if (isNative) {
         this.type = "native";
@@ -50,28 +52,43 @@ const Boilerplate = {
         this.type = "broadcast";
       }
 
-      this.connect(instance, element,eventName);
+      this.connect(instance, element, eventName);
     }
   },
-  connect: function (instance, element,eventName) {
+  connect: function (instance, element, eventName) {
     const action = instance[this.value];
     const args = this.args || [];
-  
+
+
     const callback = function (event) {
-    //   console.log(extractArguments(instance, event, args));
+      //   console.log(extractArguments(instance, event, args));
       action.call(instance, ...extractArguments(instance, event, args));
     };
     // console.log(this.eventName, this.type,callback, element);
-    // if (this.type === "native") {
+    if (this.type === "native") {
       element.addEventListener(eventName, callback);
-    // } else {
-    //     // console.log(this,element)
-    //   element.__addEmitListener__(this.eventName, instance, callback);
-    // }
+    } else {
+      //     // console.log(this,element)
+
+      let timeout;
+      let timeoutFn = () =>
+        setTimeout(() => {
+          if (!element.isConnected) {
+            clearTimeout(timeout);
+            timeout = timeoutFn();
+          } else {
+        
+            element.__addEmitListener__(this.eventName, instance, callback);
+          }
+        }, 10);
+      //   timeout = timeoutFn();
+
+      timeout = timeoutFn();
+    }
   },
   unsubscribe: [],
 };
-let connectionBoilerplate = function (
+export let connectionBoilerplateAction = function (
   id,
   props,
   value,
@@ -87,6 +104,9 @@ let connectionBoilerplate = function (
   setup.expression = expression;
   setup.eventName = eventName;
   setup.args = args;
+  if (eventName === "propagate") {
+    setup.type = "broadcast";
+  }
   boilerplate[id] = setup;
   return boilerplate;
 };
@@ -97,7 +117,7 @@ let connectionBoilerplate = function (
 export const connectAction = function (template, properties) {
   return {
     "data-el-action": {
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAction(
         0,
         [],
         "(event)=>{duplicate(event)}}",
@@ -105,7 +125,7 @@ export const connectAction = function (template, properties) {
         "onclick",
         ["$event"]
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAction(
         1,
         [],
 
@@ -114,7 +134,7 @@ export const connectAction = function (template, properties) {
         "onclick",
         []
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAction(
         2,
         [],
 
@@ -123,12 +143,20 @@ export const connectAction = function (template, properties) {
         "onclick",
         ["$event", "this.counter", "string", "2", "false"]
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAction(
         3,
         [],
         "decrement",
         "this.decrement()",
         "onclick",
+        []
+      ),
+      ...connectionBoilerplateAction(
+        4,
+        [],
+        "onInnerTextListen",
+        "this.onInnerTextListen()",
+        "propagate",
         []
       ),
     },

@@ -6,20 +6,22 @@ export class TheComponent  {
 
   __emitListeners__={}
   __addEmitListener__(eventName,listener,callback){
+  
     eventName = eventName.toLowerCase();
     if(!this.__emitListeners__.hasOwnProperty(eventName)){
       this.__emitListeners__[eventName] = []
     }
-    // if(this.__emitListeners__[eventName].indexOf(listener) == -1){
+    if(this.__emitListeners__[eventName].indexOf(listener) == -1){
       this.__emitListeners__[eventName].push(listener);
       listener.addEventListener(eventName, callback);
-    // }
+    }
   }
   emit(eventName,data){
+
     eventName = eventName.toLowerCase();
     // console.log(this,eventName)
     
-    this.__emitListeners__[eventName].forEach(listener => {
+    (this.__emitListeners__[eventName] || []).forEach(listener => {
       listener.dispatchEvent(new CustomEvent(eventName, {detail:{reference: this,data}}));
     })
     
@@ -72,6 +74,7 @@ export class TheBaseComponent extends HTMLElement {
 
     __emitListeners__={}
     __addEmitListener__(eventName,listener,callback){
+      console.log(this.__emitListeners__,eventName,this)
       eventName = eventName.toLowerCase();
       if(!this.__emitListeners__.hasOwnProperty(eventName)){
         this.__emitListeners__[eventName] = []
@@ -82,6 +85,7 @@ export class TheBaseComponent extends HTMLElement {
       }
     }
     emit(eventName,data){
+      console.log(this.__emitListeners__,eventName,this)
       eventName = eventName.toLowerCase();
       // console.log(this,eventName)
       

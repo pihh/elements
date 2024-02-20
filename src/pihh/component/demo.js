@@ -1,5 +1,10 @@
-import { TheBaseComponent, TheComponent } from ".";
+import {  TheComponent } from ".";
 import { Component } from "../compiler";
+import { connectAction } from "../compiler/connect/action";
+import { connectAttribute } from "../compiler/connect/attribute";
+import { connectOperations } from "../compiler/connect/operation";
+import { connectText } from "../compiler/connect/text";
+
 
 // <the-inner data-el-attribute="1" data-el-action="4"></the-inner>
 const config = {
@@ -20,6 +25,7 @@ const config = {
                       <small data-el-text="3"><b>Counter:</b> {{this.counter}}</small>
                   </header>
                   <main>
+                      <the-child data-el-attribute="1" data-el-action="4"></the-child>
                       <select model="color" class="input">
                           <option data-el-operation="0"></option>
                       </select>
@@ -47,8 +53,39 @@ const config = {
                       </section>
                   </footer>
             
-              </div>`
-}
+              </div>`,
+     
+              
+                connectors: {
+                  ...connectText(),
+                  ...connectOperations(),
+            
+                  ...connectAction(),
+                  ...connectAttribute(),
+                },
+            
+                actions: {
+                  // onClickItem: function() {
+                  //   console.log("onClick Item");
+                  //   console.log(this.items);
+                  // }
+                  // addItem() {
+                  //   this.items.push({ name: "Item " + this.items.length });
+                  // }
+                  // removeItem() {
+                  //   console.log(this.items);
+                  //   this.items.pop();
+                  // }
+                  // increment() {
+                  //   console.log(this.items);
+                  //   this.counter++;
+                  // }
+                  // decrement() {
+                  //   console.log(this.items);
+                  //   this.counter--;
+                  // }
+                },
+              };
 
 
 class TheDemoComponent extends TheComponent {
