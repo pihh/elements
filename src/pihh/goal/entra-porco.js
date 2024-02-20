@@ -24,7 +24,7 @@ const template = `
             </li>
             }
         </ul>
-            <the-inner text="{{text}} @propagate={onInnerTextListen} />
+            <the-inner text="{{text}}" @propagate={onInnerTextListen} />
     </main>
     <footer>
             <section>
