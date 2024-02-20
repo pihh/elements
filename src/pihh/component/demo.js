@@ -1,7 +1,13 @@
 import {  TheComponent } from ".";
 import { Component } from "../compiler";
 
-// 
+// @if(show){ 
+//   <h3> IF/ELSEIF/ELSE CONDITIONAL RENDERING </h3>
+// }@elseif(color=='green'){
+//   <h4>ELSE IF MET</h4>
+// }@else{
+//   <h5>All conditions fail
+// }
 const config = {
     selector: "the-demo",
     template: `<div class="component bg-{{color}}-900">
@@ -25,6 +31,8 @@ const config = {
     }@else{
       <h3>ELSE CONDITIONS</h3>
     }
+
+
         <select model="color" class="input">
             @for(let _color of colors){
                 <option value="_color">_color</option>

@@ -64,12 +64,12 @@ export function parseTemplateOperations(template, props = [], methods = []) {
       if: {},
     },
   };
-  let loop =0
+  let loop = 0;
   while (operationForIndex > -1 || operationIfIndex > -1) {
     loop++;
-    if(loop > 100){
-      console.log({operationForIndex, operationIfIndex})
-      return
+    if (loop > 100) {
+      console.log({ operationForIndex, operationIfIndex });
+      return;
     }
     if (operationIfIndex == -1) {
       let result = extractOperationFor(template, connections, operationIndex);
@@ -107,16 +107,16 @@ export function parseTemplateOperations(template, props = [], methods = []) {
       operationForIndex = indices.operationForIndex;
     }
   }
-  return {template, connections};
+  return { template, connections };
 }
 
-const extractQueryParameters = function(right){
+const extractQueryParameters = function (right) {
   let value;
   let expression;
-  
+
   let entry = right.indexOf("(") + 1;
   let stack = 1;
-  
+
   for (let i = entry; i < right.length; i++) {
     let char = right.charAt(i);
     if (char == "(") {
@@ -127,13 +127,13 @@ const extractQueryParameters = function(right){
     if (stack == 0) {
       value = right.slice(entry, i);
       expression = value.trim();
-      right = right.slice(i +1);
+      right = right.slice(i + 1);
 
       break;
     }
   }
-  return {value,expression,right}
-}
+  return { value, expression, right };
+};
 
 const extractOperationIf = function (template, connections, operationIndex) {
   let left = template.split("@if")[0];
@@ -141,13 +141,13 @@ const extractOperationIf = function (template, connections, operationIndex) {
   let value;
   let expression;
   let childTemplate;
-  let query = extractQueryParameters(right)
+  let query = extractQueryParameters(right);
 
   value = query.value;
   expression = query.expression;
   right = query.right;
 
-  let subTemplateStart = right.indexOf("{")+1;
+  let subTemplateStart = right.indexOf("{") + 1;
   let stack = 1;
   for (let i = subTemplateStart; i < right.length; i++) {
     let char = right.charAt(i);
@@ -157,26 +157,66 @@ const extractOperationIf = function (template, connections, operationIndex) {
       stack--;
     }
     if (stack == 0) {
-      
       childTemplate = right.slice(subTemplateStart, i - 1).trim();
       right = right.slice(i + 1);
 
-      if(right.indexOf('@else') > -1 && right.indexOf('@else') < right.indexOf('{') ){
-        console.log('!'+expression);
-        right = right.replace('@else','@if(!'+expression+')');
-        console.log(right)
+  
+      let elseIndex = right.indexOf("@else");
+      let elseIfIndex = right.indexOf("@elseif");
+      /*
+      let ifIndex = right.indexOf("@if");
+      let expressionStack = [expression];
+
+   
+      while(elseIfIndex == 0 || elseIndex == 0){
+        expressionStack = expressionStack.filter(e => e.trim().length > 0);
+        if(elseIfIndex ===0){
+          let exp = right.split('@elseif')[0].split(')')[0];
+          right = right.replace('@elseif(','@if('+ expressionStack.map( e => "!"+e).join(' && ') + " && ");
+          expressionStack.push(exp);
+          expressionStack = expressionStack.filter(e => e.trim().length > 0);
+        }else if(elseIndex == 0){
+          right = right.replace('@else','@if('+expressionStack.map(e => "!"+e).join(' && ')+")");
+        }
+        elseIndex = right.indexOf("@else");
+        elseIfIndex = right.indexOf("@elseif");
       }
+ 
+      console.log(expressionStack)
+      debugger;
+      */
+      // if (elseIndex > -1 && elseIndex < right.indexOf("{") ) {
+   
+      //   right = right.replace("@else", "@if(!" + expression + ")");
+      // }
+      // // if (elseIndex > -1 && elseIndex < right.indexOf("{") &&  elseIndex !== elseIfIndex) {
+      // //   // let replacement =
+      // //   //   expression.indexOf("!") > -1 ? expression : "!" + expression;
+      // //   right = right.replace("@else", "@if(!" + expression + ")");
+      // // }
+      // // if(elseIfIndex === elseIndex && elseIfIndex > -1 && elseIfIndex < right.indexOf("{")){
+      // //   right = right.replace("@elseif(","@if(");
+      // // }
+
+      if(elseIndex == 0){
+        let replacement = expression.indexOf('==')>-1 ? expression.replace('==','!==') : "!"+expression;
+        right = right.replace('@else','@if('+replacement+')');
+      
+        
+      }
+
       let id = operationIndex;
       template =
         left.trim() +
-        '<the-if data-el-operation="'+id+'" condition="{{' +
-        expression +'}}">'+childTemplate+"</the-if>"+
-        
+        '<the-if data-el-operation="' +
+        id +
+        '" condition="{{' +
+        expression +
+        '}}">' +
+        childTemplate +
+        "</the-if>" +
         right.trim();
 
-        
-
-    
       connections["data-el-operation"].if = {
         ...connections["data-el-operation"].if,
         ...connectionBoilerplateOperation(
@@ -185,18 +225,17 @@ const extractOperationIf = function (template, connections, operationIndex) {
           value,
           expression,
           "if",
-          childTemplate,
-          
+          childTemplate
         ),
       };
-    //   console.log({left,right})
-      operationIndex++
+      //   console.log({left,right})
+      operationIndex++;
       break;
     }
   }
 
   return { template, connections, operationIndex };
-}
+};
 
 const extractOperationFor = function (template, connections, operationIndex) {
   // extrai operation for
@@ -205,12 +244,12 @@ const extractOperationFor = function (template, connections, operationIndex) {
   let value;
   let expression;
   let childTemplate;
-  let query = extractQueryParameters(right)
+  let query = extractQueryParameters(right);
   value = query.value;
   expression = query.expression;
   right = query.right;
 
-  let subTemplateStart = right.indexOf("{")+1;
+  let subTemplateStart = right.indexOf("{") + 1;
   let stack = 1;
   for (let i = subTemplateStart; i < right.length; i++) {
     let char = right.charAt(i);
@@ -243,8 +282,8 @@ const extractOperationFor = function (template, connections, operationIndex) {
           { index: "__index__" + id }
         ),
       };
-    //   console.log({left,right})
-      operationIndex++
+      //   console.log({left,right})
+      operationIndex++;
       break;
     }
   }
