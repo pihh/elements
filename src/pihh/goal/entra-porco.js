@@ -1,5 +1,6 @@
 // ENTRA PORCO -------------------------------
 
+import TemplateCompiler from "../compiler/template";
 import { TheBaseComponent } from "../component";
 
 // -------------------------------
@@ -86,3 +87,5 @@ export class TheDemoComponent extends TheBaseComponent {
     this.counter = $event.detail.data.counter;
   }
 }
+
+console.log(TemplateCompiler(template));

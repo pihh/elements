@@ -77,7 +77,7 @@ let template = `<div class="component bg-{{color}}-900">
     </footer>
 </div>`;
 
-console.clear();
+
 
 let extractActionArguments = function (expression) {
   let action;
@@ -97,7 +97,7 @@ let extractActionArguments = function (expression) {
   }else{
     args = [];
   }
-  return {parsedAction: "this."+action,parsedArgs: args}
+  return {parsedAction: action,parsedArgs: args}
 
 };
 

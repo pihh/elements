@@ -35,16 +35,7 @@ const Boilerplate = {
       let isNative =
         element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
           -1 || false;
-      // Ver esta bosta pq n funca
-      //     element[eventName?.slice(2)]?.toString()?.indexOf("[native code]") >
-      //       -1 || false;
-      //   if (!isNative) {
-      //     console.log({
-      //       element,
-      //       eventName,
-      //     });
-      //   }
-
+  
       if (isNative) {
         this.type = "native";
         eventName = eventName.slice(2);
