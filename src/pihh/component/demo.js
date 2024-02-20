@@ -20,6 +20,11 @@ const config = {
         <button onclick={toggleShow}>Toggle</button>
     </header>
     <main>
+    @if(show){ 
+      <h3> IF/ELSE CONDITIONAL RENDERING </h3>
+    }@else{
+      <h3>ELSE CONDITIONS</h3>
+    }
         <select model="color" class="input">
             @for(let _color of colors){
                 <option value="_color">_color</option>

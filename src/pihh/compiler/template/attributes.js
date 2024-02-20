@@ -22,7 +22,7 @@ let extractProps = function (value, props) {
   let expression = " " + value.split("{{")[1].split("}}")[0].trim();
   let expressionProps = expression
     .split(" ")
-    .map((el) => el.trim())
+    .map((el) => el.trim().replaceAll("!", ""))
     .filter((el) => el.length > 0)
     .filter((el) => props.indexOf(el.split(".")[0].split("[")[0]) > -1);
   return expressionProps;
@@ -61,7 +61,8 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
           });
           const expression = value
             .replaceAll("{{", "${this.")
-            .replaceAll("}}", "}");
+            .replaceAll("}}", "}")
+            .replaceAll("this.!", "!this.");
           const expressionProps = extractProps(value, props);
           if (!parent.dataset.elText) {
             parent.dataset.elText = "";
@@ -85,7 +86,7 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
         }
       }
     }
-   
+
     const $attributes = $element.getAttributeNames();
     for (let $attr of $attributes) {
       let value = $element.getAttribute($attr);
@@ -101,7 +102,7 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
         let expression = " " + value.split("{{")[1].split("}}")[0].trim();
         let expressionProps = expression
           .split(" ")
-          .map((el) => el.trim())
+          .map((el) => el.trim().replaceAll("!", ""))
           .filter((el) => el.length > 0)
           .filter((el) => props.indexOf(el.split(".")[0].split("[")[0]) > -1);
         connections["data-el-attribute"] = {
@@ -110,7 +111,10 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
             id,
             expressionProps,
             value,
-            value.replaceAll("{{", "${this.").replaceAll("}}", "}"),
+            value
+              .replaceAll("{{", "${this.")
+              .replaceAll("}}", "}")
+              .replaceAll("this.!", "!this."),
             $attr
           ),
         };
@@ -119,7 +123,10 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
         $element.dataset.elAttribute = dataset.join(",");
         $element.setAttribute(
           $attr,
-          value.replaceAll("{{", "${this.").replaceAll("}}", "}")
+          value
+            .replaceAll("{{", "${this.")
+            .replaceAll("}}", "}")
+            .replaceAll("this.!", "!this.")
         );
         // console.log({$element,dataset})
 

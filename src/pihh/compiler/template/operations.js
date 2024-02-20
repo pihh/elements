@@ -126,7 +126,7 @@ const extractQueryParameters = function(right){
     }
     if (stack == 0) {
       value = right.slice(entry, i);
-      expression = value;
+      expression = value.trim();
       right = right.slice(i +1);
 
       break;
@@ -160,6 +160,12 @@ const extractOperationIf = function (template, connections, operationIndex) {
       
       childTemplate = right.slice(subTemplateStart, i - 1).trim();
       right = right.slice(i + 1);
+
+      if(right.indexOf('@else') > -1 && right.indexOf('@else') < right.indexOf('{') ){
+        console.log('!'+expression);
+        right = right.replace('@else','@if(!'+expression+')');
+        console.log(right)
+      }
       let id = operationIndex;
       template =
         left.trim() +
@@ -167,6 +173,8 @@ const extractOperationIf = function (template, connections, operationIndex) {
         expression +'}}">'+childTemplate+"</the-if>"+
         
         right.trim();
+
+        
 
     
       connections["data-el-operation"].if = {
