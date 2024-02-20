@@ -17,6 +17,9 @@ export const Component = function (
 
   // Get it's properties // 
   let {methods,props,configuration} = extractClassInfo(OriginalComponent,OriginalConfiguration)
+  let {input,output,connectors} = TemplateCompiler(configuration.template,Object.keys(props));
+  configuration.template = output;
+  configuration.connectors = connectors
                
   const compile = function () {
 
@@ -116,6 +119,7 @@ export const Component = function (
                 .map((el) => el.trim());
               for (let identifier of identifiers) {
                 try {
+                  console.log('identifier: ' + identifier)
                   configuration.connectors["data-el-text"][identifier].connect(
                     this,
                     element

@@ -4,11 +4,15 @@ import { connectAction } from "../compiler/connect/action";
 import { connectAttribute } from "../compiler/connect/attribute";
 import { connectOperations } from "../compiler/connect/operation";
 import { connectText } from "../compiler/connect/text";
+import { template } from "../goal/entra-porco";
 
 
 // <the-inner data-el-attribute="1" data-el-action="4"></the-inner>
 const config = {
     selector: "the-demo",
+    template: template,
+}
+    /*
     template:`<style>
             h1 {
               font-weight: 800;
@@ -54,7 +58,7 @@ const config = {
                   </footer>
             
               </div>`,
-     
+  
               
                 connectors: {
                   ...connectText(),
@@ -87,7 +91,7 @@ const config = {
                 },
               };
 
-
+   */
 class TheDemoComponent extends TheComponent {
     constructor() {
       super();
@@ -96,7 +100,7 @@ class TheDemoComponent extends TheComponent {
     title = "TheDemoComponent Title";
     description = "TheDemoComponent Description";
     obj = {description : "TheDemoComponent Description"};
-    counter = 0;
+    counter = 1;
     color = "green";
     colors = ["green", "red", "yellow", "blue"];
     items = [{ name: "Item 0" }];

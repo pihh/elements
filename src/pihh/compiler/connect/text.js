@@ -35,7 +35,7 @@ const Boilerplate = {
   },
   unsubscribe: [],
 };
-let connectionBoilerplate = function (id, props, value, expression, childNode) {
+export let connectionBoilerplateText = function (id, props, value, expression, childNode) {
   let boilerplate = {};
   let setup = Object.assign({}, Boilerplate);
   setup.id = Symbol("text connection");
@@ -54,28 +54,28 @@ export const connectText = function (template, properties) {
 
   return {
     "data-el-text": {
-      ...connectionBoilerplate(
+      ...connectionBoilerplateText(
         0,
         ["title"],
         "{{title}}",
         "${this.title}",
         0
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateText(
         1,
         ["obj.description"],
         "{{obj.description}}",
         "${this.obj.description}",
         0
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateText(
         2,
         ["items.0.name"],
         "{{items[0].name}",
         "${this.items[0].name}",
         0
       ),
-      ...connectionBoilerplate(
+      ...connectionBoilerplateText(
         3,
         ["counter"],
         "{{counter}",

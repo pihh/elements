@@ -2,14 +2,15 @@
 
 import TemplateCompiler from "../compiler/template";
 import { TheBaseComponent } from "../component";
-
+// <the-inner text="{{text}}" @propagate={onInnerTextListen} />
 // -------------------------------
-const template = `
+export const template = `
 <div class="component bg-{{color}}-900">
     <header>
         <h1>{{title}}</h1>
         <p>{{obj.description}}</p>
         <p>{{items[0].name}}</p>
+        <p>{{counter}}</p>
     </header>
     <main>
         <select model="color" class="input">
@@ -24,7 +25,7 @@ const template = `
             </li>
             }
         </ul>
-            <the-inner text="{{text}}" @propagate={onInnerTextListen} />
+            
     </main>
     <footer>
             <section>
@@ -45,7 +46,6 @@ const template = `
     </footer>
 </div>`;
 
-
 export class TheDemoComponent extends TheBaseComponent {
   constructor() {
     super();
@@ -53,7 +53,7 @@ export class TheDemoComponent extends TheBaseComponent {
   // Scope
   title = "TheDemoComponent Title";
   description = "TheDemoComponent Description";
-  obj = {description : "TheDemoComponent Description"};
+  obj = { description: "TheDemoComponent Description" };
   counter = 0;
   color = "green";
   colors = ["green", "red", "yellow", "blue"];
@@ -71,7 +71,7 @@ export class TheDemoComponent extends TheBaseComponent {
     console.log(this.items);
     this.items.pop();
   }
-  increment(event,counter,str,num,bool) {
+  increment(event, counter, str, num, bool) {
     // console.log({event,counter,str,num,bool}) // Passa tudo ya
     // console.log({event,counter:this.counter});
     this.counter++;
@@ -81,11 +81,23 @@ export class TheDemoComponent extends TheBaseComponent {
     this.counter--;
   }
 
-  onInnerTextListen($event){
+  onInnerTextListen($event) {
     // console.log('onInnerTextListen',$event);
     $event.detail.reference.counter = this.counter;
     this.counter = $event.detail.data.counter;
   }
 }
 
-console.log(TemplateCompiler(template));
+// export template;
+// console.log(
+//   TemplateCompiler(template, [
+//     "title",
+//     "obj",
+//     "description",
+//     "counter",
+//     "color",
+//     "colors",
+//     "items",
+//   ])
+// );
+// debugger;

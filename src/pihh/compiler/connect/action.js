@@ -47,16 +47,18 @@ const Boilerplate = {
     }
   },
   connect: function (instance, element, eventName) {
-    const action = instance[this.value];
+    const action = instance[this.expression];
     const args = this.args || [];
 
-
+    let self = this;
     const callback = function (event) {
+      console.log(self,action,instance)
       //   console.log(extractArguments(instance, event, args));
       action.call(instance, ...extractArguments(instance, event, args));
     };
     // console.log(this.eventName, this.type,callback, element);
     if (this.type === "native") {
+      
       element.addEventListener(eventName, callback);
     } else {
       //     // console.log(this,element)

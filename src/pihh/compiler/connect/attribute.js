@@ -24,7 +24,7 @@ const Boilerplate = {
   },
   unsubscribe: [],
 };
-let connectionBoilerplate = function (id, props, value, expression, attribute) {
+export let connectionBoilerplateAttribute = function (id, props, value, expression, attribute) {
   let boilerplate = {};
   let setup = Object.assign({}, Boilerplate);
   setup.id = Symbol("attribute connection");
@@ -42,7 +42,7 @@ let connectionBoilerplate = function (id, props, value, expression, attribute) {
 export const connectAttribute = function (template, properties) {
   return {
     "data-el-attribute": {
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAttribute(
         0,
         ["color"],
         "component bg-{{color}}-900",
@@ -50,7 +50,7 @@ export const connectAttribute = function (template, properties) {
         "class"
       ),
 
-      ...connectionBoilerplate(
+      ...connectionBoilerplateAttribute(
         1,
         ["title"],
         "{{title}}",
