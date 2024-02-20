@@ -172,6 +172,10 @@ class TheChildComponent extends TheComponent {
       counter: this.counter,
     });
   }
+  attributeChangedCallback(name,oldValue,newValue) {
+    super.attributeChangedCallback(...arguments);
+    // console.log("attributeChangedCallback",name,oldValue,newValue);
+  }
 }
 
 Component(TheChildComponent, config);

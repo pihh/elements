@@ -43,6 +43,9 @@ export class TheComponent  {
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
+    if(oldValue !== newValue) {
+      this[name] = newValue;
+    }
     // called when one of attributes listed above is modified
   }
 
