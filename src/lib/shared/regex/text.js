@@ -65,3 +65,7 @@ export const separateAll = function(str, search= [],delimiter= " "){
     }
     return str;
 }
+
+export const isChar = function(char){
+    return char.toUpperCase() != char.toLowerCase();
+}

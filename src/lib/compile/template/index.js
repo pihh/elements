@@ -18,6 +18,7 @@ export const Template = function(selector,scope={}) {
 Template.prototype.compile = function(){
     const clone = this.node.cloneNode(false);
     if(!TemplateRegistry.has(this.__name__)){
+        console.log('will compile')
         clone.innerHTML = this.html;
         TemplateRegistry.set(this.__name__,mapDom(clone,this.scope))
     }
@@ -64,6 +65,7 @@ TemplateClone.prototype.update = function update(scope={}) {
 };
 
 TemplateClone.prototype.append = function append() {
+    console.log("append")
     this.template.parent.appendChild(this.node);
     this.template.boot(this.node);
     return this;
