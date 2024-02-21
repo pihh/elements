@@ -64,3 +64,13 @@ export const findProps = function(string,props=[]){
 }
 
 
+
+export const pathName = function(path){
+    if(!Array.isArray(path)){
+      path = path.replaceAll('[','.');
+      path = path.split('.').map(el => el.replaceAll(']','').replaceAll('.','').trim());
+    }
+    path = path.join('.')
+    return path
+  }
+  

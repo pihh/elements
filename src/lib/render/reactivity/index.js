@@ -1,6 +1,7 @@
-import { State } from "../../../elements/reactivity/state";
+
 import { initSubscriptions } from "../subscribe";
-import { connectAttributes } from "./attributes";
+import { connectAttributes } from "../connect/attributes";
+import { State } from "../connect/state";
 
 const connectGetterSetterAttributes = function(instance,clone){
     const props  = instance.__config__.props;

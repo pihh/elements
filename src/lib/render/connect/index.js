@@ -1,9 +1,10 @@
+import { connectReactivity } from "../reactivity";
 
-import { connectReactivity } from "./reactivity";
 
 export const Connect = function (instance,clone) {
-  
-  clone.innerHTML = instance.__config__.template;
+  if(!clone.innerHTML){
+    clone.innerHTML = instance.__config__.template;
+  }  
 
   connectReactivity(instance,clone)
 
