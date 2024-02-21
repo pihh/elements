@@ -6,7 +6,15 @@ import { Template } from "./src/lib/compile/template";
 
 var HelloTemplate = new Template("[template=the-header]",{name:"world",description:"default value",textBinding:"text bindinf",counter:0, item: "xxx"});
 var OtherTemplate = new Template("[template=the-other]",{name:"world",description:"default value",textBinding:"text bindinf",counter:0, item: "xxx"});
+var XTemplate = new Template("[template=the-x]",{name:"world",description:"default value",textBinding:"text bindinf",counter:0, item: "xxx"});
+
 HelloTemplate.clone(
+    { 
+        name: "xxxx",
+        description: "Lorem Ipsum is Lorem Ipsum and    Lorem Ipsum is Lore" 
+    }
+).append();
+XTemplate.clone(
     { 
         name: "xxxx",
         description: "Lorem Ipsum is Lorem Ipsum and    Lorem Ipsum is Lore" 
