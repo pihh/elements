@@ -9,38 +9,16 @@
   </head>
   <body>
     <div id="app">
-      <div template="the-other">
-        <h1>{{name}}</h1>
-        <p>{{description}} </p>
-      </div>
-      <div template="the-header">
-        <header>
-          <h1>Hello <i>{{name}}</i></h1>
-          <p>{{description}} </p>
-        </header>
-        <main>
-          <section>
-            <h3>Events</h3>
-            <div>
-              <button onclick={onClick}>onClick</button>
-              <button (emit)={onClick}>onClick</button>
-            </div>
-          </section>
-          @for(let item of items){
-            <section item="{{item}}">{{item}}</section>
-          } 
-          <section>
-            <h3>Binding</h3>
-            <p>Text : {{textBinding}}</p>
-            <p>Counter : {{counter}}</p>
-            <div>
-              <input type="text" *bind="textBinding" value="{{textBinding}}"/>
-              <button onclick={updateCounter}>Update counter</button>
-            </div>
-          </section>
-        </main>
-      </div>
-      <button >Name</button>
+      <!-- <el-input value="xxxx"></el-input> -->
+      <!-- <el-card title="El Title Card" ></el-card>
+      <el-card title="El Title Card" ></el-card>
+      <el-card title="El Title Card"></el-card> -->
+      <el-layout>
+      
+        <for-loop></for-loop>
+        <the-demo title="xxxx" description="yyyy"></the-demo>
+        <the-child title="xxxx" description="yyyy"></the-child>
+      </el-layout>
     </div>
 
     <script type="module" src="/main.js"></script>

@@ -13,12 +13,10 @@ const config = {
 class TheLoop extends TheComponent {
   constructor() {
     super();
- 
 
   }
-  _data={}
+  
   key="_data"
-  path="data"
   
   data = [{
     name: "The loop data",
@@ -26,12 +24,11 @@ class TheLoop extends TheComponent {
   }]
 
   static get observedAttributes() {
-    return ["data","data.length","_data", "key","path"];
+    return ["data","data.length","_data", "key"];
   }
 
   attributeChangedCallback(name,oldValue,newValue) {
-    const slot = this.__shadow__.querySelector('slot')
-    console.log(slot.assignedElements())
+    
     if(name == "data" && newValue && typeof newValue == "string"){
       try{
         this.data = JSON.parse(newValue);
@@ -43,29 +40,17 @@ class TheLoop extends TheComponent {
       this.key = newValue
   
     
-    }else if(name =="path" && newValue){
-      this.path = newValue;
-      this.data = this.reference[newValue]
     }
     
   }
 
 
   connectedCallback(){
-   
-    debugger;
     super.connectedCallback();
-    if(this.reference){
-
-      this.data = this.reference[this.path];
-      
-      console.log(this.data,this.reference,this.path)
-    }
     if(!this.$placeholder){
       // console.log({slot:     });
       const slot = this.__shadow__.querySelector('slot')
-      console.log(slot.assignedElements())
-      debugger;
+      
       // slot.addEventListener("slotchange", (event) => {console.log(event,slot)});
       // // debugger;
       this.$placeholder = this.__shadow__.childNodes[0];
@@ -75,7 +60,7 @@ class TheLoop extends TheComponent {
          this.$template.content.firstElementChild.appendChild(a)
        }
        this.$placeholder.stack = []
-       console.log(this.$template.content.firstElementChild)
+  
        this.render()
     }
   }
@@ -83,19 +68,17 @@ class TheLoop extends TheComponent {
   generate(i){
     // Create a new object 
     if(this.$placeholder.stack[i])return;
-    let instance = this.reference || this;
     let template = this.$template.cloneNode(true);
 
     let configuration = {}
-    console.log(template.innerHTML)
+    
     let { input, output, connectors } = TemplateCompiler(
-      template.content.innerHTML.replaceAll(this.key,"data["+i+"]"),
+      template.innerHTML.replaceAll(this.key,"data["+i+"]"),
       ["index","data"]
     );
     configuration.template = output;
     configuration.connectors = connectors;
     configuration.props = {data:[],index:i}
-    // configuration.props[this.path] = []
 
     template.content.replaceChildren(document.createElement('div'));
     template.content.firstElementChild.innerHTML = configuration.template;
@@ -106,17 +89,14 @@ class TheLoop extends TheComponent {
     let elements = [];
     const scope = this.__scope__
     scope._data = this.data[i]
-    // console.log(configuration,this.key,this.path+"["+i+"]")
-      debugger;
     for(let key of Object.keys(configuration.connectors['data-el-attribute'])){
 
       configuration.connectors['data-el-attribute'][key].props =configuration.connectors['data-el-attribute'][key].props.map(el => {
         if(el.split('.')[0] == this.key ){
-          el = el.replaceAll(this.key,this.path+"["+i+"]")
+          el = el.replaceAll(this.key,"data["+i+"]")
         }
         return el
       })
-      
     }
     // console.log(template.content,this.__shadow__,configuration.connectors)
     elements = [
@@ -132,7 +112,7 @@ class TheLoop extends TheComponent {
      
         configuration.connectors["data-el-attribute"][
           identifier
-        ].connect(instance, element);
+        ].connect(this, element);
       }
       delete element.dataset.elAttribute;
     }
@@ -142,7 +122,7 @@ class TheLoop extends TheComponent {
 
       configuration.connectors['data-el-text'][key].props =configuration.connectors['data-el-text'][key].props.map(el => {
         if(el.split('.')[0] == this.key ){
-          el = el.replaceAll(this.key,this.path+"["+i+"]")
+          el = el.replaceAll(this.key,"data["+i+"]")
         }
         return el
       })
@@ -155,7 +135,7 @@ class TheLoop extends TheComponent {
         try {
           // console.log('identifier: ' + identifier)
           configuration.connectors["data-el-text"][identifier].connect(
-            instance,
+            this,
             element
           );
         } catch (ex) {
@@ -176,7 +156,7 @@ class TheLoop extends TheComponent {
         .map((el) => el.trim());
       for (let identifier of identifiers) {
         configuration.connectors["data-el-action"][identifier].setup(
-          instance,
+          this,
           element
         );
       }
@@ -187,7 +167,7 @@ class TheLoop extends TheComponent {
   }
 
   render(){
-    console.log(this.key,this)
+    console.log(this.key)
     for(let i = 0 ; i < this.data.length; i++) {
       this.generate(i)
     }

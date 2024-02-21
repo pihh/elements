@@ -89,6 +89,32 @@ export function parseTemplateAttributes(template, props = [], methods = []) {
 
     const $attributes = $element.getAttributeNames();
     for (let $attr of $attributes) {
+      if($attr === "reference"){
+        if (!$element.dataset.elAttribute) {
+          $element.dataset.elAttribute = "";
+        }
+        let dataset = $element.dataset?.elAttribute || "";
+        dataset = dataset.split(",").filter((el) => el.trim().length > 0);
+        let value =""
+        let id = attributeIndex;
+        attributeIndex++;
+        let expression = "" 
+        let expressionProps = ["reference"]
+        connections["data-el-attribute"] = {
+          ...connections["data-el-attribute"],
+          ...connectionBoilerplateAttribute(
+            id,
+            expressionProps,
+            value,
+            value,
+            $attr
+          ),
+        };
+        dataset.push(id);
+
+        $element.dataset.elAttribute = dataset.join(",");
+        continue;  
+      }
       let value = $element.getAttribute($attr);
       if (value.indexOf("{{") > -1) {
         if (!$element.dataset.elAttribute) {

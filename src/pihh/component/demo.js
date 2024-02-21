@@ -44,6 +44,14 @@ const config = {
                 {{item.name}}
             </li>
             }
+
+            <the-loop reference="{{this.colors}}" key="_data" path="colors" >
+            <li >
+              <header>
+                <h4>{{ _data }}</h4>
+              </header>
+            </li>
+          </the-loop>
         </ul>
         <the-child 
           title="{{title}}" 

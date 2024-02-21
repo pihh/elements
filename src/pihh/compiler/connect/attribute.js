@@ -12,16 +12,20 @@ const Boilerplate = {
   },
   connect: function (instance, element) {
     const attribute = this.attribute;
-    const fn = Function("return `" + this.expression + "`");
-    const callback = function (value) {
-      const output = fn.call(instance);
-      element.setAttribute(attribute, output);
-    };
-    for (let prop of this.props) {
-      instance.__subscriptions__.push(instance.connect(prop, callback));
+    if(attribute == "reference"){
+      element.reference = instance
+    }else{
+      const fn = Function("return `" + this.expression + "`");
+      const callback = function (value) {
+        const output = fn.call(instance);
+        element.setAttribute(attribute, output);
+      };
+      for (let prop of this.props) {
+        instance.__subscriptions__.push(instance.connect(prop, callback));
+      }
+      callback();
     }
-    callback();
-  },
+    },
   unsubscribe: [],
 };
 export let connectionBoilerplateAttribute = function (id, props, value, expression, attribute) {

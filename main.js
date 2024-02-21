@@ -1,13 +1,29 @@
-import { ElBtn } from "./src/components/btn";
-import { ElCard } from "./src/components/card";
-import { ElDemo } from "./src/components/demo";
-import { ElInput } from "./src/components/input";
-import { ElLayout } from "./src/components/layout";
-import './src/pihh/component/demo';
-import './src/pihh/component/child';
-import './src/pihh/component/if';
-import './src/pihh/component/for';
-import './src/pihh/goal/entra-porco';
 
 
-// import './src/pihh/goal/sai-chourico'
+
+import { Template } from "./src/lib/compile/template";
+
+
+var HelloTemplate = new Template("[template=the-header]",{name:"world",description:"default value"});
+var OtherTemplate = new Template("[template=the-other]",{name:"world",description:"default value"});
+HelloTemplate.clone(
+    { 
+        name: "xxxx",
+        description: "Lorem Ipsum is Lorem Ipsum and    Lorem Ipsum is Lore" 
+    }
+).append();
+
+OtherTemplate.clone(
+    { 
+        name: "World",
+    
+    }
+).append();
+//clone.update({ name: "John Update", description: "Lorem Ipsum e o crl"  });
+
+
+
+const button = document.querySelector("button");
+button.addEventListener("click",function(){
+    clone.update({ name: Date.now()})
+})
