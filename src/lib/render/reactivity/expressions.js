@@ -22,7 +22,7 @@ export const expressionCallback = function (
 };
 
 export const actionCallback = function(instance,expression,args){
-  const fn = eval('()=>{let args = [...arguments]; let self = args[0]; let action=args[1]; self[action](...[args.slice(2)])}')
+  const fn = eval('()=>{let args = [...arguments]; console.log(args[0].parentElement); let self = args[0].parentElement; let action=args[1]; self[action](...[args.slice(2)])}')
 
   return function(){
     fn.bind(instance)()

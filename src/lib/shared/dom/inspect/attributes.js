@@ -53,6 +53,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
         element.__connection__(p.path, callback);
         callback();
       }
+      delete element.dataset[out.dataset.path];
     } else if (out.type == "model") {
       if (clone.nodeName == "INPUT") {
         let fn2 = setterCallback(element, value.trim());
@@ -69,6 +70,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
 
         element.__connection__(value.trim(), callback);
         callback(getValue(element));
+        delete element.dataset[out.dataset.path];
       }
     } else {
       for (let p of paths) {
@@ -90,6 +92,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
         element.__connection__(p.path.replace('couterUpdating.',''), callback);
         callback();
       }
+      delete element.dataset[out.dataset.path];
     }
     delete element.dataset[out.dataset.path];
   };

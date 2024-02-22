@@ -1,0 +1,74 @@
+
+  <div>
+    <div
+      class="mockup-browser border border-base-300 preview"
+      style="margin: 0 auto; margin-bottom: 2em; margin-top: 2em"
+    >
+      <div class="mockup-browser-toolbar">
+        <div>
+
+          <input class="input border border-base-300" *bind="url">{{url}}
+        </div>
+      </div>
+      <div
+        class="flex justify-center px-4 py-16 border-t border-base-300"
+      ></div>
+      <div
+        class="bg-white border border-gray-200 rounded mb-6 mx-auto rounded-xl my-6 container"
+      >
+        <div class="bg-white px-8 py-16">
+          <header>
+            <h1 class="the-header text-{{color}}-400 text-xl ">
+              Hello <i>{{name}}</i>
+            </h1>
+            <p>{{description}}</p>
+            <input class="input" *bind="description" />
+            <input class="input" *bind="color" />
+            <select *bind="color">
+              <option value="red">red</option>
+              <option value="green">green</option>
+              <option value="blue">blue</option>
+            </select>
+          </header>
+          <main>
+            <section>
+              <h3>Events</h3>
+              <div>
+                <button class="btn" onclick="{onClick}">onClick</button>
+                <button class="btn" (emit)="{onEmit}">onEmit</button>
+              </div>
+            </section>
+            @for(let item of items){
+            <section item="{{item}}">{{item}}</section>
+            }
+            <section>
+              <h3>Slot zone</h3>
+              <slot></slot>
+            </section>
+            <section>
+              <h3>Binding</h3>
+              <p>Text : {{textBinding}}</p>
+              <p class="{{ this.counterUpdating ? 'text-red-500' : ''}}">
+                Counter : {{counter}}
+              </p>
+              {{counterUpdating}}
+              <div>
+                <input class="input" type="text" *bind="textBinding" />
+                <button class="btn" onclick="{incrementCounter}">
+                  Increment counter
+                </button>
+                <button class="btn" onclick="{decrementCounter}">
+                  Decrement counter
+                </button>
+              </div>
+            </section>
+          </main>
+        </div>
+      </div>
+    </div>
+    <section>
+      <button class="btn" class="btn">t1</button>
+      <button class="btn" class="btn">t2</button>
+      <button class="btn" class="btn">t3</button>
+    </section>
+  </div>

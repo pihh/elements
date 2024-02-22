@@ -25,10 +25,15 @@ const eventOutput = function (
   };
   out.setup = function(instance,element,map){
     let clone = element.querySelector(out.dataset.selector);
+    console.log(clone)
+    console.log(parsedExpression,'action')
+    console.log(parsedExpression,'action')/*  */
     let callback = actionCallback(element,parsedExpression,eventArguments)
     clone.addEventListener('click',callback)
-    // console.log(out)
-    // console.log(clone)
+    
+    console.log(parsedExpression,'action')/*  */
+    console.log(parsedExpression,element.datset,element, out.dataset)
+    delete clone.dataset[out.dataset.path];
   }
   out.callback = function(){
 

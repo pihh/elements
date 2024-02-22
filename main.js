@@ -1,3 +1,56 @@
+import { Component } from "./src/lib/compile/component";
+import { Prop } from "./src/lib/compile/component/prop";
+
+@Component({
+  selector: "the-browser",
+  template: {
+    url: "/the-browser/template.html",
+  },
+})
+class TheBrowser extends HTMLElement {
+  constructor() {
+    super();
+  }
+  @Prop() name = "world";
+  @Prop() description = "default value";
+  @Prop() textBinding = "text binding";
+  @Prop() booleanBinding = false;
+  @Prop() counter = 0;
+  @Prop() item = "xxx";
+  @Prop() color = "red";
+  @Prop() url = "https://pihh.com";
+  @Prop() counterUpdating = false;
+  @Prop() colors = ["white", "red", "blue"];
+  @Prop() onCounterUpdateTimeout = false;
+
+  
+  onCounterUpdate() {
+    if (!this.counterUpdating) {
+      this.counterUpdating = true;
+    }
+    clearTimeout(this.onCounterUpdateTimeout);
+    this.onCounterUpdateTimeout = setTimeout(() => {
+      this.counterUpdating = false;
+    }, 1000);
+  }
+
+  incrementCounter() {
+    this.counter++;
+    this.onCounterUpdate();
+  }
+  
+  onClick() {
+    console.log("on Click");
+    this.counter--;
+  }
+  
+  decrementCounter() {
+    this.counter--;
+    this.onCounterUpdate();
+  }
+}
+
+/*
 import { Template } from "./src/lib/compile/template";
 
 const props = {
@@ -70,6 +123,8 @@ class TheBrowser extends HTMLElement {
 }
 
 customElements.define("the-browser", TheBrowser);
+
+*/
 /** 
 var HelloTemplate = new Template("[template=the-header]", {
   name: "world",
