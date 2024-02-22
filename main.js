@@ -15,6 +15,7 @@ class TheBrowser extends HTMLElement {
   @Prop() description = "default value";
   @Prop() textBinding = "text binding";
   @Prop() booleanBinding = false;
+  @Prop() isChecked = true;
   @Prop() counter = 0;
   @Prop() item = "xxx";
   @Prop() color = "red";

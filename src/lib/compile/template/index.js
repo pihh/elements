@@ -7,14 +7,11 @@ import  TemplateRegistry  from "../registry";
 export const Template = function(selector,scope={},node) {
 
     node = node ? node :  document.querySelector(selector) 
-    // node = node.cloneNode(true)
-
     this.__name__ = selector
     this.node = node;
-    // this.parent = node.parentElement;
-    // this.parent.removeChild(node);
     this.html = node.innerHTML;
-    this.scope = scope
+    this.scope = scope.values
+    this.scopeMap = scope
     this.compile()
 };
 

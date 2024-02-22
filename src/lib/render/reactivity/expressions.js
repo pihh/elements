@@ -84,9 +84,9 @@ let parseNumber = function (callback) {
     return Number(callback(...arguments));
   };
 };
-let parseBoolean = function (callback) {
+export const parseBoolean = function (value) {
   return function () {
-    return ["true", true].indexOf(callback(...arguments)) > -1;
+    return ["true", true].indexOf(value) > -1;
   };
 };
 let parseObject = function (callback) {

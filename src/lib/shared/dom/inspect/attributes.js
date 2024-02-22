@@ -4,11 +4,15 @@ import {
   getterCallback,
   setterCallback,
 } from "../../../render/reactivity/expressions";
+import { inputEventSetup } from "../../../render/reactivity/inputs";
+import { checkBoxEventSetup } from "../../../render/reactivity/inputs/checkbox";
+import { selectEventSetup } from "../../../render/reactivity/inputs/select";
 import { output } from "../../output";
 import { findProps } from "../../regex/expressions";
 import { makeGrammar } from "../../regex/grammar";
 import { generateRandomDatasetAttribute } from "../indentifiers/dataset";
 import { ruleSet } from "./rules";
+import { getClone, setupCleanup } from "./utils";
 
 const attributeOutput = function (type, attributeName, value, props, dataset) {
   let expressions = value
@@ -41,7 +45,8 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
   let callback = function () {};
   let setup = function (instance, element, config) {
     let callback = function () {};
-    let clone = element.querySelector(out.dataset.selector);
+    let clone = getClone(element, out);
+    // let clone = element.querySelector(out.dataset.selector);
     if (out.type == "text") {
       clone = clone.childNodes[out.attributeName];
 
@@ -55,28 +60,45 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
       }
       delete element.dataset[out.dataset.path];
     } else if (out.type == "model") {
+      console.log(clone.nodeName);
       if (clone.nodeName == "INPUT") {
-        let fn2 = setterCallback(element, value.trim());
-        clone.addEventListener("input", function ($event) {
-          fn2(element, $event.target.value);
-        });
+        let clone = getClone(element, out);
+        if (clone.getAttribute("type") == "checkbox") {
+          // let clone = getClone(element,out);
+          checkBoxEventSetup(element, clone, expression);
+        } else {
+          inputEventSetup(element, clone, out.value);
+          // let callback = actionCallback(element, parsedExpression, eventArguments);
+          // clone.addEventListener("click", callback);
 
-        let callback = function (newValue) {
-          if (clone.getAttribute("value") != newValue && newValue) {
-            clone.setAttribute("value", newValue);
-          }
-        };
-        let getValue = getterCallback(element, value.trim());
+          // let fn2 = setterCallback(element, value.trim());
+          // clone.addEventListener("input", function ($event) {
+        }
+        //   fn2(element, $event.target.value);
+        // });
 
-        element.__connection__(value.trim(), callback);
-        callback(getValue(element));
-        delete element.dataset[out.dataset.path];
+        // let callback = function (newValue) {
+        //   if (clone.getAttribute("value") != newValue && newValue) {
+        //     clone.setAttribute("value", newValue);
+        //   }
+        // };
+        // let getValue = getterCallback(element, value.trim());
+
+        // element.__connection__(value.trim(), callback);
+        // callback(getValue(element));
+        // delete element.dataset[out.dataset.path];
+      } else if (clone.nodeName === "SELECT") {
+        let clone = getClone(element, out);
+        selectEventSetup(element, clone, expression);
       }
+      setupCleanup(element, clone, out);
     } else {
       for (let p of paths) {
         if (p.evaluation == "eval") {
           let fn = evaluationCallback(element, out.expression);
-        p.path = p.path.replace('counterUpdating.','').replaceAll('this.','')
+          p.path = p.path
+            .replace("counterUpdating.", "")
+            .replaceAll("this.", "");
           callback = function () {
             let result = fn();
             // console.log({result,p})
@@ -89,7 +111,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
           };
         }
 
-        element.__connection__(p.path.replace('couterUpdating.',''), callback);
+        element.__connection__(p.path.replace("couterUpdating.", ""), callback);
         callback();
       }
       delete element.dataset[out.dataset.path];
