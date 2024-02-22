@@ -37,12 +37,6 @@ export const mapDom = function (template, scope = {}) {
     map.operations = operationMap.data.expressions;
     templateString = operationMap.data.template;
   }
-  // const _parse = ( template, options={} ) => {
-
-  //     return parse ( template, makeGrammar ( options ), { memoization: false } )[0];
-
-  //   };
-  // console.log({_parse,templateString})
 
   $placeholder.innerHTML = templateString;
 
@@ -52,9 +46,7 @@ export const mapDom = function (template, scope = {}) {
   }
 
   template = $placeholder.firstElementChild;
-
   config.map = map;
   config.template = template.innerHTML;
-  console.log({ config, map, template, getSelectorPath });
   return config;
 };

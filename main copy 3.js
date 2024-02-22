@@ -1,76 +1,5 @@
 import { Template } from "./src/lib/compile/template";
 
-const props = {
-  name: "world",
-  description: "default value",
-  textBinding: "text bindinf",
-  counter: 1,
-  item: "xxx",
-  color: "red",
-  counterUpdating: false,
-  colors: ["white", "red", "blue"],
-};
-const selector = "[template=the-browser]";
-const template = document
-  .querySelector(selector)
-  .content.firstElementChild.firstElementChild.cloneNode(true);
-document.head.appendChild(template);
-const TheTemplate = new Template(selector, props, template);
-class TheBrowser extends HTMLElement {
-  props = {
-    name: "world",
-    description: "default value",
-    textBinding: "text bindinf",
-    counter: 1,
-    item: "xxx",
-    color: "red",
-    counterUpdating: false,
-    colors: ["white", "red", "blue"],
-  };
-  selector = "[template=the-browser]";
-  constructor() {
-    super();
-  }
-
-  // connect component
-  connectedCallback() {
-    const shadow = this.attachShadow({ mode: "open" });
-    this.template = TheTemplate.clone(this.props, shadow);
-    // this.template.bindMethods(this.template,this)
-    this.template.onClick = this.onClick.bind(this);
-    this.template.onCounterUpdate = this.onCounterUpdate.bind(this);
-    this.template.incrementCounter = this.incrementCounter.bind(this);
-    this.template.decrementCounter = this.decrementCounter.bind(this);
-
-    // console.log(this.template);
-  }
-
-  onCounterUpdateTimeout = null;
-  onCounterUpdate() {
-    if (!this.template.counterUpdating) {
-      this.template.counterUpdating = true;
-    }
-    clearTimeout(this.onCounterUpdateTimeout);
-    this.onCounterUpdateTimeout = setTimeout(() => {
-      this.template.counterUpdating = false;
-    }, 1000);
-  }
-  incrementCounter() {
-    this.template.counter++;
-    this.template.onCounterUpdate();
-  }
-  onClick() {
-    console.log("on Click");
-    this.template.counter--;
-  }
-  decrementCounter() {
-    this.template.counter--;
-    this.template.onCounterUpdate();
-  }
-}
-
-customElements.define("the-browser", TheBrowser);
-/** 
 var HelloTemplate = new Template("[template=the-header]", {
   name: "world",
   description: "default value",
@@ -159,6 +88,3 @@ for (let t of [t1, t2, t3]) {
     t.counter = Number(t.counter) + parseInt(Math.random() * 100);
   });
 }
-
-
-*/

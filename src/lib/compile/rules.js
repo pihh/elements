@@ -6,10 +6,9 @@ export const compileRules = {
             maxLoops = maxLoops || this.maxLoops;
             maxLoops = Math.abs(maxLoops+1)
             return ()=>{
-                
                 loops++
-                console.log(loops)
                 if(loops > maxLoops){
+                    console.log(loops)
                     throw new Error("Too many loops");
                 }
             };

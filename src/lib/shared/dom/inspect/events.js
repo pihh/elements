@@ -1,4 +1,5 @@
 import { compileRules } from "../../../compile/rules";
+import { actionCallback } from "../../../render/reactivity/expressions";
 import { output } from "../../output";
 import { filterStack } from "../../regex/text";
 import { generateRandomDatasetAttribute } from "../indentifiers/dataset";
@@ -12,14 +13,27 @@ const eventOutput = function (
   parsedExpression,
   dataset
 ) {
-  return {
+
+  let out = {
     eventName,
     eventType,
     eventArguments,
     originalExpression,
     parsedExpression,
     dataset,
+    
   };
+  out.setup = function(instance,element,map){
+    let clone = element.querySelector(out.dataset.selector);
+    let callback = actionCallback(element,parsedExpression,eventArguments)
+    clone.addEventListener('click',callback)
+    // console.log(out)
+    // console.log(clone)
+  }
+  out.callback = function(){
+
+  }
+  return out;
 };
 
 export const inspectEvents = function (template, scope = {}) {

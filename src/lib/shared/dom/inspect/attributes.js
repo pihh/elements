@@ -1,9 +1,14 @@
+import {
+  evaluationCallback,
+  expressionCallback,
+  getterCallback,
+  setterCallback,
+} from "../../../render/reactivity/expressions";
 import { output } from "../../output";
 import { findProps } from "../../regex/expressions";
 import { makeGrammar } from "../../regex/grammar";
 import { generateRandomDatasetAttribute } from "../indentifiers/dataset";
 import { ruleSet } from "./rules";
-
 
 const attributeOutput = function (type, attributeName, value, props, dataset) {
   let expressions = value
@@ -20,7 +25,6 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
     for (let path of paths) {
       expression = expression.replaceAll(path.path, "this." + path.path);
     }
- 
   }
 
   expression = expression.replaceAll("{{", "${").replaceAll("}}", "}");
@@ -34,29 +38,61 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
     paths,
     expression,
   };
-  let setup = function (instance, element, config) {
-
-    if (out.type == "text") {
- 
-      out.clone = element.querySelector(out.dataset.selector).childNodes[
-        out.attributeName
-      ];
-  
-      out.callbacks = out.callbacks || [];
-      for (let p of paths) {
-        if (out.type == "text") {
-          const fn = Function("return `" + out.expression + "`");
-          const callback = function () {
-            out.clone.textContent = fn.call(element);
-          };
-          element.__connection__(p.path, callback);
-          callback()
-        }
-      }
-      
-    }
-  };
   let callback = function () {};
+  let setup = function (instance, element, config) {
+    let callback = function () {};
+    let clone = element.querySelector(out.dataset.selector);
+    if (out.type == "text") {
+      clone = clone.childNodes[out.attributeName];
+
+      for (let p of paths) {
+        const fn = Function("return `" + out.expression + "`");
+        let callback = function () {
+          clone.textContent = fn.call(element);
+        };
+        element.__connection__(p.path, callback);
+        callback();
+      }
+    } else if (out.type == "model") {
+      if (clone.nodeName == "INPUT") {
+        let fn2 = setterCallback(element, value.trim());
+        clone.addEventListener("input", function ($event) {
+          fn2(element, $event.target.value);
+        });
+
+        let callback = function (newValue) {
+          if (clone.getAttribute("value") != newValue && newValue) {
+            clone.setAttribute("value", newValue);
+          }
+        };
+        let getValue = getterCallback(element, value.trim());
+
+        element.__connection__(value.trim(), callback);
+        callback(getValue(element));
+      }
+    } else {
+      for (let p of paths) {
+        if (p.evaluation == "eval") {
+          let fn = evaluationCallback(element, out.expression);
+        p.path = p.path.replace('counterUpdating.','').replaceAll('this.','')
+          callback = function () {
+            let result = fn();
+            // console.log({result,p})
+            clone.setAttribute(out.attributeName, result);
+          };
+        } else {
+          let result = expressionCallback(element, out.expression);
+          callback = function () {
+            clone.setAttribute(out.attributeName, result);
+          };
+        }
+
+        element.__connection__(p.path.replace('couterUpdating.',''), callback);
+        callback();
+      }
+    }
+    delete element.dataset[out.dataset.path];
+  };
 
   out.setup = setup;
   out.callback = callback;
@@ -92,6 +128,14 @@ export const inspectAttributes = function (template, scope = {}) {
         element.dataset[dataset.path] = true;
         result.data.expressions.push(
           attributeOutput("attribute", attr, value, props, dataset)
+        );
+      }
+      if (attr.indexOf("*") > -1) {
+        result.success = true;
+        let dataset = generateRandomDatasetAttribute();
+        element.dataset[dataset.path] = true;
+        result.data.expressions.push(
+          attributeOutput("model", attr, value, props, dataset)
         );
       }
     }

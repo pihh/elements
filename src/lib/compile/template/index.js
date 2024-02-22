@@ -4,8 +4,10 @@ import { Connect } from "../../render/connect";
 import  TemplateRegistry  from "../registry";
 
 
-export const Template = function(selector,scope={}) {
-    const node = document.querySelector(selector);
+export const Template = function(selector,scope={},node) {
+
+    node = node ? node :  document.querySelector(selector) 
+    console.log(node)
     this.__name__ = selector
     this.node = node;
     this.parent = node.parentNode;
@@ -23,15 +25,15 @@ Template.prototype.boot = function(clone) {
     Connect(this,clone)
 }
 
-Template.prototype.clone = function clone(scope = {}) {
+Template.prototype.clone = function clone(scope = {},placeholder = null) {
     scope = {
         ...this.scope,
         ...scope
     }
-	return new TemplateClone(this, scope || {});
+	return new TemplateClone(this, scope || {},placeholder);
 };
 
-const TemplateClone = function(template, scope = {}) {
+const TemplateClone = function(template, scope = {},placeholder=false) {
 		this.template = template;
 		this.scope = {
             ...this.scope || {},
@@ -39,7 +41,8 @@ const TemplateClone = function(template, scope = {}) {
         }
         this.node = template.node.cloneNode(false);
         template.compile();
-        // this.append()
+        return this.append(placeholder)
+         
 };
 
 
@@ -55,9 +58,10 @@ TemplateClone.prototype.update = function update(scope={}) {
     });
 };
 
-TemplateClone.prototype.append = function append() {
-    console.log("append",this)
-    this.template.parent.appendChild(this.node);
+TemplateClone.prototype.append = function append(placeholder) {
+    placeholder = placeholder || this.template.parent
+    placeholder.appendChild(this.node);
+    // console.log(placeholder)
     this.template.boot(this.node);
-    return this;
+    return this.node;
 };
