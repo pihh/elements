@@ -46,8 +46,8 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
   let setup = function (instance, element, config) {
     let callback = function () {};
     let clone = getClone(element, out);
-    // let clone = element.querySelector(out.dataset.selector);
     if (out.type == "text") {
+      let cloneContainer = clone;
       clone = clone.childNodes[out.attributeName];
 
       for (let p of paths) {
@@ -58,41 +58,29 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
         element.__connection__(p.path, callback);
         callback();
       }
-      delete element.dataset[out.dataset.path];
+      
+      delete cloneContainer.dataset[out.dataset.path];
+      
     } else if (out.type == "model") {
-      console.log(clone.nodeName);
+      
       if (clone.nodeName == "INPUT") {
         let clone = getClone(element, out);
         if (clone.getAttribute("type") == "checkbox") {
-          // let clone = getClone(element,out);
+       
           checkBoxEventSetup(element, clone, expression);
         } else {
           inputEventSetup(element, clone, out.value);
-          // let callback = actionCallback(element, parsedExpression, eventArguments);
-          // clone.addEventListener("click", callback);
-
-          // let fn2 = setterCallback(element, value.trim());
-          // clone.addEventListener("input", function ($event) {
+         
         }
-        //   fn2(element, $event.target.value);
-        // });
-
-        // let callback = function (newValue) {
-        //   if (clone.getAttribute("value") != newValue && newValue) {
-        //     clone.setAttribute("value", newValue);
-        //   }
-        // };
-        // let getValue = getterCallback(element, value.trim());
-
-        // element.__connection__(value.trim(), callback);
-        // callback(getValue(element));
-        // delete element.dataset[out.dataset.path];
+       
       } else if (clone.nodeName === "SELECT") {
         let clone = getClone(element, out);
         selectEventSetup(element, clone, expression);
       }
       setupCleanup(element, clone, out);
+      clone.removeAttribute("*bind")
     } else {
+    
       for (let p of paths) {
         if (p.evaluation == "eval") {
           let fn = evaluationCallback(element, out.expression);
@@ -105,18 +93,18 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
             clone.setAttribute(out.attributeName, result);
           };
         } else {
-          let result = expressionCallback(element, out.expression);
+       
           callback = function () {
-            clone.setAttribute(out.attributeName, result);
+            clone.setAttribute(out.attributeName, expressionCallback(element, out.expression));
           };
         }
 
         element.__connection__(p.path.replace("couterUpdating.", ""), callback);
         callback();
       }
-      delete element.dataset[out.dataset.path];
+      delete clone.dataset[out.dataset.path];
     }
-    delete element.dataset[out.dataset.path];
+    // delete clone.dataset[out.dataset.path];
   };
 
   out.setup = setup;
@@ -151,6 +139,7 @@ export const inspectAttributes = function (template, scope = {}) {
         result.success = true;
         let dataset = generateRandomDatasetAttribute();
         element.dataset[dataset.path] = true;
+        
         result.data.expressions.push(
           attributeOutput("attribute", attr, value, props, dataset)
         );

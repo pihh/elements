@@ -12,7 +12,7 @@ export const connectAttributes = function (instance, clone) {
   });
 };
 
-export const connectController = function (instance,clone) {
+export const connectController = function (instance, clone) {
   for (let prop of instance.__config__.props) {
     clone.parentElement.__defineGetter__(prop, function () {
       return clone.__scope__[prop];
@@ -23,8 +23,7 @@ export const connectController = function (instance,clone) {
     });
   }
   for (let method of clone.parentElement.__methods__) {
-        if (!clone[method] && typeof clone.parentElement[method] == "function") {
-          console.log(method,clone,clone.parentElement);
+    if (!clone[method] && typeof clone.parentElement[method] == "function") {
       clone[method] = clone.parentElement[method].bind(clone);
     }
   }

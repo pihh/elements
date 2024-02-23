@@ -29,15 +29,13 @@ export const checkBoxEventSetup = function (
 
   let callback = function (newValue) {
     try {
-      console.log("set checkbox", { newValue ,type: typeof newValue});
-      // newValue = getValue(element);
       if (typeof newValue == "undefined") {
         newValue = getValue(element);
       }
       if (typeof newValue == "undefined") return;
             
       if (["true", true].indexOf(newValue) > -1  ) {
-        // clone.setAttribute("checked", true);
+  
         clone.checked = true
       } else {
         clone.checked = false
