@@ -11,14 +11,14 @@ class TheBrowser extends HTMLElement {
   constructor() {
     super();
   }
-  @Prop() name = "world";
-  @Prop() description = "default value";
+  @Prop() name = "Pihh";
+  @Prop() description = "This is a default value for the description";
   @Prop() textBinding = "text binding";
   @Prop() booleanBinding = false;
-  @Prop() isChecked = true;
+  @Prop() isChecked = false;
   @Prop() counter = 0;
   @Prop() item = "xxx";
-  @Prop() color = "red";
+  @Prop() color = "yellow";
   @Prop() url = "https://pihh.com";
   @Prop() counterUpdating = false;
   @Prop() colors = ["white", "red", "blue"];

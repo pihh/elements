@@ -55,9 +55,11 @@ export function Component(config = {}) {
     class Component extends component {
       __instanciated__ = false;
       __methods__ = methods;
+
       constructor() {
         super();
-
+        this.slotContent = this.innerHTML;
+        this.innerHTML = "";
         this.baseController = Controller;
         this.baseController.then((controller) => {
           this.controller = controller;
@@ -69,6 +71,28 @@ export function Component(config = {}) {
         if (this.isConnected && !this.__instanciated__ && this.controller) {
           this.template = this.controller.clone(this.props, this);
           this.__instanciated__ = true;
+
+          this.style.visibility = "initial";
+          delete this.style.visibility;
+          const slots = [...this.querySelectorAll("slot")];
+          if (this.slotContent && slots) {
+            const slotMap = {};
+            
+            // let namedSlots =
+            slots.forEach((slot) => {
+              
+              let name = slot.getAttribute("name") || "main";
+              slotMap[name] = slot //this.slotContent;
+            });
+            slotMap.main.innerHTML = this.slotContent
+            let namedSlots = [...slotMap.main.querySelectorAll("[slot]")];
+            namedSlots.forEach(slot => {
+              let name = slot.getAttribute("slot");
+              slot.remove();
+              slotMap[name].appendChild(slot);
+            })
+            // let mainSlot =
+          }
         }
       }
       connectedCallback() {
