@@ -3,7 +3,6 @@ export const expressionCallback = function (
   expression,
   datatype = "string"
 ) {
-
   const fn = Function("return `" + expression + "`");
   try {
     datatype = typeof fn.call(instance);
@@ -13,6 +12,7 @@ export const expressionCallback = function (
       expression,
       datatype,
     });
+    console.log(expression,instance);
     console.warn(ex);
   }
 

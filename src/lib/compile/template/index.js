@@ -25,20 +25,20 @@ Template.prototype.boot = function(clone) {
 
 Template.prototype.clone = function clone(scope = {},placeholder = null) {
     scope = {
-        ...this.scope,
+        ...this.scope || {},
         ...scope
     }
-	return new TemplateClone(this, scope || {},placeholder);
+
+	return new TemplateClone(this, scope ,placeholder);
 };
 
 const TemplateClone = function(template, scope = {},placeholder=false) {
 		this.template = template;
-		this.scope = {
-            ...this.scope || {},
-            ...scope
-        }
+		this.scope = scope;
+     
         this.node = template.node.cloneNode(false);
         template.compile();
+      
         return this.append(placeholder)
          
 };

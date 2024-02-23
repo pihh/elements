@@ -6,32 +6,30 @@ import { Template } from "./template";
  * @returns
  */
 
+const $head = document.head;
 const BaseController = function (config, props) {
   return new Promise(async (res, rej) => {
-    let result = await fetch("/the-browser/template.html");
-    let placeholder = document.createElement("template");
-    document.head.appendChild(placeholder);
-    let wrapper = document.createElement("div");
-    placeholder.content.appendChild(wrapper);
+    let result = await fetch(config.template.url);
     let template = await result.text();
-    wrapper.innerHTML = template;
+    let $placeholder = document.createElement("template");
+    let $wrapper = document.createElement("div");
+    $placeholder.content.appendChild($wrapper);
+    $wrapper.innerHTML = template;
+    $head.appendChild($placeholder);
 
-    //placeholder.innerHTML = template
-    //   document.head.appendChild(template);
     const TheTemplate = new Template(
       config.selector,
       props,
-      placeholder.content.firstElementChild.firstElementChild.cloneNode(true)
+      $placeholder.content.firstElementChild.firstElementChild.cloneNode(true)
     );
+    $placeholder.remove();
     res(TheTemplate);
-    //     return TheTemplate;
   });
 };
-let registered = false;
 
-let Controller;
 export function Component(config = {}) {
   return function (component) {
+    let Controller;
     const methods = Object.getOwnPropertyNames(component.prototype).filter(
       (method) =>
         [
@@ -45,6 +43,7 @@ export function Component(config = {}) {
     );
 
     if (!Controller) {
+      console.log("Loading ", config.selector);
       const scopeMap = {
         values: component.prototype.observedAttributeValues,
         types: component.prototype.observedAttributeTypes,
@@ -61,50 +60,81 @@ export function Component(config = {}) {
         this.slotContent = this.innerHTML;
         this.innerHTML = "";
         this.baseController = Controller;
-        this.baseController.then((controller) => {
-          this.controller = controller;
-          this.__init__();
+      
+        this.baseController.then((setup) => {
+       
+          this.__init__(setup);
         });
       }
 
-      __init__() {
-        if (this.isConnected && !this.__instanciated__ && this.controller) {
-          this.template = this.controller.clone(this.props, this);
+      __init__(controller) {
+        if (this.isConnected && !this.__instanciated__) {
+          console.log(controller,this.props,this)
+          const props = {}
+          const initialAttributes = this.getAttributeNames();
+          const bindings = initialAttributes.filter(el => el.indexOf('*') == 0).filter(el => el !== "*ref").map(el => {
+            return {key:el, value: this.getAttribute(el)};
+          })
+          bindings.forEach(attribute => this.removeAttribute(attribute));
+          for(let attribute of this.getAttributeNames()){
+            props[attribute] = this.getAttribute(attribute);
+          }
+       
+          this.template = controller.clone(props, this);
           this.__instanciated__ = true;
+          for(let key of Object.keys(props)){
+            console.log(this,key);
+            this[key] = props[key]
+          }
+
+     
+          for(let key of Object.keys(bindings)){
+            const parentKey = bindings[key].value;
+            const childKey = bindings[key].key.replace('*','');
+            const callback = ()=>{if(this.__reference__[parentKey] == this[childKey]){return;}  this[childKey] = this.__reference__[parentKey]}
+            this.__reference__.__connection__(parentKey,callback)
+            callback();
+            this.removeAttribute('*'+childKey);
+            const callback2 = ()=>{ if(this.__reference__[parentKey] == this[childKey]){return;} this.__reference__[parentKey] = this[childKey] }
+            this.__connection__(childKey,callback2)
+
+          }
 
           this.style.visibility = "initial";
           delete this.style.visibility;
           const slots = [...this.querySelectorAll("slot")];
           if (this.slotContent && slots) {
             const slotMap = {};
-            
+
             // let namedSlots =
             slots.forEach((slot) => {
-              
               let name = slot.getAttribute("name") || "main";
-              slotMap[name] = slot //this.slotContent;
+              slotMap[name] = slot; //this.slotContent;
             });
-            slotMap.main.innerHTML = this.slotContent
+            slotMap.main.innerHTML = this.slotContent;
             let namedSlots = [...slotMap.main.querySelectorAll("[slot]")];
-            namedSlots.forEach(slot => {
+            namedSlots.forEach((slot) => {
               let name = slot.getAttribute("slot");
               slot.remove();
               slotMap[name].appendChild(slot);
-            })
+            });
             // let mainSlot =
           }
         }
       }
       connectedCallback() {
-        this.__init__();
+        this.baseController.then((controller) => {
+          this.__init__(controller);
+        });
       }
     }
 
     // Register component
-    if (!registered) {
-      customElements.define("the-browser", Component);
-      registered = true;
+    if(!customElements.get(config.selector)){
+
+      customElements.define(config.selector, Component);
     }
+
 
     return Component;
   };

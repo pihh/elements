@@ -1,5 +1,9 @@
+
 import { Component } from "./src/lib/compile/component";
 import { Prop } from "./src/lib/compile/component/prop";
+import { TheDemo } from "./src/lib/components/demo";
+import { TheInput } from "./src/lib/components/form";
+
 
 @Component({
   selector: "the-browser",

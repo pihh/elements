@@ -8,11 +8,7 @@ test("demo", () => {
   expect(true).toBe(true);
 });
 let findPropsTests = [
-  // {
-  //   prop:["color"],
-  //   expression: " colors.name ",
-  //   result: false,
-  // },
+ 
   {
     prop:["colors"],
     expression: " colors ",
