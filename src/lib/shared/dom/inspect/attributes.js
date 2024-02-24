@@ -85,6 +85,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
     } else {
       for (let p of paths) {
         if (p.evaluation == "eval") {
+          console.log(p,expression);
           let fn = evaluationCallback(element, out.expression);
           p.path = p.path
             .replace("counterUpdating.", "")

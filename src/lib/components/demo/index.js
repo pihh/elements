@@ -18,7 +18,9 @@ export class TheDemo extends HTMLElement {
   @Prop() name = "Pihh";
   @Prop() description = "This is a default value for the description";
   @Prop() textBinding = "text binding";
-  @Prop() booleanBinding = false;
+  @Prop() isShowing = false;
+  @Prop() isShowingNextLevel = false;
+  @Prop() isShowingThirdLevel = false;
   @Prop() isChecked = false;
   @Prop() counter = 0;
   @Prop() item = "xxx";
@@ -52,6 +54,16 @@ export class TheDemo extends HTMLElement {
   decrementCounter() {
     this.counter--;
     this.onCounterUpdate();
+  }
+
+  toggleShowing(){
+    this.isShowing = !this.isShowing;
+  }
+  toggleShowingNextLevel(){
+    this.isShowingNextLevel = !this.isShowingNextLevel;
+  }
+  toggleShowingThirdLevel(){
+    this.isShowingThirdLevel = !this.isShowingThirdLevel;
   }
 }
 

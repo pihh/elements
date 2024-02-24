@@ -13,7 +13,6 @@ const eventOutput = function (
   parsedExpression,
   dataset
 ) {
-
   let out = {
     eventName,
     eventType,
@@ -21,94 +20,88 @@ const eventOutput = function (
     originalExpression,
     parsedExpression,
     dataset,
-    
   };
-  out.setup = function(instance,element,map){
+  out.setup = function (instance, element, map) {
     let clone = element.querySelector(out.dataset.selector);
-    
-    let callback = actionCallback(element,parsedExpression,eventArguments)
-    clone.addEventListener('click',callback)
-    
-    
-    delete element.dataset[out.dataset.path];
-  }
-  out.callback = function(){
 
-  }
+    let callback = actionCallback(element, parsedExpression, eventArguments);
+    if ("touchstart" in window) {
+      clone.addEventListener("touchstart", callback);
+    } else {
+      clone.addEventListener("click", callback);
+    }
+
+    delete element.dataset[out.dataset.path];
+  };
+  out.callback = function () {};
   return out;
 };
 
 export const inspectEvents = function (template, scope = {}) {
-    const rule = ruleSet.event.rule;
-    const leftRule = ruleSet.event.leftSearch;
-    const rightRule = ruleSet.event.rightSearch;
-    
-    let result = output();
-    let eventName;
-    let eventExpression;
-    result.data = {template,expressions: []}
+  const rule = ruleSet.event.rule;
+  const leftRule = ruleSet.event.leftSearch;
+  const rightRule = ruleSet.event.rightSearch;
 
-    const getOcorrences = function(template){
-        let ocorrences = template.split(rule);
-        let parsedOcorences = [];
-        if(ocorrences.length > 1){
-            for(let i = 1; i < ocorrences.length; i++){
-                let left = ocorrences[i-1];
-                let right = ocorrences[i];
-                if(right.charAt(0) != "{"){
-                    parsedOcorences.push(left)
-                    parsedOcorences.push(right);
-                    break
-                }
-            }
+  let result = output();
+  let eventName;
+  let eventExpression;
+  result.data = { template, expressions: [] };
+
+  const getOcorrences = function (template) {
+    let ocorrences = template.split(rule);
+    let parsedOcorences = [];
+    if (ocorrences.length > 1) {
+      for (let i = 1; i < ocorrences.length; i++) {
+        let left = ocorrences[i - 1];
+        let right = ocorrences[i];
+        if (right.charAt(0) != "{") {
+          parsedOcorences.push(left);
+          parsedOcorences.push(right);
+          break;
         }
-        return parsedOcorences
+      }
     }
-    let loopMonitor = compileRules.whileLoop.monitor(3);
-    let ocorrences = getOcorrences(template);
+    return parsedOcorences;
+  };
+  let loopMonitor = compileRules.whileLoop.monitor(3);
+  let ocorrences = getOcorrences(template);
 
-  
+  while (ocorrences.length > 0) {
+    loopMonitor();
 
-    while (ocorrences.length > 0) {
-      loopMonitor();
+    let left = ocorrences[0];
+    let right = ocorrences[1].trim();
+    let originalExpression;
+    let dataset = generateRandomDatasetAttribute();
+    let parsedExpression;
 
-      let left = ocorrences[0];
-      let right = ocorrences[1].trim();
-      let originalExpression;
-      let dataset = generateRandomDatasetAttribute();
-      let parsedExpression;
-        
-      eventName = left.split(leftRule);
-      eventName = eventName[eventName.length - 1];
-      eventExpression = filterStack("{" + right, "{", rightRule);
-  
-      originalExpression =
-        leftRule + eventName + rule + eventExpression.data.expression + rightRule;
-      template = template.replace(originalExpression, dataset.directive);
-      parsedExpression = eventOutput(
-        eventName,
-        "native",
-        [],
-        originalExpression,
-        eventExpression.data.expression,
-        dataset
-      );
-      result.success = true;
-      result.message = "found ocurrences";
-   
-      result.data.template = template;
-      result.data.expressions.push(parsedExpression)
-      ocorrences = getOcorrences(template)
+    eventName = left.split(leftRule);
+    eventName = eventName[eventName.length - 1];
+    eventExpression = filterStack("{" + right, "{", rightRule);
 
-  
-    }
-  
-  
-    return result;
+    originalExpression =
+      leftRule + eventName + rule + eventExpression.data.expression + rightRule;
+    template = template.replace(originalExpression, dataset.directive);
+    parsedExpression = eventOutput(
+      eventName,
+      "native",
+      [],
+      originalExpression,
+      eventExpression.data.expression,
+      dataset
+    );
+    result.success = true;
+    result.message = "found ocurrences";
+
+    result.data.template = template;
+    result.data.expressions.push(parsedExpression);
+    ocorrences = getOcorrences(template);
+  }
+
+  return result;
 };
 
 export const inspectCustomEvents = function (template, scope = {}) {
-  
   const rule = ruleSet.customEvent.rule;
   const leftRule = ruleSet.customEvent.leftSearch;
   const rightRule = ruleSet.customEvent.rightSearch;
@@ -119,7 +112,7 @@ export const inspectCustomEvents = function (template, scope = {}) {
   let ocorrences = template.split(rule);
   let loopMonitor = compileRules.whileLoop.monitor(3);
 
-  result.data = {template,expressions: []}
+  result.data = { template, expressions: [] };
   while (ocorrences.length > 1) {
     loopMonitor();
     let left = ocorrences[0];
@@ -145,13 +138,11 @@ export const inspectCustomEvents = function (template, scope = {}) {
     );
     result.success = true;
     result.message = "found ocurrences";
- 
+
     result.data.template = template;
-    result.data.expressions.push(parsedExpression)
+    result.data.expressions.push(parsedExpression);
     ocorrences = template.split(rule);
-
   }
-
 
   return result;
 };

@@ -9,24 +9,38 @@ export const validateProp = function(string,prop){
 }
 
 export const extractPath = function(string,prop){
+    
     let delimiter = '__&&__'
     let originalString = string;
     string = replaceAll(string,[['[','.['],[']','].']]).replaceAll('..','.')
-    string = separateAll(string,['!',"<",">","?",":","+","-","=","*","/","%","'",'"','`','}','{',')','('],delimiter).split('.').map(el => el.trim())//.replaceAll('..','. ').split('.').map(el =>el.trim())
+    string = separateAll(string,['!',"<",">","?",":","+","-","=","*","/","%","'",'"','`','}','{',')','(',],delimiter).split(' ').map(el => el.trim()).join('.').split('.')//.replaceAll('..','. ').split('.').map(el =>el.trim())
  
     let idx = string.indexOf(prop);
     let path = prop;
+
     for(let i = idx+1; i < string.length; i++){
         let p = string[i];
-        path+='.' + p;
-        if(p.indexOf(delimiter)>-1){
+        if(p.indexOf(delimiter)>-1 || p == " "){
             break;
         }
+        path+='.' + p;
     }
 
     let evaluation = "expression";
     if(path.indexOf(delimiter)>-1){
+
+//        console.log({originalString,path,string});
+  //      debugger;
+        // 
         path = path.slice(0,path.indexOf(delimiter))
+        let prev = path[0] !== delimiter 
+
+        // // for(let i = 1; i < path.length; i++){
+        // //     if()
+        // // }
+        if(path[0] !== delimiter){
+
+        }
         evaluation = "eval"
     }
     path = path.trim().replaceAll('.[','[');
@@ -50,15 +64,16 @@ export const extractPath = function(string,prop){
 
 
 export const findProps = function(string,props=[]){
-    // string = cleanAll(['{{',"}}","${"]);
+    
     let paths = [];
     for(let prop of props){
         if(validateProp(string,prop)){
-            paths.push(prop)
+            if(paths.indexOf(prop) == -1){
+                paths.push(prop)
+            }
             
         }
     }
-  
     paths = paths.map(path => path.trim()).filter(path => path.length > 0).map(path => extractPath(string,path))
     return paths;
 }

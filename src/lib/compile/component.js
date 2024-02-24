@@ -69,7 +69,7 @@ export function Component(config = {}) {
 
       __init__(controller) {
         if (this.isConnected && !this.__instanciated__) {
-          console.log(controller,this.props,this)
+     
           const props = {}
           const initialAttributes = this.getAttributeNames();
           const bindings = initialAttributes.filter(el => el.indexOf('*') == 0).filter(el => el !== "*ref").map(el => {
@@ -83,7 +83,7 @@ export function Component(config = {}) {
           this.template = controller.clone(props, this);
           this.__instanciated__ = true;
           for(let key of Object.keys(props)){
-            console.log(this,key);
+         
             this[key] = props[key]
           }
 
@@ -91,12 +91,24 @@ export function Component(config = {}) {
           for(let key of Object.keys(bindings)){
             const parentKey = bindings[key].value;
             const childKey = bindings[key].key.replace('*','');
-            const callback = ()=>{if(this.__reference__[parentKey] == this[childKey]){return;}  this[childKey] = this.__reference__[parentKey]}
+            const callback = ()=>{
+              if(this.__reference__[parentKey] == this[childKey]){
+                return;
+              }  
+              this[childKey] = this.__reference__[parentKey]
+            }
+           
+            this.removeAttribute('*'+childKey);
+            const callback2 = ()=>{ 
+              if(this.__reference__[parentKey] == this[childKey]){
+                return;
+              } 
+              this.__reference__[parentKey] = this[childKey] 
+            }
+            this.__connection__(childKey,callback2)
             this.__reference__.__connection__(parentKey,callback)
             callback();
-            this.removeAttribute('*'+childKey);
-            const callback2 = ()=>{ if(this.__reference__[parentKey] == this[childKey]){return;} this.__reference__[parentKey] = this[childKey] }
-            this.__connection__(childKey,callback2)
+            callback2();
 
           }
 

@@ -36,7 +36,9 @@ export const mapDom = function (template, scope = {}) {
   if (operationMap.success) {
     map.operations = operationMap.data.expressions;
     templateString = operationMap.data.template;
+
   }
+ 
 
   $placeholder.innerHTML = templateString;
 
