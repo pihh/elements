@@ -17,7 +17,25 @@
   <body>
     <div id="app" class="py-4 px-8">
      <the-input value="xxxx"></the-input>
-      <the-demo></the-demo>
+      <the-demo>
+        <slot>
+          <h2 class="text-blue-800">
+            Main slot content
+          </h2>
+          
+        </slot>
+        <slot slot="primary">
+          <h3 class="text-blue-600">
+            Primary slot content
+          </h3>
+        </slot>
+        <slot slot="secondary">
+          <h4 class="text-blue-400">
+            Secondary slot content
+          </h4>
+        </slot>
+
+      </the-demo>
       <!--
       <the-browser> 
       <the-browser> 

@@ -27,6 +27,10 @@ const setupForOperation = function (template, scope = {}, result) {
   };
 };
 
+const parseIfOperationOutput = function(){
+
+}
+
 const operationOutput = function (
   operation,
   operationArguments,
@@ -72,7 +76,7 @@ const operationOutput = function (
           newValue = controllerValueLookup(controller);
         }
         if (typeof newValue == "undefined") return;
-        console.log({ ifOperation: newValue });
+        // console.log({ ifOperation: newValue });
 
         if (["true", true].indexOf(newValue) > -1) {
           $content.forEach(($node) => {
@@ -86,6 +90,44 @@ const operationOutput = function (
       };
 
       controller.__connection__(expression, valueListenerCallback);
+    }else{
+
+      const expression = parsedExpression;
+      const $replacement = controller.querySelector(dataset.selector);
+
+      // const $elements = [...$replacement.querySelectorAll('*')].map($el => {
+      //   $el.indexKey = out.operationArguments.data.query.indexKey;
+      //   $el.controller = controller; // = out.operationArguments.data.query.indexKey;
+      //   $el.controller[$el.indexKey] = 0; // = out.operationArguments.data.query.indexKey;
+      //   $el.__useLocalScope__ = true;
+      //   $el.__connectorRefereces__ = $el.__connectorRefereces__ || {};
+      //   // $el.__connectorRefereces[out.operationArguments.data.query.maskKey] = out.operationArguments.data.query.sourceKey
+      //   return $el;
+      // });
+      
+      const $placeholder = document.createComment("for operation placeholder");
+      $placeholder.__connected__ = true;
+      $placeholder.controller = controller;
+      const $content = [...$replacement.childNodes].map(($child) => {
+        $child.__comment__ = $placeholder;
+        $child.controller = controller;
+        return $child;
+      });
+
+
+      $placeholder.$content = $content; 
+      $replacement.before($placeholder);
+      $replacement.before($placeholder);
+      $content.forEach(($node) => $placeholder.after($node));
+      $replacement.replaceWith($placeholder);
+      console.log($placeholder)
+      $placeholder.generate = function(index){
+        $placeholder.$content.forEach($node => {
+          
+          temp1.after($node.cloneNode(true))
+        })
+      }
+
     }
   };
 
@@ -94,6 +136,8 @@ const operationOutput = function (
   return out;
 };
 const extractOcorrence = function (template, operation) {
+
+ 
   operation.monitor();
   let search = template.split(operation.queryStart);
   let result = output();
@@ -113,9 +157,72 @@ const extractOcorrence = function (template, operation) {
     if (right.charAt(0) != "{") {
       right = "{" + right;
     }
-    let ocorrences = filterStack(right, "{", "}");
 
-    console.log(ocorrences);
+    let ocorrenceType = operation.operation;
+    console.log({ocorrenceType})
+    if(ocorrenceType == "for"){
+
+      try{
+
+       
+        // Extract query, arguments and parameters;
+        let queryParts = query.split(';').map(p => {
+          p = " "+p +" ";
+          p = p.replaceAll(' let ','');
+          p = p.replaceAll(' const ','');
+
+          return p.trim()
+          
+        }).filter(p => p.length > 0)
+
+        query = {
+          query,
+          queryParts,
+          indexKey: "__$$index_"+parseInt(Math.random()*10000)+"$$__",
+          sourceKey:"",
+          maskKey: "",
+          reference: "",
+        };
+        for(let queryPart of queryParts){
+          let separator = queryPart.indexOf(" of ") > -1 ? " of " : "=";
+          let left = queryPart.split(separator)[0].trim();
+          let right = queryPart.split(separator)[1].trim();
+          if(separator ==   "="){
+            query.indexKey = right;
+          }else{
+            query.sourceKey = right.replaceAll('this.','').trim();
+            query.maskKey = left.replaceAll("mask.",'').trim();
+          }
+        }
+        // query.setup = function(instance,element,sourceKey,maskKey){
+        //   element.instance = instance;
+        //   element[maskKey] = instance[sourceKey];
+          
+        // }
+        console.log({query})
+      }catch(ex){
+        console.warn(ex)
+      }
+      
+      // let expression = ocorrences.data.expression
+
+    }
+
+    
+    
+    
+    let ocorrences = filterStack(right, "{", "}");
+    if(ocorrenceType == "for"){
+      ocorrences.data.expression = ocorrences.data.expression.replaceAll("{{"+query.maskKey+"}}","{{this."+query.sourceKey+"["+query.indexKey+"]}}")
+      query.setup = function(instance,element,query){
+        element.instance = instance;
+        element.instance[query.indexKey] = 0;
+        
+      }
+    }
+
+
+
 
     result = output(true, "Found ocorrences", {
       left,
@@ -126,6 +233,8 @@ const extractOcorrence = function (template, operation) {
       ocorrences,
       operation,
     });
+
+    
   }
   return result;
 };
