@@ -25,7 +25,8 @@ export const actionCallback = function(instance,expression,args){
   const fn = eval('()=>{let args = [...arguments]; console.log(args); let self = args[0]; let action=args[1]; self[action](...[args.slice(2)])}')
 
   return function(){
-    fn.bind(instance)()
+    console.log('a','b',...arguments,instance)
+    fn.bind(instance.parentElement)(instance.parentElement,expression)
   }
 }
 

@@ -159,7 +159,7 @@ const extractOcorrence = function (template, operation) {
     }
 
     let ocorrenceType = operation.operation;
-    console.log({ocorrenceType})
+
     if(ocorrenceType == "for"){
 
       try{

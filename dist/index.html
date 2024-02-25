@@ -12,13 +12,31 @@
     />
     <script src="https://cdn.tailwindcss.com"></script>
     
-    <script type="module" crossorigin src="/assets/index-pJrXkYXT.js"></script>
+    <script type="module" crossorigin src="/assets/index-T2Dxqnt8.js"></script>
     <link rel="stylesheet" crossorigin href="/assets/index-7hKON8Wd.css">
   </head>
   <body>
     <div id="app" class="py-4 px-8">
      <the-input value="xxxx"></the-input>
-      <the-demo></the-demo>
+      <the-demo>
+        <slot>
+          <h2 class="text-blue-800">
+            Main slot content
+          </h2>
+          
+        </slot>
+        <slot slot="primary">
+          <h3 class="text-blue-600">
+            Primary slot content
+          </h3>
+        </slot>
+        <slot slot="secondary">
+          <h4 class="text-blue-400">
+            Secondary slot content
+          </h4>
+        </slot>
+
+      </the-demo>
       <!--
       <the-browser> 
       <the-browser> 

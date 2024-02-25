@@ -23,8 +23,8 @@ const eventOutput = function (
   };
   out.setup = function (instance, element, map) {
     let clone = element.querySelector(out.dataset.selector);
-
-    let callback = actionCallback(element, parsedExpression, eventArguments);
+    const controller = element.parentElement && typeof element.parentElement[parsedExpression] === 'function' ? element.parentElement : element;
+    let callback = actionCallback(controller, parsedExpression, eventArguments);
     if ("touchstart" in window) {
       clone.addEventListener("touchstart", callback);
     } else {

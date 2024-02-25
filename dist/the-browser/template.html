@@ -12,14 +12,20 @@
       >
         <div class="bg-white px-8 py-16">
           <header>
-            <h1 class="the-header text-{{color}}-400 text-xl border border-{{color}}-100 ">
+            <h1
+              class="the-header text-{{color}}-400 text-xl border border-{{color}}-100 "
+            >
               Hello <i>{{name}}</i>
             </h1>
 
-            <the-input *value="description" *label="name" *ref={{this}}></the-input>
+            <the-input
+              *value="description"
+              *label="name"
+              *ref="{{this}}"
+            ></the-input>
 
-            <p>{{description}}</p> 
-            <small>{{url}}  {{name}} & {{description}} | {{url}} texto</small>
+            <p>{{description}}</p>
+            <small>{{url}} {{name}} & {{description}} | {{url}} texto</small>
             <section>
               <h2>Two way data binding</h2>
               <article class="py-2">
@@ -119,8 +125,13 @@
                 <div class="py-2">
                   <p>
                     Counter :
-                    <b class="{{ this.counterUpdating ? 'text-red-500' : ''}}">
+                    <b class="{{ counterUpdating ? 'text-red-500' : ''}}">
                       {{counter}}
+                      <b
+                        class="{{ counterUpdating ? 'text-'+ color +'-300' : ''}}"
+                      >
+                        Conditional expression</b
+                      >
                     </b>
                   </p>
                 </div>
@@ -137,35 +148,86 @@
 
             <section>
               <article class="py-2">
-                <h2>Conditional rendering   <small class="text-xs text-gray-400">
-                  Work in progress
-                </small>
-              </h2>
-               
-                <div>
-                  <h3>For Loops <small class="text-xs text-gray-400">
+                <h2>
+                  Conditional rendering
+                  <small class="text-xs text-gray-400">
                     Work in progress
-                  </small></h3>
+                  </small>
+                </h2>
+
+                <div>
+                  <h3>
+                    For Loops
+                    <small class="text-xs text-gray-400">
+                      Work in progress
+                    </small>
+                  </h3>
                   @for(let item of items){
                   <section item="{{item}}">{{item}}</section>
                   }
                 </div>
                 <div>
-                  <h3>If Condition <small class="text-xs text-gray-400">
-                    Work in progress
-                  </small></h3>
+                  <h3>
+                    If Condition
+                    <small class="text-xs text-gray-400">
+                      Work in progress
+                    </small>
+                  </h3>
 
-                  @for(let item of items){
-                    <section item="{{item}}">{{item}}</section>
+                  @if(isShowing){
+
+                  <section class="{{ counterUpdating ? 'text-blue-800' : ''}}">
+                    <h1>LEVEL 1 {{name}}</h1>
+
+                    <div>
+                      @if(isShowingNextLevel){
+                      <section
+                        class="{{ counterUpdating ? 'text-blue-600' : ''}}"
+                      >
+                        <h2>LEVEL 2 IS</h2>
+                        <p>{{description}}</p>
+
+                        @if(isShowingThirdLevel){
+                        <section
+                          class="{{ counterUpdating ? 'text-blue-400' : ''}}"
+                        >
+                          <h3>LEVEL 3</h3>
+                        </section>
+                        }
+                      
+                      </section>
+                      
                     }
+                    </div>
+                  </section>
+
+                  }
+
+                  <section>
+                    <button class="btn" onclick="{toggleShowing}">
+                      {{isShowing ? "Hide" : "Show" }} Level 1
+                    </button>
+
+                    <button class="btn" onclick="{toggleShowingNextLevel}">
+                      {{isShowingNextLevel ? "Hide" : "Show" }} Level 2
+                    </button>
+                    <button class="btn" onclick="{toggleShowingThirdLevel}">
+                      {{isShowingThirdLevel ? "Hide" : "Show" }} Level 3
+                    </button>
+                  </section>
                 </div>
               </article>
             </section>
 
             <section>
               <article class="py-2">
-                <h2>Slots <small class="text-xs text-gray-400">Slots and names slots on the light DOM</small></h2>
-                
+                <h2>
+                  Slots
+                  <small class="text-xs text-gray-400"
+                    >Slots and names slots on the light DOM</small
+                  >
+                </h2>
+
                 <slot></slot>
                 <slot name="primary"></slot>
                 <slot name="secondary"></slot>
