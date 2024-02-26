@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Elements Framework</title>
+    <link href="style.css" rel="stylesheet" />
+    <link
+      href="https://cdn.jsdelivr.net/npm/daisyui@4.7.2/dist/full.min.css"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+  </head>
+  <body>
+    <div id="app" class="py-4 px-8">
+     <the-input value="xxxx"></the-input>
+      <the-demo>
+        <slot>
+          <h2 class="text-blue-800">
+            Main slot content
+          </h2>
+          
+        </slot>
+        <slot slot="primary">
+          <h3 class="text-blue-600">
+            Primary slot content
+          </h3>
+        </slot>
+        <slot slot="secondary">
+          <h4 class="text-blue-400">
+            Secondary slot content
+          </h4>
+        </slot>
+
+      </the-demo>
+      <!--
+      <the-browser> 
+      <the-browser> 
+        <slot>
+          <h2 class="text-blue-800">
+            Main slot content
+          </h2>
+          
+        </slot>
+        <slot slot="primary">
+          <h3 class="text-blue-600">
+            Primary slot content
+          </h3>
+        </slot>
+        <slot slot="secondary">
+          <h4 class="text-blue-400">
+            Secondary slot content
+          </h4>
+        </slot>
+      </the-browser>
+      <the-browser color="blue"></the-browser>
+      <the-browser color="red">
+        
+      </the-browser>
+      <the-browser />
+    -->
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
+
+<!--
+
+        <div class="t4"></div>
+
+      <div class="mockup-browser border border-base-300">
+        <div class="mockup-browser-toolbar">
+          <div class="input border border-base-300">https://pihh.com</div>
+        </div>
+        <div
+          class="flex justify-center px-4 py-16 border-t border-base-300"
+        ></div>
+
+        <div template="the-x">
+          <h1>{{name}}</h1>
+          <p>{{description}}</p>
+        </div>
+        <div template="the-header">
+          <header>
+            <h1 class="the-header text-{{color}}-400 text-xl ">
+              Hello <i>{{name}}</i>
+            </h1>
+            <p>{{description}}</p>
+          </header>
+          <main>
+            <section>
+              <h3>Events</h3>
+              <div>
+                <button class="btn"  onclick="{onClick}">onClick</button>
+                <button class="btn"  (emit)="{onEmit}">onEmit</button>
+              </div>
+            </section>
+            @for(let item of items){
+            <section item="{{item}}">{{item}}</section>
+            }
+            <section>
+              <h3>Binding</h3>
+              <p>Text : {{textBinding}}</p>
+              <p class="{{ this.counterUpdating ? 'text-red-500' : ''}}">Counter : {{counter}}  </p> {{counterUpdating}}
+              <div>
+                <input
+                  type="text"
+                  *bind="textBinding"
+                  
+                />
+                <button class="btn"  onclick="{incrementCounter}">Increment counter</button>
+                <button class="btn"  onclick="{decrementCounter}">Decrement counter</button>
+              </div>
+            </section>
+          </main>
+        </div>
+        <section>
+          <button class="btn"  class="btn">t1</button>
+          <button class="btn"  class="btn">t2</button>
+          <button class="btn"  class="btn">t3</button>
+        </section>
+      </div>
+    </div>
+
+    <div template="the-other">
+      <div class="mockup-browser border border-base-300">
+        <div class="mockup-browser-toolbar">
+          <div class="input border border-base-300">
+            <input class="input" type="text" *bind="url" class="input" />
+          </div>
+        </div>
+        <div class="flex justify-center px-4 py-16 border-t border-base-300">
+          <div>
+            <h1>{{name}}</h1>
+            <p>{{description}}</p>
+            <small>{{url}}</small>
+          </div>
+        </div>
+      </div>
+    </div>
+-->

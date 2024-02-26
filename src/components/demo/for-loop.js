@@ -1,8 +1,8 @@
 
 
 
-import { Component } from "../../compile/component";
-import { Prop } from "../../compile/component/prop";
+import { Component } from "../../lib/compile/component";
+import { Prop } from "../../lib/compile/component/prop";
 import { TheDemo } from ".";
 
 @Component({

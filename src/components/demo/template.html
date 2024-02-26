@@ -1,115 +1,178 @@
 <div>
-  <select class="input border border-gray-100 w-full pb-4" model="color">
-    @for(__color of colors){
-    <option value="{{__color}}" class="text-{{__color}}-900">
-      {{__color}}
-    </option>
-    }
-  </select>
-
-  <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
-    @if(checked){
-    <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
-      Checked @if(checkedd){
-      <div class="lil-card bg-{{color}}-50 border border-{{color}}-300">
-        Checked v2
+    <div
+      class="mockup-browser border border-base-300 preview"
+      style="margin: 0 auto; margin-bottom: 2em; margin-top: 2em"
+    >
+      <div class="mockup-browser-toolbar">
+        <input class="input border border-base-300" *bind="url" />
       </div>
-      <input model="listNumbers[2]" type="number" class="input" />
-      }
-      <div class="lil-card-button">
-        <button class="btn" @onClick="onToggleCheckedV2">CheckedV2</button>
+      <div class="flex justify-center px-4 py-16 border-t border-base-300">
+        <div
+          class="bg-white border border-gray-200 rounded mb-6 mx-auto rounded-xl my-6 container"
+        >
+          <div class="bg-white px-8 py-16">
+            <header>
+              <h1 class="the-header text-{{color}}-400 text-xl ">
+                Hello <i>{{name}}</i>
+              </h1>
+  
+              <p>{{description}}</p>
+              <small>{{url}}</small>
+              <section>
+                <h2>Two way data binding</h2>
+                <article class="py-2">
+                  <h3>Inputs:</h3>
+  
+                  <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                      <span class="label-text">Name</span>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Type here"
+                      class="input input-bordered w-full max-w-xs"
+                      *bind="name"
+                      value="{{name}}"
+                    />
+                  </label>
+                  <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                      <span class="label-text">Description</span>
+                    </div>
+                    <input
+                      type="text"
+                      placeholder="Type here"
+                      class="input input-bordered w-full max-w-xs"
+                      *bind="description"
+                      value="{{description}}"
+                    />
+                  </label>
+                </article>
+                <article class="py-2">
+                  <h3>Checkbox</h3>
+                  <div class="form-control">
+                    <label class="label cursor-pointer" style="max-width: 22.5em">
+                      <span class="label-text">Checkbox {{isChecked}}</span>
+                      <input
+                        type="checkbox"
+                        checked="checked"
+                        class="input-checkbox checkbox-primary"
+                        *bind="isChecked"
+                      />
+                    </label>
+                  </div>
+                </article>
+                <article class="py-2">
+                  <h3>Select</h3>
+  
+                  <label class="form-control w-full max-w-xs">
+                    <div class="label">
+                      <span class="label-text">Color</span>
+                    </div>
+                    <select class="select select-bordered" *bind="color">
+                      <option disabled>Pick one</option>
+                      <option value="red">red</option>
+                      <option value="yellow">yellow</option>
+                      <option value="blue">blue</option>
+                    </select>
+                  </label>
+                  <br />
+  
+                  <div
+                    class="diff aspect-[16/9] border  border-{{color}}-500 rounded-xl my-2"
+                  >
+                    <div class="diff-item-1">
+                      <div
+                        class="bg-{{color}}-400 text-white text-9xl font-black grid place-content-center"
+                      >
+                        SELECT
+                      </div>
+                    </div>
+                    <div class="diff-item-2">
+                      <div
+                        class="bg-white text-9xl font-black grid place-content-center"
+                      >
+                        SELECT
+                      </div>
+                    </div>
+                    <div class="diff-resizer"></div>
+                  </div>
+                </article>
+              </section>
+            </header>
+            <main>
+              <section>
+                <article class="py-2">
+                  <h2>
+                    Events
+                    <small class="text-xs text-gray-400">
+                      Check your console.
+                    </small>
+                  </h2>
+  
+                  <div class="py-2">
+                    <button class="btn" onclick="{onClick}">onClick</button>
+                    <button class="btn" (emit)="{onEmit}">onEmit</button>
+                  </div>
+                  <div class="py-2">
+                    <p>
+                      Counter :
+                      <b class="{{ this.counterUpdating ? 'text-red-500' : ''}}">
+                        {{counter}}
+                      </b>
+                    </p>
+                  </div>
+                  <div class="py-2">
+                    <button class="btn" onclick="{incrementCounter}">
+                      Increment counter
+                    </button>
+                    <button class="btn" onclick="{decrementCounter}">
+                      Decrement counter
+                    </button>
+                  </div>
+                </article>
+              </section>
+  
+              <section>
+                <article class="py-2">
+                  <h2>Conditional rendering   <small class="text-xs text-gray-400">
+                    Work in progress
+                  </small>
+                </h2>
+                 
+                  <div>
+                    <h3>For Loops <small class="text-xs text-gray-400">
+                      Work in progress
+                    </small></h3>
+                    @for(let item of items){
+                    <section item="{{item}}">{{item}}</section>
+                    }
+                  </div>
+                  <div>
+                    <h3>If Condition <small class="text-xs text-gray-400">
+                      Work in progress
+                    </small></h3>
+  
+                    @for(let item of items){
+                      <section item="{{item}}">{{item}}</section>
+                      }
+                  </div>
+                </article>
+              </section>
+  
+              <section>
+                <article class="py-2">
+                  <h2>Slots <small class="text-xs text-gray-400">Slots and names slots on the light DOM</small></h2>
+                  
+                  <slot></slot>
+                  <slot name="primary"></slot>
+                  <slot name="secondary"></slot>
+                </article>
+              </section>
+            </main>
+          </div>
+        </div>
       </div>
     </div>
-    }
-    <div class="lil-card-button">
-      <button class="btn" @onClick="onToggleChecked">Checked</button>
-    </div>
   </div>
-
-  <input model="num" type="number" class="input" />
-  @if( items.length > 0 ){
-  <div class="lil-card">
-    If there are items: items.length > 0
-    <input type="checkbox" checked="{{items.length >0}}" disabled />
-    <i class="text-green-900">V</i>
-  </div>
-  } @else {
-  <div class="lil-card">
-    If there are no items: items.length == 0
-    <input type="checkbox" checked="{{items.length ==0}}" disabled />
-    <i class="text-red-900">X</i>
-  </div>
-
-  }
-  <button class="btn" @onClick="onClickWithData(color,colors)">
-    Click With Colors
-  </button>
-
-  @for(card of cards;index = $i){
-
-  <div
-    class="card preview border-base-300 bg-base-100 rounded-b-box rounded-se-box flex min-h-[6rem] min-w-[18rem] max-w-4xl flex-wrap items-center justify-center gap-2 overflow-x-hidden bg-cover bg-top p-4 [border-width:var(--tab-border)] undefined"
-    style="
-      background-image: url(https://daisyui.com/images/stock/photo-1481026469463-66327c86e544.jpg);
-      background-size: cover;
-      border-radius: 1em;
-    "
-  >
-    <div class="card w-96 glass">
-      <figure style="display: {{card.expanded ? '' : 'none'}}">
-        <img
-          src="https://daisyui.com/images/stock/photo-1606107557195-0e29a4b5b4aa.jpg"
-        />
-      </figure>
-      <a class="card-collapser sidebar-collapser" @onClick="onToggleCard($i)">
-        @if(card.expanded){
-        <span> - </span>
-        }@else{
-        <span> + </span>
-        }
-      </a>
-      <div class="card-body">
-        <h2 class="card-title">{{card.title}}</h2>
-
-        <p>
-          Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dolores
-          magnam quisquam iusto, autem eveniet, veniam vitae maiores optio
-          facilis velit, omnis hic ea ipsam voluptates sequi nostrum tempore
-          perspiciatis est!
-        </p>
-        <div>
-          @for(l of card.list; let index = $cardListIndex){
-          <li>
-            {{l}} {{$cardListIndex}} {{num}}
-            <input model="l" class="input" />
-          </li>
-          }
-        </div>
-
-        <div class="justify-end card-actions">
-          <button
-            class="btn btn-primary"
-            @onClick="onPush($i, card,'text',listNumbers[2])"
-          >
-            Push
-          </button>
-          <button class="btn btn-primary" @onClick="onPop($i)">Pop</button>
-        </div>
-
-        <div>
-          @for(item of items){
-          <li>
-            {{item.name}}
-            <input model="item.name" class="input" />
-          </li>
-          }
-        </div>
-        <div class="justify-end card-actions">
-          <button class="btn btn-primary" @onClick="onPushItem()">Push</button>
-          <button class="btn btn-primary" @onClick="onPopItem()">Pop</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  }
-</div>
+  

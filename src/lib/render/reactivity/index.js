@@ -11,6 +11,7 @@ const connectGetterSetterAttributes = function (instance, clone) {
       return clone.__scope__[prop];
     });
     clone.__defineSetter__(prop, function (value) {
+      
       clone.__scope__[prop] = value;
       return true;
     });

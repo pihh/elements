@@ -51,7 +51,7 @@ export const connectAttributes = function (instance, clone) {
     map.setup(instance, clone, map);
     map.callback(instance, clone);
   });
-  console.log(instance.__config__.map)
+  // console.log(instance.__config__.map)
 
   /*
   const operationMap = instance.__config__.map.operations || [];
@@ -96,10 +96,12 @@ export const connectAttributes = function (instance, clone) {
 export const connectController = function (instance, clone) {
   for (let prop of instance.__config__.props) {
     clone.parentElement.__defineGetter__(prop, function () {
+      clone.parentElement.setAttribute(prop, clone.__scope__[prop])
       return clone.__scope__[prop];
     });
     clone.parentElement.__defineSetter__(prop, function (value) {
       clone.__scope__[prop] = value;
+      clone.parentElement.setAttribute(prop, value)
       return true;
     });
   }

@@ -1,5 +1,5 @@
 import { PubSub } from "./pubsub";
-import { pathName } from "../../helpers//path";
+import { pathName } from "../../helpers/path";
 import { ProxyMembrane } from "./membrane";
 
 

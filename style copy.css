@@ -1,0 +1,193 @@
+@import "./public/base.css";
+
+h1 {
+  font-weight: 800 !important;
+  font-size: 1.75rem !important;
+  letter-spacing: -1px !important;
+  line-height: 2rem !important;
+  /* margin: 0em 0em 0.75em 0 !important; */
+}
+h2 {
+  font-weight: 700 !important;
+  font-size: 1.5rem !important;
+  letter-spacing: -1px !important;
+  line-height: 1.75rem !important;
+  margin: 0em 0em 0.5em 0 !important;
+}
+h3 {
+  font-weight: 600 !important;
+  font-size: 1.25rem !important;
+  letter-spacing: -1px !important;
+  line-height: 1.5rem !important;
+  margin: 0em 0em 0.25em 0 !important;
+}
+
+:root {
+
+  background-color: #ebf5fc;
+  color: #6a9bd8;
+  --bg-color-base: #020617;
+  --bg-color-from: #010209;
+  --bg-color-to: #030a25;
+  --bg-box-shadow: inset 6px 6px 26px var(var(--bg-color-from)),
+    inset -6px -6px 26px var(var(--bg-color-to));
+
+  --bg-card-color-base: #c4c4c4;
+  --bg-card-color-base-start: #ffffff;
+  --bg-card-color-base-end: #5f5f5f;
+  --bg-card-box-shadow: inset 6px 6px 26px var(--bg-card-color-base-end), inset -6px -6px 26px var(--bg-card-color-base-start);
+
+  --card-text-color: black;
+  --card-padding: 1em;
+}
+
+:root body.theme-red {
+  /* background: #a30000; */
+  /* box-shadow: inset 6px 6px 26px #410000, inset -6px -6px 26px #ff0000; */
+  --bg-card-color-base: #a30000;
+  --bg-card-color-base-start: #cf1919;
+  --bg-card-color-base-end: #790808;
+  --bg-card-box-shadow: inset 6px 6px 26px #410000, inset -6px -6px 26px #ff0000;
+  --card-text-color: white;
+}
+:root body.theme-green {
+  /* background: #a30000; */
+  /* box-shadow: inset 6px 6px 26px #410000, inset -6px -6px 26px #ff0000; */
+  --bg-card-color-base: #118f00;
+  --bg-card-color-base-start: #1be500;
+  --bg-card-color-base-end: #073900;
+  --bg-card-box-shadow: inset 6px 6px 26px #073900, inset -6px -6px 26px #1be500;
+  --card-text-color: white;
+
+}
+:root body.theme-blue {
+  /* background: #a30000; */
+  /* box-shadow: inset 6px 6px 26px #410000, inset -6px -6px 26px #ff0000; */
+  --bg-card: linear-gradient(145deg, #0b0d4d, #090b41);
+  --bg-card-color-base: #0a0c48;
+  --bg-card-color-base-start: #101373;
+  --bg-card-color-base-end: #04051d;
+  --bg-card-box-shadow: inset 6px 6px 26px #04051d, inset -6px -6px 26px #101373;
+  --card-text-color: white;
+}
+:root body.theme-yellow {
+  /* background: #a30000; */
+  /* box-shadow: inset 6px 6px 26px #410000, inset -6px -6px 26px #ff0000; */
+  --bg-card: linear-gradient(145deg, #d49519, #ad7616);
+  --bg-card-color-base: #d49519;
+  --bg-card-color-base-start: #f4ac1b;
+  --bg-card-color-base-end: #61430d;
+  --bg-card-box-shadow: inset 6px 6px 26px var(--bg-card-color-base-end), inset -6px -6px 26px var(--bg-card-color-base-start);
+
+
+  --card-text-color: white;
+}
+
+body {
+  /* border-radius: 50px; */
+  background: var(--bg-color-base);
+  box-shadow: var(--bg-box-shadow);
+}
+
+.card {
+  color: var(--card-text-color);
+  width: fit-content;
+  /* background: var(--bg-card-color-base); */
+  padding: var(--card-padding);
+  background: linear-gradient(157deg, var(--bg-card-color-base-start), var(--bg-card-color-base));
+  /* --bg-card */
+  min-height: 18em;
+  margin: 5px;
+  border-radius: 0.5em;
+}
+
+.flex-top {
+  align-items: flex-start !important;
+}
+
+the-binding-container {
+  width: 100%;
+}
+
+the-binding-container .card input,
+the-binding-container .card select {
+  color: var(--card-text-color);
+  border-radius: 50px;
+  background: var(--bg-card-color-base);
+  box-shadow: var(--bg-card-box-shadow);
+}
+.showcase-panel {
+  display: inline-flex;
+  width: 100%;
+}
+the-binding-container .card {
+  width: auto;
+  gap: 4px;
+  direction: ltr;
+}
+the-text-binding,
+the-select-binding {
+  flex: 1;
+}
+the-select-binding select {
+  width: 100%;
+}
+the-binding-container .card input,
+the-binding-container .card select {
+  border-radius: 0.5em;
+  padding: 0.5em;
+  direction: ltr;
+}
+
+the-binding-container * {
+  direction: ltr !important;
+}
+
+the-binding-container .card-container {
+  gap: 4px;
+}
+
+.card .button-outside {
+  color: var(--card-text-color);
+  border-radius: 50px;
+  /* background: linear-gradient(145deg, #7f8387, #6b6e71); */
+  box-shadow: -6px -6px 26px var(--bg-card-color-base-end), 6px 6px 26px var(--bg-card-color-base-start);
+  background: linear-gradient(157deg, var(--bg-card-color-base), var(--bg-card-color-base-end));
+
+ 
+}
+.card .button-rounded {
+  border-radius: 100%;
+  height: 3em;
+  width: 3em;
+}
+
+.card .card-inline-item-placeholder {
+  width: 5em;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.card .button-vertical {
+  margin: 1em;
+  width: 3em;
+  display: block;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.card-container {
+  display: flex;
+  direction: rtl;
+}
+
+.card .button-on {
+  color: red;
+}
+
+.ionicon {
+  height: 1.5em !important;
+}

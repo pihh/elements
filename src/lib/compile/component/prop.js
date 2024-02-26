@@ -23,6 +23,7 @@ export const Prop = function (value) {
     if (
       target.constructor.prototype.observedAttributes.indexOf(propertyKey) == -1
     ) {
+      target.constructor.observedAttributes.push(propertyKey);
       target.constructor.prototype.observedAttributes.push(propertyKey);
     }
     descriptor[propertyKey] = value;

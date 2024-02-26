@@ -43,7 +43,7 @@ export function Component(config = {}) {
     );
 
     if (!Controller) {
-      console.log("Loading ", config.selector);
+      // console.log("Loading ", config.selector);
       const scopeMap = {
         values: component.prototype.observedAttributeValues,
         types: component.prototype.observedAttributeTypes,
@@ -56,60 +56,68 @@ export function Component(config = {}) {
       __methods__ = methods;
 
       constructor() {
+     
         super();
         this.slotContent = this.innerHTML;
         this.innerHTML = "";
         this.baseController = Controller;
-      
+
         this.baseController.then((setup) => {
-       
           this.__init__(setup);
         });
       }
 
       __init__(controller) {
         if (this.isConnected && !this.__instanciated__) {
-     
-          const props = {}
+          const props = {};
           const initialAttributes = this.getAttributeNames();
-          const bindings = initialAttributes.filter(el => el.indexOf('*') == 0).filter(el => el !== "*ref").map(el => {
-            return {key:el, value: this.getAttribute(el)};
-          })
-          bindings.forEach(attribute => this.removeAttribute(attribute));
-          for(let attribute of this.getAttributeNames()){
+          const bindings = initialAttributes
+            .filter((el) => el.indexOf("*") == 0)
+            .filter((el) => el !== "*ref")
+            .map((el) => {
+              return { key: el, value: this.getAttribute(el) };
+            });
+          bindings.forEach((attribute) => this.removeAttribute(attribute));
+          for (let attribute of this.getAttributeNames()) {
             props[attribute] = this.getAttribute(attribute);
+            if (attribute.indexOf("*") == 1) {
+            }
           }
-       
+
           this.template = controller.clone(props, this);
           this.__instanciated__ = true;
-          for(let key of Object.keys(props)){
-         
-            this[key] = props[key]
+          for (let key of Object.keys(props)) {
+            // if (key.indexOf("*") == -1) {
+            //   this.__defineSetter__(key, function (value) {
+            //     console.log(value);
+            //     this.setAttribute(key, value);
+            //     return true;
+            //   });
+            // }
+            this[key] = props[key];
           }
 
-     
-          for(let key of Object.keys(bindings)){
+          for (let key of Object.keys(bindings)) {
             const parentKey = bindings[key].value;
-            const childKey = bindings[key].key.replace('*','');
-            const callback = ()=>{
-              if(this.__reference__[parentKey] == this[childKey]){
+            const childKey = bindings[key].key.replace("*", "");
+            const callback = () => {
+              if (this.__reference__[parentKey] == this[childKey]) {
                 return;
-              }  
-              this[childKey] = this.__reference__[parentKey]
-            }
-           
-            this.removeAttribute('*'+childKey);
-            const callback2 = ()=>{ 
-              if(this.__reference__[parentKey] == this[childKey]){
+              }
+              this[childKey] = this.__reference__[parentKey];
+            };
+
+            this.removeAttribute("*" + childKey);
+            const callback2 = () => {
+              if (this.__reference__[parentKey] == this[childKey]) {
                 return;
-              } 
-              this.__reference__[parentKey] = this[childKey] 
-            }
-            this.__connection__(childKey,callback2)
-            this.__reference__.__connection__(parentKey,callback)
+              }
+              this.__reference__[parentKey] = this[childKey];
+            };
+            this.__connection__(childKey, callback2);
+            this.__reference__.__connection__(parentKey, callback);
             callback();
             callback2();
-
           }
 
           this.style.visibility = "initial";
@@ -135,18 +143,31 @@ export function Component(config = {}) {
         }
       }
       connectedCallback() {
-        this.baseController.then((controller) => {
-          this.__init__(controller);
-        });
+      
+        if(!this.__instanciated__){
+
+          // super.connectedCallback();
+          this.baseController.then((controller) => {
+             this.__init__(controller);
+             // super.connectedCallback();
+             if(super.connectedCallback) {
+              super.connectedCallback();
+            }
+          });
+        }else{
+          super.connectedCallback();
+          
+        }
+       
+        // console.log('connected',this)
       }
+     
     }
 
     // Register component
-    if(!customElements.get(config.selector)){
-
+    if (!customElements.get(config.selector)) {
       customElements.define(config.selector, Component);
     }
-
 
     return Component;
   };

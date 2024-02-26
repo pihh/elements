@@ -29,7 +29,18 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
     for (let path of paths) {
       expression = expression
         .replaceAll(path.path, "this." + path.path)
-        .replaceAll("this.this.", "this.");
+        .replaceAll(".this.", ".")
+        .replaceAll(".this[", "[")
+        .replaceAll(".this.", "")
+        .replaceAll("this.this.", "this.")
+        if(expression.indexOf("this.") == -1) {
+          expression = "{{this."+path.path+"}}"
+          // console.log(expression,path)
+        }
+        // console.log(expression);
+        // if(expression.indexOf("this.")!== 0){
+          
+        // }
     }
   }
 
@@ -85,7 +96,7 @@ const attributeOutput = function (type, attributeName, value, props, dataset) {
     } else {
       for (let p of paths) {
         if (p.evaluation == "eval") {
-          console.log(p,expression);
+          // console.log(p,expression);
           let fn = evaluationCallback(element, out.expression);
           p.path = p.path
             .replace("counterUpdating.", "")
@@ -143,7 +154,7 @@ export const inspectAttributes = function (template, scope = {}) {
       let ocorrences = getOcorrences(value);
       if (ocorrences.length > 0) {
         if (ocorrences.length > 1) {
-          console.log(element, attr, value, ocorrences);
+          // console.log(element, attr, value, ocorrences);
           debugger;
         }
         result.success = true;

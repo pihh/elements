@@ -1,4 +1,4 @@
-import { Template } from "./src/lib/compile/template";
+import { Template } from "../src/lib/compile/template";
 
 var HelloTemplate = new Template("[template=the-header]", {
   name: "world",
