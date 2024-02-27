@@ -191,3 +191,8 @@ the-binding-container .card-container {
 .ionicon {
   height: 1.5em !important;
 }
+.card .button-rounded {
+  border-radius: 100%;
+  height: 3em;
+  width: 3em;
+}
