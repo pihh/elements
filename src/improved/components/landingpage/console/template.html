@@ -1,25 +1,30 @@
 <div class="mt-4 -mx-4 sm:mx-0 lg:mt-0 lg:col-span-7 xl:col-span-6">
-    <div
-      class="relative overflow-hidden shadow-xl flex bg-slate-800  max-h-[60vh] sm:max-h-[none] sm:rounded-xl dark:bg-slate-900/70 dark:backdrop-blur dark:ring-1 dark:ring-inset dark:ring-white/10"
-    >
-      <div class="relative w-full flex flex-col">
-        <div class="flex-none">
-          <div class="flex items-center h-8 space-x-1.5 px-3">
-            <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
-            <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
-            <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
-          </div>
+  <div
+    class="relative overflow-hidden shadow-xl flex bg-slate-800 max-h-[60vh] sm:max-h-[none] sm:rounded-xl dark:bg-slate-900/70 dark:backdrop-blur dark:ring-1 dark:ring-inset dark:ring-white/10"
+  >
+    <div class="relative w-full flex flex-col">
+      <div class="flex-none">
+        <div class="flex items-center h-8 space-x-1.5 px-3">
+          <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
+          <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
+          <div class="w-2.5 h-2.5 bg-slate-600 rounded-full"></div>
         </div>
-        <div class="relative min-h-0 flex-auto flex flex-col">
-          <div
-            class="flex-none overflow-auto whitespace-nowrap flex"
-            style="opacity: 1"
-          >
-            <the-console-nav *tabs="tabs"  (onChangeTab)="onChangeTab"></the-console-nav>
-          </div>
-            <the-console-window view="{{view}}" *project="project"></the-console-window>
+      </div>
+      <div class="relative min-h-0 flex-auto flex flex-col">
+        <div
+          class="flex-none overflow-auto whitespace-nowrap flex"
+          style="opacity: 1"
+        >
+          <the-console-nav
+            *tabs="tabs"
+            (onChangeTab)="onChangeTab"
+          ></the-console-nav>
         </div>
+        <the-console-window
+          view="{{view}}"
+          project="{{project}}"
+        ></the-console-window>
       </div>
     </div>
   </div>
-  
+</div>

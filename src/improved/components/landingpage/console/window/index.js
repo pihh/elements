@@ -17,10 +17,8 @@ class TheConsoleWindow {
     // if(name == "project")
     if (oldValue !== newValue) {
       if (name == "view") {
-
         this.updateView();
       }
-      
     }
   }
 
@@ -29,21 +27,19 @@ class TheConsoleWindow {
   }
   lastUpdated = 0;
   updateView() {
-    if(Date.now() - this.lastUpdated < 100 ){
-        return
+    if (Date.now() - this.lastUpdated < 100) {
+      return;
     }
-    this.lastUpdated = Date.now()
-    console.log(this)
+    this.lastUpdated = Date.now();
     try {
       const view = !isNaN(this.view) ? Number(this.view) : 0;
-      const project = this.project || "forLoop";
+      const project = DATA[this.project] ? this.project : "forLoop";
 
       this.language = DATA[project][view].language;
 
       this.content = `${DATA[project][view].content}`;
-      this.querySelector('#console-window-content').innerHTML=this.content
-        Prism.highlightAll()
-  
+      this.querySelector("#console-window-content").innerHTML = this.content;
+      Prism.highlightAll();
     } catch (ex) {
       console.log(ex);
     }

@@ -3,44 +3,27 @@ import { Compile } from "../../../../lib";
 import template from "./template.html?raw";
 
 class TheConsoleNav {
-  constructor() {
-    console.log(this)
-  }
+  constructor() {}
 
   tabs = [];
 
   onChangeTab(tab) {
     this.broadcast("onChangeTab", tab);
-  }
- 
-  connectedCallback(){
-    console.log(this);
-  }
-  attributeChangedCallback(name,oldValue,newValue) {
-    if(name ==="tabs" && oldValue !== newValue){
-     
-      for(let value of [oldValue,newValue]){
-        try{
-          //value = value || [];
-          if(value){
-            console.log(value)
-            if(typeof value == "object"){
-              
-              // this.tabs = JSON.parse(JSON.stringify(value))
-            }else if(typeof value == "string"){
-              //this.tabs = JSON.parse(value) || []
-              
-            }
-          }else{
-            this.tabs = [];
-          }
-          console.log(this)
-        }catch(ex){
-          
-        }
+    /*
+    for (let _tab of this.tabs) {
+      if (_tab.idx == tab.idx) {
+        _tab.selected = true;
+      } else {
+        _tab.selected = false;
       }
     }
-    // console.log(this,this.tabs,name,oldValue,newValue);
+    */
+  }
+
+  connectedCallback() {
+    setTimeout(() => {
+      this.broadcast("onChangeTab", this.tabs.filter((el) => el.selected)[0]);
+    });
   }
 }
 

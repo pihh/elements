@@ -33,7 +33,7 @@ export const connectFor = function (
       .replaceAll("{{", "${")
       .replaceAll("}}", "}");
     $wrapper.innerHTML = $template;
-    $wrapper = $wrapper.firstElementChild
+    $wrapper = $wrapper.firstElementChild;
     // console.log($template);
     const _configuration = Object.assign(
       {},
@@ -44,19 +44,21 @@ export const connectFor = function (
         )
       )
     );
-  // delete $wrapper.firstElementChild.dataset[config.selectorCamel];
+    // delete $wrapper.firstElementChild.dataset[config.selectorCamel];
     // console.log(_configuration, $wrapper);
-        
+
     placeholder.after($wrapper);
     instance.connectElements(_configuration, $wrapper);
-    
+
     // instance.connectElements(reactivityConfiguration, $wrapper);
     // $wrapper = $wrapper.firstElementChild;
 
     placeholder.__stack.push($wrapper);
-    
-    instance.update(listener)
-    $wrapper.before($wrapper.firstElementChild);
+    console.log(instance.subscriptions);
+    setTimeout(() => {
+      instance.update(listener);
+    });
+    //$wrapper.before($wrapper.firstElementChild);
   };
 
   const subscription = (expression) => {
@@ -73,15 +75,14 @@ export const connectFor = function (
     if (entries < placeholder.__stack.length) {
       for (let i = entries; i < placeholder.__stack.length; i++) {
         placeholder.__stack[i].remove();
-        instance.update(config.sourceVariable+"["+i+"]")
+        instance.update(config.sourceVariable + "[" + i + "]");
       }
       placeholder.__stack = placeholder.__stack.slice(0, entries);
     }
-    
   };
 
   instance.subscribe(config.sourceVariable + ".length", function () {
-    placeholder.forceRender()
+    placeholder.forceRender();
     // subscription("${" + config.sourceVariable + ".length}");
     // instance.firstRender()
   });
@@ -89,17 +90,13 @@ export const connectFor = function (
   //   instance.firstRender()
   subscription("${" + config.sourceVariable + ".length}");
   placeholder.instance = instance;
-  placeholder.forceRender = function(){
-    try{
-
-      placeholder.__stack.map(el => el.remove())
-    }catch(ex){
-
-    }
+  placeholder.forceRender = function () {
+    try {
+      placeholder.__stack.map((el) => el.remove());
+    } catch (ex) {}
     placeholder.__stack = [...[]];
-    console.log(placeholder,instance,config)
+    console.log(placeholder, instance, config);
     subscription("${" + config.sourceVariable + ".length}");
-
-  }
-  console.log({placeholder});
+  };
+  console.log({ placeholder, instance });
 };

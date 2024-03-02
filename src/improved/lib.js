@@ -82,8 +82,8 @@ export async function Compile(component, config = {}, mode = "live") {
           let element = baseElement.querySelector("[" + dataset + "]");
           if (!element) continue;
           let target = element;
- 
-          if(element.nodeName =="THE-CONSOLE-NAV"){
+
+          /* if(element.nodeName =="THE-CONSOLE-NAV"){
             if(element.tabbed){
               // element.scope.tabs = this.scope.tabs
               
@@ -104,7 +104,7 @@ export async function Compile(component, config = {}, mode = "live") {
              
 
             }
-          }
+          }*/
           if (config.type == "for") {
             connectFor(this, baseElement, config, reactivityConfiguration);
           } else if (config.type === "text" && config.expression) {
@@ -116,12 +116,7 @@ export async function Compile(component, config = {}, mode = "live") {
           } else if (config.type === "if") {
             connectIf(this, baseElement, config);
           } else if (config.type === "bind") {
-            if(element.nodeName =="THE-CONSOLE-NAV"){
-
-            }else{
-              connectBinding(this, element, config);
-
-            }
+            connectBinding(this, element, config);
           } else if (config.type === "emitter") {
             connectEmitter(this, element, config);
           }
@@ -162,7 +157,7 @@ export async function Compile(component, config = {}, mode = "live") {
           // console.log(baseAttribute,[this,this.constructor.observedAttributeTypes]);
           const parse =
             Parser[this.constructor.observedAttributeTypes[baseAttribute]];
-          
+
           let value =
             this.constructor.observedAttributeDefaultValues[baseAttribute];
           this.scope[baseAttribute] = parse(value);
@@ -211,13 +206,14 @@ export async function Compile(component, config = {}, mode = "live") {
           this.scope[name] = newValue;
         }
         if (Instance.constructor.prototype.attributeChangedCallback) {
-          Instance.constructor.prototype.attributeChangedCallback.call(this,
+          Instance.constructor.prototype.attributeChangedCallback.call(
+            this,
             name,
             oldValue,
             newValue
-            )
-          }
-          this.update(name);
+          );
+        }
+        this.update(name);
       }
 
       update(name) {

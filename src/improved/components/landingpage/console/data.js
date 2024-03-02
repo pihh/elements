@@ -1,8 +1,8 @@
 function magic(input) {
-    input = input.replace(/&/g, '&amp;');
-    input = input.replace(/</g, '&lt;');
-    input = input.replace(/>/g, '&gt;');
-    return input;
+  input = input.replace(/&/g, "&amp;");
+  input = input.replace(/</g, "&lt;");
+  input = input.replace(/>/g, "&gt;");
+  return input;
 }
 export const DATA = {
   forLoop: [
@@ -30,7 +30,7 @@ Component(TheComponent,{
 `,
     },
     {
-        idx:1,
+      idx: 1,
       selected: true,
       title: "template.html",
       language: "html",
@@ -45,6 +45,40 @@ Component(TheComponent,{
     </div>
 </div>
 }`),
+    },
+  ],
+  dataBinding: [
+    {
+      idx: 0,
+      title: "index.js",
+      selected: false,
+      language: "javascript",
+      content: `import Component from 'pihh';
+import template from './template.html?raw';
+          
+class TheComponent {
+    title= "The component title";
+    color= "white";
+    colors= ["white", "black"];
+}
+Component(TheComponent,{
+    selector:"the-component",
+    template: template
+})`,
+    },
+    {
+      idx: 1,
+      selected: true,
+      title: "template.html",
+      language: "html",
+      content: magic(`<section>
+      <input type="text" name="title" *value="title" />
+      <select *value="color">
+        @for(let _color of colors){
+          <option value="{{_color}}>{{_color}}</option>
+        }
+      </select>
+    </section>`),
     },
   ],
 };
