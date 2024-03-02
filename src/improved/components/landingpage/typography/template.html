@@ -1,0 +1,41 @@
+<template id="the-h1">
+  <!-- <style>
+    @import url("/style.css");
+  </style> -->
+  <h1
+    class="text-slate-900 font-extrabold text-4xl sm:text-5xl lg:text-6xl tracking-tight text-center dark:text-white inline"
+  >
+    <slot></slot>
+  </h1>
+  
+</template>
+<template id="the-h2">
+  <!-- <style>
+    @import url("/style.css");
+  </style> -->
+  <h2
+    class="text-slate-900 text-4xl tracking-tight font-extrabold sm:text-5xl dark:text-white inline"
+  >
+    <slot> “Best practices” don’t actually work. </slot>
+  </h2>
+</template>
+<template id="the-h3">
+  <!-- <style>
+    @import url("/style.css");
+  </style> -->
+  <p
+    class="mt-4 text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight dark:text-slate-50 inline"
+  >
+    <slot> Move even faster with Tailwind&nbsp;UI. </slot>
+  </p>
+</template>
+
+<template id="the-p">
+  <!-- <style>
+    @import url("/style.css");
+  </style> -->
+
+  <p class="mt-4 max-w-3xl space-y-6">
+    <slot></slot>
+  </p>
+</template>

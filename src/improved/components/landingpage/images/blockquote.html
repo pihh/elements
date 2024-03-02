@@ -1,0 +1,33 @@
+<figure>
+  <blockquote>
+    <slot>
+      I’ve written<!-- -->
+      <the-a
+        href="'https://adamwathan.me/css-utility-classes-and-separation-of-concerns/'"
+        class="text-sky-500 font-semibold dark:text-sky-400"
+        >a few thousand words
+        </the-a
+      >
+      <!-- -->on why traditional “semantic class names” are the reason CSS is
+      hard to maintain, but the truth is you’re never going to believe me until
+      you actually try it. If you can suppress the urge to retch long enough to
+      give it a chance, I really think you’ll wonder how you ever worked with
+      CSS any other way.
+
+
+    </slot>
+  </blockquote>
+  <figcaption class="mt-6 flex items-center justify-center space-x-4 text-left">
+    <img
+      src="{{src}}"
+      alt=""
+      class="w-14 h-14 rounded-full"
+      loading="lazy"
+      decoding="async"
+    />
+    <div>
+      <div class="text-slate-900 font-semibold dark:text-white">{{title}}</div>
+      <div class="mt-0.5 text-sm leading-6">{{description}}</div>
+    </div>
+  </figcaption>
+</figure>
