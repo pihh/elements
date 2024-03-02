@@ -5,23 +5,31 @@ const ModelFor = `
       <input type="text" *value="_color" data-el-bind-3 />  
     </div>
   </section>
-`
+`;
 
-export const createPlaceholder = function(dataset,content){
-    const $div = document.createElement('div');
-    const $head = document.head;
-    
-    $head.appendChild($div)
-    content = content.trim();
-    
-    $div.innerHTML = content;
-    $div.firstElementChild.dataset[dataset.selectorCamel] = true;
-    if(dataset.typeSelectorCamel){
-        $div.firstElementChild.dataset[dataset.typeSelectorCamel] = true;
-    }
-  
-    content = $div.innerHTML.trim()
-    $div.remove();
+export const createPlaceholder = function (dataset, content) {
+  if (!content) {
+    debugger;
+    content = "<div><div></div></div>";
+    dataset.listeners[0] = dataset.expression
+      .split("!")[1]
+      .split(" ")[0]
+      .split("=")[0];
+  }
+  const $div = document.createElement("div");
+  const $head = document.head;
 
-    return content;
-}
+  $head.appendChild($div);
+  content = content.trim();
+
+  $div.innerHTML = content;
+  $div.firstElementChild.dataset[dataset.selectorCamel] = true;
+  if (dataset.typeSelectorCamel) {
+    $div.firstElementChild.dataset[dataset.typeSelectorCamel] = true;
+  }
+
+  content = $div.innerHTML.trim();
+  $div.remove();
+
+  return content;
+};

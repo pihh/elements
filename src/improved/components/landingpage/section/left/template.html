@@ -1,7 +1,7 @@
 <section id="build-anything">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8">
     <div
-      class="w-16 h-16 p-[0.1875rem]  rounded-full ring-1 ring-slate-900/10 shadow overflow-hidden bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5  dark:highlight-white/30 bg-grid-slate-900/[0.04]"
+      class="w-16 h-16 p-[0.1875rem] rounded-full ring-1 ring-slate-900/10 shadow overflow-hidden bg-grid-slate-900/[0.04] bg-[bottom_1px_center] dark:bg-grid-slate-400/[0.05] dark:bg-bottom dark:border-b dark:border-slate-100/5 dark:highlight-white/30 bg-grid-slate-900/[0.04]"
     >
       <div
         class="aspect-w-1 aspect-h-1 bg-[length:100%] dark:hidden"
@@ -51,15 +51,16 @@
         >
           <li>
             <button
+              onclick="{onTabChange(tabs[0])}"
               type="button"
-              class="group text-sm font-semibold w-full flex flex-col items-center text-pink-500 dark:text-pink-400"
+              class="group text-sm font-semibold w-full flex flex-col items-center {{currentTab == tabs[0] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
             >
               <svg
                 width="48"
                 height="48"
                 fill="none"
                 aria-hidden="true"
-                class="mb-6 text-pink-500 dark:text-pink-400"
+                class="mb-6 {{currentTab == tabs[0] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
               >
                 <path
                   d="M5 11a4 4 0 0 1 4-4h30a4 4 0 0 1 4 4v26a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4V11Z"
@@ -74,20 +75,21 @@
                   stroke-width="2"
                   stroke-linecap="round"
                 ></path></svg
-              >Simple
+              >{{tabs[0]}}
             </button>
           </li>
           <li>
             <button
+              onclick="{onTabChange(tabs[1])}"
               type="button"
-              class="group text-sm font-semibold w-full flex flex-col items-center"
+              class=" group text-sm font-semibold w-full flex flex-col items-center {{currentTab == tabs[1] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
             >
               <svg
                 width="48"
                 height="48"
                 fill="none"
                 aria-hidden="true"
-                class="mb-6 text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500"
+                class="mb-6 {{currentTab == tabs[1] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
               >
                 <path
                   d="M5 8h36v32H5V8Z"
@@ -122,20 +124,21 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 ></path></svg
-              >Playful
+              >{{tabs[1]}}
             </button>
           </li>
           <li>
             <button
+              onclick="{onTabChange(tabs[2])}"
               type="button"
-              class="group text-sm font-semibold w-full flex flex-col items-center"
+              class=" group text-sm font-semibold w-full flex flex-col items-center {{currentTab == tabs[2] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
             >
               <svg
                 width="48"
                 height="48"
                 fill="none"
                 aria-hidden="true"
-                class="mb-6 text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500"
+                class="mb-6 {{currentTab == tabs[2] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
               >
                 <path
                   d="M6 8h32a4 4 0 0 1 4 4v28H6V8Z"
@@ -156,20 +159,21 @@
                   stroke-linecap="round"
                   stroke-linejoin="round"
                 ></path></svg
-              >Elegant
+              >{{tabs[2]}}
             </button>
           </li>
           <li>
             <button
+              onclick="{onTabChange(tabs[3])}"
               type="button"
-              class="group text-sm font-semibold w-full flex flex-col items-center"
+              class=" group text-sm font-semibold w-full flex flex-col items-center {{currentTab == tabs[3] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
             >
               <svg
                 width="48"
                 height="48"
                 fill="none"
                 aria-hidden="true"
-                class="mb-6 text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500"
+                class="mb-6 {{currentTab == tabs[3] ? 'text-pink-500 dark:text-pink-400 ' : 'text-slate-300 group-hover:text-slate-400 dark:text-slate-600 dark:group-hover:text-slate-500'}}"
               >
                 <path
                   d="M9 41h30a4 4 0 0 0 4-4V11a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v26a4 4 0 0 0 4 4Z"
@@ -198,17 +202,122 @@
                   stroke-width="2"
                   stroke-linecap="round"
                 ></path></svg
-              >Brutalist
+              >{{tabs[3]}}
             </button>
           </li>
         </ul>
       </div>
     </div>
   </div>
-  <div class="relative pt-10 xl:pt-0 mt-10 xl:mt-2">
+  <div class="relative">
     <div
       class="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 mt-20 sm:mt-24 lg:mt-32 lg:grid lg:gap-8 lg:grid-cols-12 lg:items-center"
     >
+      <div class="relative row-start-0 col-span-5 xl:col-span-5">
+        <div
+          class="h-[24.25rem] max-w-xl mx-auto lg:max-w-none flex items-start justify-center"
+        >
+          <div class="w-full flex-none">
+            <div class="lg:-mr-18">
+              <div
+                class="relative z-10 rounded-lg shadow-xl text-slate-900 mx-auto sm:w-[23.4375rem] dark:text-slate-300"
+                style="transform-origin: 50% 50% 0px; width: 466.656px"
+              ></div>
+            </div>
+
+            @if(currentTab == tabs[0]){
+            <section style="margin-top: -4em">
+              <h2 class="mt-8 font-semibold text-pink-500 dark:text-pink-400">
+                {{tabs[0]}}
+              </h2>
+              <p
+                class="mt-4 text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight dark:text-slate-50"
+              >
+                Build whatever you want,&nbsp;seriously.
+              </p>
+              <p class="mt-4 max-w-3xl space-y-6">
+                Because Tailwind is so low-level, it never encourages you to
+                design the same site twice. Even with the same color palette and
+                sizing scale, it's easy to build the same component with a
+                completely different look in the next project.
+              </p>
+            </section>
+            }else{
+            <div>
+              <div></div>
+            </div>
+            }
+
+            <!---->
+            <!---->
+            <!---->
+            @if(currentTab == tabs[1]){
+            <section style="margin-top: -4em">
+              <h2 class="mt-8 font-semibold text-pink-500 dark:text-pink-400">
+                {{tabs[1]}}
+              </h2>
+              <p
+                class="mt-4 text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight dark:text-slate-50"
+              >
+                Build whatever you want,&nbsp;seriously.
+              </p>
+              <p class="mt-4 max-w-3xl space-y-6">
+                Because Tailwind is so low-level, it never encourages you to
+                design the same site twice. Even with the same color palette and
+                sizing scale, it's easy to build the same component with a
+                completely different look in the next project.
+              </p>
+            </section>
+            }else{
+            <div>
+              <div></div>
+            </div>
+            } @if(currentTab == tabs[2]){
+            <section style="margin-top: -4em">
+              <h2 class="mt-8 font-semibold text-pink-500 dark:text-pink-400">
+                {{tabs[2]}}
+              </h2>
+              <p
+                class="mt-4 text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight dark:text-slate-50"
+              >
+                Build whatever you want,&nbsp;seriously.
+              </p>
+              <p class="mt-4 max-w-3xl space-y-6">
+                Because Tailwind is so low-level, it never encourages you to
+                design the same site twice. Even with the same color palette and
+                sizing scale, it's easy to build the same component with a
+                completely different look in the next project.
+              </p>
+            </section>
+            }else{
+            <div>
+              <div></div>
+            </div>
+            } @if(currentTab == tabs[3]){
+            <section style="margin-top: -4em">
+              <h2 class="mt-8 font-semibold text-pink-500 dark:text-pink-400">
+                {{tabs[3]}}
+              </h2>
+              <p
+                class="mt-4 text-3xl sm:text-4xl text-slate-900 font-extrabold tracking-tight dark:text-slate-50"
+              >
+                Build whatever you want,&nbsp;seriously.
+              </p>
+              <p class="mt-4 max-w-3xl space-y-6">
+                Because Tailwind is so low-level, it never encourages you to
+                design the same site twice. Even with the same color palette and
+                sizing scale, it's easy to build the same component with a
+                completely different look in the next project.
+              </p>
+            </section>
+            }else{
+            <div>
+              <div></div>
+            </div>
+            }
+          </div>
+        </div>
+      </div>
       <div
         class="relative row-start-1 col-start-6 xl:col-start-7 col-span-7 xl:col-span-6"
       >
@@ -220,9 +329,7 @@
               <div
                 class="relative z-10 rounded-lg shadow-xl text-slate-900 mx-auto sm:w-[23.4375rem] dark:text-slate-300"
                 style="transform-origin: 50% 50% 0px; width: 466.656px"
-              >
-            Aqui , não?
-            </div>
+              ></div>
             </div>
             <the-console></the-console>
           </div>

@@ -1,10 +1,17 @@
 import { Compile } from "../../../../lib";
-import template from './template.html?raw'
+import template from "./template.html?raw";
 class TheSectionLeft {
-    constructor() {}
+  constructor() {}
+
+  tabs = ["simple", "reactive", "conditionals", "cli"];
+
+  currentTab = "simple";
+  onTabChange(tab) {
+    this.currentTab = tab;
   }
-  
-  Compile(TheSectionLeft, {
-    selector: "the-section-left",
-    template: template,
-  }); 
+}
+
+Compile(TheSectionLeft, {
+  selector: "the-section-left",
+  template: template,
+});
