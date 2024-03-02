@@ -1,4 +1,7 @@
-<div class="w-full flex-auto flex min-h-0 transition-all duration-500">
+<div
+  class="w-full flex-auto flex min-h-0 transition-all duration-1000"
+  style="max-height: 32rem; transition: all 1000ms"
+>
   <div
     class="w-full flex-auto flex min-h-0 overflow-auto transition-all duration-500"
     id="console-view"
@@ -7,7 +10,7 @@
       <div id="">
         <pre
           class="line-numbers flex min-h-full text-sm leading-6 language-{{language}}"
-        ><code class="language-{{language}}" id="console-window-content"> </code></pre>
+        ><code class="language-{{language}}" id="console-window-content"> {{content}}</code></pre>
       </div>
     </div>
   </div>

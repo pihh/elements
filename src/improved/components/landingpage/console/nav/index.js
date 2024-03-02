@@ -9,21 +9,10 @@ class TheConsoleNav {
 
   onChangeTab(tab) {
     this.broadcast("onChangeTab", tab);
-    /*
-    for (let _tab of this.tabs) {
-      if (_tab.idx == tab.idx) {
-        _tab.selected = true;
-      } else {
-        _tab.selected = false;
-      }
-    }
-    */
   }
 
   connectedCallback() {
-    setTimeout(() => {
-      this.broadcast("onChangeTab", this.tabs.filter((el) => el.selected)[0]);
-    });
+    this.broadcast("onChangeTab", this.tabs.filter((el) => el.selected)[0]);
   }
 }
 

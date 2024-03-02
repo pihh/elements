@@ -184,7 +184,9 @@ export async function Compile(component, config = {}, mode = "live") {
         this.connectReactivity();
 
         if (Instance.constructor.prototype.connectedCallback) {
-          Instance.constructor.prototype.connectedCallback.call(this);
+          setTimeout(() => {
+            Instance.constructor.prototype.connectedCallback.call(this);
+          });
         }
       }
 
@@ -205,15 +207,19 @@ export async function Compile(component, config = {}, mode = "live") {
         if (newValue !== oldValue) {
           this.scope[name] = newValue;
         }
-        if (Instance.constructor.prototype.attributeChangedCallback) {
-          Instance.constructor.prototype.attributeChangedCallback.call(
-            this,
-            name,
-            oldValue,
-            newValue
-          );
-        }
-        this.update(name);
+        setTimeout(() => {
+          if (Instance.constructor.prototype.attributeChangedCallback) {
+            Instance.constructor.prototype.attributeChangedCallback.call(
+              this,
+              name,
+              oldValue,
+              newValue
+            );
+          }
+        });
+        setTimeout(() => {
+          this.update(name);
+        });
       }
 
       update(name) {

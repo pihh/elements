@@ -36,10 +36,8 @@ class TheConsole {
     // console.log({tabs},this.view)
     // this.tabs = [];
     for (let tab of tabs) {
-      // this.tabs.push(tab);
       if (tab.selected) {
         this.view = tab.idx || 0;
-        //  this.tab = tab;
       }
     }
     //this.tabs = tabs;
@@ -51,16 +49,12 @@ class TheConsole {
     const $view = this.querySelector("#console-view");
     let tab = $event.detail;
     $view.style.opacity = 0;
-    $view.style.maxHeight = "23dvh";
+    //$view.style.maxHeight = "23dvh";
     setTimeout(() => {
-      //const tabs = Object.assign([], this.tabs);
-
       for (let i = 0; i < this.tabs.length; i++) {
         let _tab = this.tabs[i];
         if (_tab.idx == tab.idx) {
           this.tabs[i].selected = true;
-          // tabs.selected = i;
-          //this.tab = tabs[i];
         } else {
           this.tabs[i].selected = false;
         }
@@ -70,23 +64,21 @@ class TheConsole {
     }, 200);
     setTimeout(() => {
       $view.style.opacity = 1;
-      $view.style.maxHeight = "34dvh";
+      //$view.style.maxHeight = "34dvh";
       this.changingTab = false;
     }, 500);
   }
 
   connectedCallback() {
-    setTimeout(() => {
-      this.setData(
-        DATA[this.project || "forLoop"].map((el) => {
-          return {
-            idx: el.idx,
-            title: el.title,
-            selected: el.selected == this.view,
-          };
-        })
-      );
-    }, 0);
+    this.setData(
+      DATA[this.project || "forLoop"].map((el) => {
+        return {
+          idx: el.idx,
+          title: el.title,
+          selected: el.selected == this.view,
+        };
+      })
+    );
   }
 }
 

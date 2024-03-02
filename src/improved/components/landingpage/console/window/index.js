@@ -14,11 +14,8 @@ class TheConsoleWindow {
   content = "";
 
   attributeChangedCallback(name, oldValue, newValue) {
-    // if(name == "project")
-    if (oldValue !== newValue) {
-      if (name == "view") {
-        this.updateView();
-      }
+    if (name == "view") {
+      this.updateView();
     }
   }
 
@@ -26,6 +23,7 @@ class TheConsoleWindow {
     this.updateView();
   }
   lastUpdated = 0;
+
   updateView() {
     if (Date.now() - this.lastUpdated < 100) {
       return;
